@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import apiSlice from './apiSlice';
 import serviceSlice from './features/serviceSlice';
 import activitySlice from './features/activitySlice';
+import bookingSlice from './features/bookingSlice';
 
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     service: serviceSlice,
     activity: activitySlice,
+    booking: bookingSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware);

@@ -1,160 +1,205 @@
-import { useEffect } from 'react';
-import {
-  useLazyFetchActivitiesQuery,
-  useLazyFetchServicesQuery,
-} from '../../states/apiSlice';
-import { ErrorResponse } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { AppDispatch, RootState } from '../../states/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { setServicesList } from '../../states/features/serviceSlice';
-import { FieldValues, useForm } from 'react-hook-form';
-import ServiceCard from '../../containers/ServiceCard';
-import Loader from '../../components/inputs/Loader';
-import { setActivitiesList } from '../../states/features/activitySlice';
-import ActivityCard from '../../containers/ActivityCard';
+import { AppDispatch, RootState } from '../../states/store';
+import Modal from '../../components/modals/Modal';
+import { setCreateBookingModal } from '../../states/features/bookingSlice';
+import { Controller, FieldValues, useForm } from 'react-hook-form';
+import Input from '../../components/inputs/Input';
+import { InputErrorMessage } from '../../components/feedback/ErrorLabels';
+import Button from '../../components/inputs/Button';
+import validateInputs from '@/helpers/validations';
+import { useCreateBookingMutation } from '@/states/apiSlice';
+import { useEffect } from 'react';
+import { ErrorResponse, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import Loader from '@/components/inputs/Loader';
 
 const CreateBooking = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { servicesList, selectedService } = useSelector(
-    (state: RootState) => state.service
+  const { createBookingModal } = useSelector(
+    (state: RootState) => state.booking
   );
-  const { activitiesList } = useSelector((state: RootState) => state.activity);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // REACT HOOK FORM
-  const { handleSubmit } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  // INITIALIZE CREATE BOOKING MUTATION
+  const [
+    createBooking,
+    {
+      data: createBookingData,
+      isLoading: createBookingIsLoading,
+      isSuccess: createBookingIsSuccess,
+      isError: createBookingIsError,
+      error: createBookingError,
+    },
+  ] = useCreateBookingMutation();
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
-    console.log(data);
+    createBooking({
+      name: data.name,
+      phone: data.phone,
+      startDate: data.startDate,
+      createdBy: data.email,
+    });
   };
 
-  // INITIALIZE FETCH SERVICES QUERY
-  const [
-    fetchServices,
-    {
-      data: servicesData,
-      error: servicesError,
-      isLoading: servicesIsLoading,
-      isSuccess: servicesIsSuccess,
-      isError: servicesIsError,
-    },
-  ] = useLazyFetchServicesQuery();
-
-  // INITIALIZE FETCH ACTIVITIES QUERY
-  const [
-    fetchActivities,
-    {
-      data: activitiesData,
-      error: activitiesError,
-      isLoading: activitiesIsLoading,
-      isSuccess: activitiesIsSuccess,
-      isError: activitiesIsError,
-    },
-  ] = useLazyFetchActivitiesQuery();
-
-  // FETCH ACTIVITIES
+  // HANDLE CREATE BOOKING RESPONSE
   useEffect(() => {
-    if (selectedService) {
-      fetchActivities({ serviceId: selectedService.id, take: 100, skip: 0 });
-    }
-  }, [fetchActivities, selectedService]);
-
-  // HANDLE FETCH ACTIVITIES RESPONSE
-  useEffect(() => {
-    if (activitiesIsError) {
-      if ((activitiesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching activities. Please try again later.'
-        );
+    if (createBookingIsError) {
+      if ((createBookingError as ErrorResponse).status === 500) {
+        toast.error((createBookingError as ErrorResponse).data.message);
       } else {
-        toast.error((activitiesError as ErrorResponse).data.message);
+        toast.error('An error occurred. Please try again later.');
       }
-    } else if (activitiesIsSuccess) {
-      dispatch(setActivitiesList(activitiesData?.data?.rows));
+    } else if (createBookingIsSuccess) {
+      toast.success('Booking created successfully');
+      navigate(
+        `/bookings/create?referenceId=${createBookingData?.data?.referenceId}`
+      );
     }
   }, [
-    activitiesIsSuccess,
-    activitiesIsError,
-    activitiesData,
-    activitiesError,
-    dispatch,
+    createBookingData,
+    createBookingError,
+    createBookingIsError,
+    createBookingIsSuccess,
+    navigate,
   ]);
-
-  // FETCH SERVICES
-  useEffect(() => {
-    fetchServices({ take: 100, skip: 0 });
-  }, [fetchServices]);
-
-  // HANDLE FETCH SERVICES RESPONSE
-  useEffect(() => {
-    if (servicesIsError) {
-      if ((servicesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching services. Please try again later.'
-        );
-      } else {
-        toast.error((servicesError as ErrorResponse).data.message);
-      }
-    } else if (servicesIsSuccess) {
-      dispatch(setServicesList(servicesData?.data?.rows));
-    }
-  }, [
-    servicesIsSuccess,
-    servicesIsError,
-    servicesData,
-    servicesError,
-    dispatch,
-  ]);
-
-  console.log(servicesList);
 
   return (
-    <section className="w-full flex flex-col gap-6 p-8">
-      <h1 className="text-primary font-medium uppercase text-lg text-center">
-        Create booking schedule
-      </h1>
-      {servicesIsLoading && (
-        <figure className="flex items-center gap-4 w-full min-h-[40vh]">
-          <Loader />
-        </figure>
-      )}
-      {servicesIsSuccess && servicesList?.length > 0 && (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-          <section className="flex flex-col gap-5 w-full">
-            <h1 className="text-lg text-center font-medium">
-              Select a service to view available activities, schedules, and
-              their respective prices.
-            </h1>
-            <menu className="flex items-center w-full gap-4">
-              {servicesList.map((service) => {
-                return <ServiceCard service={service} key={service.id} />;
-              })}
-            </menu>
-            {activitiesIsLoading && (
-              <figure className="flex items-center gap-4 w-full min-h-[40vh]">
-                <Loader />
-              </figure>
-            )}
-            {activitiesIsSuccess && activitiesList?.length > 0 && (
-              <section className="flex flex-col gap-5 w-full my-4">
-                <h1 className="text-lg text-center font-medium">
-                  Select an activity to add to your booking schedule.
-                </h1>
-                <menu className="flex items-center w-full gap-4 flex-wrap">
-                  {activitiesList.map((activity) => {
-                    return (
-                      <ActivityCard activity={activity} key={activity.id} />
-                    );
-                  })}
-                </menu>
-              </section>
-            )}
-          </section>
+    <Modal
+      isOpen={createBookingModal}
+      onClose={() => {
+        dispatch(setCreateBookingModal(false));
+      }}
+      heading="Create booking"
+      headingClassName="text-xl"
+    >
+      <section className="flex flex-col gap-6 w-[60vw]">
+        <h3 className="text-primary font-medium text-md">
+          Add primary information that will help us accomodate for your booking.
+          The next steps will be to add activities and other details. Your
+          booking will be confirmed once you provide all the necessary
+          information.
+        </h3>
+        <article>
+          <h1>Step 1 of 3</h1>
+        </article>
+        <form
+          className="flex flex-col gap-4 relative w-full"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <fieldset className="grid grid-cols-2 w-full gap-4">
+            <Controller
+              name="name"
+              rules={{ required: 'Name is required' }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      {...field}
+                      label="Name or Tour Company Name"
+                      required
+                      placeholder="Enter full name"
+                    />
+                    {errors.name && (
+                      <InputErrorMessage message={errors.name.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="phone"
+              rules={{
+                required: 'Phone number is required',
+                validate: (value) => {
+                  return validateInputs(value, 'tel') || 'Invalid phone number';
+                },
+              }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      {...field}
+                      label="Phone number"
+                      required
+                      placeholder="Enter phone number"
+                    />
+                    {errors.phone && (
+                      <InputErrorMessage message={errors.phone.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: 'Email is required',
+                validate: (value) => {
+                  return (
+                    validateInputs(value, 'email') || 'Invalid email address'
+                  );
+                },
+              }}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      {...field}
+                      label="Email"
+                      required
+                      placeholder="Enter email address"
+                    />
+                    {errors.email && (
+                      <InputErrorMessage message={errors.email.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="startDate"
+              rules={{ required: 'Enter your entrance date' }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      type="date"
+                      {...field}
+                      label="Entrance date"
+                      required
+                    />
+                    {errors.startDate && (
+                      <InputErrorMessage message={errors.startDate.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+          </fieldset>
+          <menu className="flex w-full items-center gap-3 justify-between">
+            <Button danger>Cancel</Button>
+            <Button submit primary>
+              {createBookingIsLoading ? <Loader /> : 'Save & continue'}
+            </Button>
+          </menu>
         </form>
-      )}
-    </section>
+      </section>
+    </Modal>
   );
 };
 

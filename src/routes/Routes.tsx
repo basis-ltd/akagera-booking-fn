@@ -1,13 +1,19 @@
 import { Routes, Route } from 'react-router-dom';
-import CreateBooking from '../pages/bookings/CreateBooking';
+import CreateBookingActivities from '../pages/bookings/CreateBookingActivities.tsx';
+import Navbar from '../components/navigation/Navbar';
 
 const Router = () => {
   return (
-    <main className='relative w-[100vw] p-6'>
-      <Routes>
-      <Route path="/" element={<h1>Home</h1>} />
-      <Route path="/bookings/create" element={<CreateBooking />} />
-    </Routes>
+    <main className="relative w-[100vw] flex flex-col items-center">
+      <Navbar className="bg-white" />
+      <section className="h-[90vh] w-[90%] mx-auto absolute top-[10vh]">
+        <Routes>
+          <Route
+            path="/bookings/create"
+            element={<CreateBookingActivities />}
+          />
+        </Routes>
+      </section>
     </main>
   );
 };

@@ -1,6 +1,7 @@
 import { ToastContainer } from 'react-toastify';
 import Router from './routes/Routes';
 import 'react-toastify/dist/ReactToastify.css';
+import { PublicRoutes } from './routes/PublicRoutes';
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
         position="top-center"
       />
       <Router />
+      <PublicRoutes />
     </>
   );
 };

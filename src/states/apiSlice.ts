@@ -32,11 +32,28 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // CREATE BOOKING
+      createBooking: builder.mutation({
+        query: ({ name, startDate, createdBy, phone }) => ({
+          url: `bookings`,
+          method: 'POST',
+          body: {
+            name,
+            startDate,
+            createdBy,
+            phone,
+          },
+        }),
+      }),
     };
   },
 });
 
-export const { useLazyFetchServicesQuery, useLazyFetchActivitiesQuery } =
-  apiSlice;
+export const {
+  useLazyFetchServicesQuery,
+  useLazyFetchActivitiesQuery,
+  useCreateBookingMutation,
+} = apiSlice;
 
 export default apiSlice;

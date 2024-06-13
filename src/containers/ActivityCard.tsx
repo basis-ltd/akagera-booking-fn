@@ -8,7 +8,7 @@ type ActivityCardProps = {
 const ActivityCard = ({ activity }: ActivityCardProps) => {
   return (
     <section className="flex flex-col items-center w-full max-w-[24%] p-4 rounded-lg shadow-md">
-      <h1 className="text-primary font-medium text-lg mb-4">{activity.name}</h1>
+      <h1 className="font-medium text-lg mb-2">{activity.name}</h1>
       <p className="text-center text-sm text-gray-500 mt-2">
         {activity?.description}
       </p>
