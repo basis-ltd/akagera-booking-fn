@@ -46,6 +46,47 @@ export const apiSlice = createApi({
           },
         }),
       }),
+
+      // FETCH BOOKINGS
+      fetchBookings: builder.query({
+        query: ({
+          take = 10,
+          skip = 0,
+          referenceId,
+          createdBy,
+          approvedBy,
+          approvedAt,
+          startDate,
+          endDate,
+          status,
+        }) => {
+          let url = `bookings?take=${take}&skip=${skip}`;
+          if (status) {
+            url += `&status=${status}`;
+          }
+          if (referenceId) {
+            url += `&referenceId=${referenceId}`;
+          }
+          if (createdBy) {
+            url += `&createdBy=${createdBy}`;
+          }
+          if (approvedBy) {
+            url += `&approvedBy=${approvedBy}`;
+          }
+          if (approvedAt) {
+            url += `&approvedAt=${approvedAt}`;
+          }
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -54,6 +95,7 @@ export const {
   useLazyFetchServicesQuery,
   useLazyFetchActivitiesQuery,
   useCreateBookingMutation,
+  useLazyFetchBookingsQuery
 } = apiSlice;
 
 export default apiSlice;

@@ -2,7 +2,12 @@ import { Link } from 'react-router-dom';
 import CreateBooking from '../bookings/CreateBooking';
 import { AppDispatch } from '../../states/store';
 import { useDispatch } from 'react-redux';
-import { setCreateBookingModal } from '../../states/features/bookingSlice';
+import {
+  setCreateBookingModal,
+  setDraftBookingsModal,
+} from '../../states/features/bookingSlice';
+import Button from '@/components/inputs/Button';
+import ListDraftBookings from '../bookings/ListDraftBookings';
 
 const LandingPage = () => {
   // STATE VARIABLES
@@ -20,19 +25,32 @@ const LandingPage = () => {
               in this beautiful savannah and wetland.
             </p>
           </article>
-          <Link
-            to={'/bookings/create'}
-            className="bg-white text-black p-3 px-4 w-fit min-w-[15vw] mx-auto rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
-            onClick={(e) => {
-              e.preventDefault();
-              dispatch(setCreateBookingModal(true));
-            }}
-          >
-            Book a tour
-          </Link>
+          <menu className="w-full flex flex-col gap-2">
+            <Link
+              to={'/bookings/create'}
+              className="bg-white text-black p-3 px-4 w-fit min-w-[15vw] mx-auto rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setCreateBookingModal(true));
+              }}
+            >
+              Book a tour
+            </Link>
+            <Button
+              styled={false}
+              className="text-white hover:!text-white hover:underline hover:!scale-[1]"
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setDraftBookingsModal(true));
+              }}
+            >
+              Complete existing booking
+            </Button>
+          </menu>
         </section>
       </figure>
       <CreateBooking />
+      <ListDraftBookings />
     </main>
   );
 };

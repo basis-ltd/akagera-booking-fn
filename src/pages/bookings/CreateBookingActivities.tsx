@@ -121,8 +121,6 @@ const CreateBookingActivities = () => {
     dispatch,
   ]);
 
-  console.log(servicesList);
-
   return (
     <section className="w-full flex flex-col gap-6 p-4 max-h-[90vh]">
       <h1 className="text-primary font-medium uppercase text-lg text-center">

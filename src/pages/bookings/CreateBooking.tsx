@@ -192,7 +192,15 @@ const CreateBooking = () => {
             />
           </fieldset>
           <menu className="flex w-full items-center gap-3 justify-between">
-            <Button danger>Cancel</Button>
+            <Button
+              danger
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setCreateBookingModal(false));
+              }}
+            >
+              Cancel
+            </Button>
             <Button submit primary>
               {createBookingIsLoading ? <Loader /> : 'Save & continue'}
             </Button>
