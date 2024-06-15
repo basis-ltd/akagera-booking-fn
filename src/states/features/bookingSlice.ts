@@ -7,12 +7,14 @@ const initialState: {
   createBookingModal: boolean;
   draftBookingsModal: boolean;
   draftBookingsList: Booking[];
+  booking: Booking;
 } = {
   bookingsList: [],
   selectedBooking: {} as Booking,
   createBookingModal: false,
   draftBookingsModal: false,
   draftBookingsList: [],
+  booking: {} as Booking,
 };
 
 export const bookingSlice = createSlice({
@@ -33,6 +35,9 @@ export const bookingSlice = createSlice({
     },
     setDraftBookingsList: (state, action) => {
       state.draftBookingsList = action.payload;
+    },
+    setBooking: (state, action) => {
+      state.booking = action.payload;
     }
   },
 });
@@ -43,6 +48,7 @@ export const {
   setCreateBookingModal,
   setDraftBookingsModal,
   setDraftBookingsList,
+  setBooking,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

@@ -12,4 +12,5 @@ export type ActivityRate = {
   createdAt: Date;
   updatedAt: Date;
   activity: Activity;
+  ageRange: string;
 };

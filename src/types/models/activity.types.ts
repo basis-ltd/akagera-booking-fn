@@ -7,6 +7,7 @@ export type Activity = {
   name: string;
   serviceId: UUID;
   description?: string;
+  disclaimer?: string;
   createdAt: Date;
   updatedAt: Date;
   service: Service;

@@ -87,6 +87,12 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // GET BOOKING DETAILS
+      getBookingDetails: builder.query({
+        query: ({ id, referenceId }) =>
+          `bookings/${id}?${referenceId ? `referenceId=${referenceId}` : ''}`,
+      }),
     };
   },
 });
@@ -95,7 +101,8 @@ export const {
   useLazyFetchServicesQuery,
   useLazyFetchActivitiesQuery,
   useCreateBookingMutation,
-  useLazyFetchBookingsQuery
+  useLazyFetchBookingsQuery,
+  useLazyGetBookingDetailsQuery,
 } = apiSlice;
 
 export default apiSlice;

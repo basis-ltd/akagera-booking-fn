@@ -22,4 +22,5 @@ export type Booking = {
     approvedAt?: Date;
     approvedByUser?: string;
     referenceId?: string;
+    name: string;
 };
