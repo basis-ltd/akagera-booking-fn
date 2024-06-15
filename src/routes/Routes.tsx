@@ -6,7 +6,7 @@ const Router = () => {
   return (
     <main className="relative w-[100vw] flex flex-col items-center">
       <Navbar className="bg-white" />
-      <section className="h-[90vh] w-[90%] mx-auto absolute top-[10vh]">
+      <section className="min-h-[90vh] w-[90%] mx-auto absolute top-[10vh] py-6">
         <Routes>
           <Route
             path="/bookings/create"

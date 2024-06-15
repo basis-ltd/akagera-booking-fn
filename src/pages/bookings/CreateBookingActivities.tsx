@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
-  useLazyFetchActivitiesQuery,
   useLazyFetchServicesQuery,
 } from '../../states/apiSlice';
 import { ErrorResponse, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppDispatch, RootState } from '../../states/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { setServicesList } from '../../states/features/serviceSlice';
+import { setSelectedService, setServicesList } from '../../states/features/serviceSlice';
 import { FieldValues, useForm } from 'react-hook-form';
 import ServiceCard from '../../containers/ServiceCard';
 import Loader from '../../components/inputs/Loader';
-import { setActivitiesList } from '../../states/features/activitySlice';
-import ActivityCard from '../../containers/ActivityCard';
 import queryString from 'query-string';
+import { Service } from '@/types/models/service.types';
+import CreateBookingEntryActivity from './CreateBookingEntryActivity';
+import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
 
 const CreateBookingActivities = () => {
   // STATE VARIABLES
@@ -21,7 +21,6 @@ const CreateBookingActivities = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const { activitiesList } = useSelector((state: RootState) => state.activity);
   const [referenceId, setReferenceId] = useState<string>('');
 
   // REACT HOOK FORM
@@ -55,46 +54,6 @@ const CreateBookingActivities = () => {
     },
   ] = useLazyFetchServicesQuery();
 
-  // INITIALIZE FETCH ACTIVITIES QUERY
-  const [
-    fetchActivities,
-    {
-      data: activitiesData,
-      error: activitiesError,
-      isLoading: activitiesIsLoading,
-      isSuccess: activitiesIsSuccess,
-      isError: activitiesIsError,
-    },
-  ] = useLazyFetchActivitiesQuery();
-
-  // FETCH ACTIVITIES
-  useEffect(() => {
-    if (selectedService) {
-      fetchActivities({ serviceId: selectedService.id, take: 100, skip: 0 });
-    }
-  }, [fetchActivities, selectedService]);
-
-  // HANDLE FETCH ACTIVITIES RESPONSE
-  useEffect(() => {
-    if (activitiesIsError) {
-      if ((activitiesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching activities. Please try again later.'
-        );
-      } else {
-        toast.error((activitiesError as ErrorResponse).data.message);
-      }
-    } else if (activitiesIsSuccess) {
-      dispatch(setActivitiesList(activitiesData?.data?.rows));
-    }
-  }, [
-    activitiesIsSuccess,
-    activitiesIsError,
-    activitiesData,
-    activitiesError,
-    dispatch,
-  ]);
-
   // FETCH SERVICES
   useEffect(() => {
     fetchServices({ take: 100, skip: 0 });
@@ -112,6 +71,7 @@ const CreateBookingActivities = () => {
       }
     } else if (servicesIsSuccess) {
       dispatch(setServicesList(servicesData?.data?.rows));
+      dispatch(setSelectedService(servicesData?.data?.rows[0] as Service));
     }
   }, [
     servicesIsSuccess,
@@ -122,7 +82,7 @@ const CreateBookingActivities = () => {
   ]);
 
   return (
-    <section className="w-full flex flex-col gap-6 p-4 max-h-[90vh]">
+    <main className="w-full flex flex-col gap-6 p-4 max-h-[90vh]">
       <h1 className="text-primary font-medium uppercase text-lg text-center">
         Create booking schedule
       </h1>
@@ -132,40 +92,34 @@ const CreateBookingActivities = () => {
         </figure>
       )}
       {servicesIsSuccess && servicesList?.length > 0 && (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-          <section className="flex flex-col gap-5 w-full">
-            <h1 className="text-lg text-center font-medium">
-              Select a service to view available activities, schedules, and
-              their respective prices.
-            </h1>
-            <menu className="flex items-center w-full gap-4">
-              {servicesList.map((service) => {
-                return <ServiceCard service={service} key={service.id} />;
-              })}
-            </menu>
-            {activitiesIsLoading && (
-              <figure className="flex items-center gap-4 w-full min-h-[40vh]">
-                <Loader />
-              </figure>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-[80%] mx-auto">
+          <fieldset className="flex flex-col gap-3">
+            <section className="flex flex-col gap-5">
+              <h1 className="text-lg text-center font-medium">
+                Select a service to view available activities, schedules, and
+                their respective prices.
+              </h1>
+              <menu className="flex items-center w-full gap-4">
+                {servicesList.map((service) => {
+                  return (
+                    selectedService.id === service.id && (
+                      <ServiceCard service={service} key={service.id} />
+                    )
+                  );
+                })}
+                
+              </menu>
+              {servicesList.indexOf(selectedService) === 0 && (
+              <CreateBookingEntryActivity />
             )}
-            {activitiesIsSuccess && activitiesList?.length > 0 && (
-              <section className="flex flex-col gap-5 w-full my-4">
-                <h1 className="text-lg text-center font-medium">
-                  Select an activity to add to your booking schedule.
-                </h1>
-                <menu className="flex items-center w-full gap-4 flex-wrap">
-                  {activitiesList.map((activity) => {
-                    return (
-                      <ActivityCard activity={activity} key={activity.id} />
-                    );
-                  })}
-                </menu>
-              </section>
+            {servicesList.indexOf(selectedService) === 1 && (
+              <CreateBookingActivitiesActivity />
             )}
-          </section>
+            </section>
+          </fieldset>
         </form>
       )}
-    </section>
+    </main>
   );
 };
 

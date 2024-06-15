@@ -23,7 +23,7 @@ const Button: FC<ButtonProps> = ({
   danger,
   styled = true,
   className,
-  children
+  children,
 }) => {
   if (submit) {
     return (
@@ -36,7 +36,9 @@ const Button: FC<ButtonProps> = ({
         } ${
           !styled &&
           '!bg-transparent hover:underline hover:bg-transparent border-none hover:!text-black hover:scale-[1.00] text-[13px] !px-0'
-        } ${className}`}
+        } 
+        ${disabled && 'opacity-50 cursor-not-allowed'}
+        ${className}`}
         type="submit"
       >
         {children}
@@ -48,7 +50,7 @@ const Button: FC<ButtonProps> = ({
     <Link
       to={route}
       onClick={(e) => {
-        if (disabled) {
+        if (disabled || !onClick) {
           e.preventDefault();
           return;
         }
@@ -62,7 +64,9 @@ const Button: FC<ButtonProps> = ({
       } ${
         !styled &&
         '!bg-transparent hover:bg-transparent border-none hover:!text-black hover:scale-[1.00] text-[13px] !px-0'
-      } ${className}`}
+      }
+      ${disabled && 'opacity-50 cursor-not-allowed'}
+      ${className}`}
     >
       {children}
     </Link>
