@@ -161,7 +161,7 @@ const SelectBookingActivity = () => {
                 return;
               }
               createBookingActivity({
-                bookingId: bookingActivity?.bookingId,
+                bookingId: booking?.id,
                 activityId: selectedActivity?.id,
                 startTime: bookingActivity?.startTime,
               });
