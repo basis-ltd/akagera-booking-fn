@@ -1,6 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import CreateBookingActivities from '../pages/bookings/CreateBookingActivities.tsx';
 import Navbar from '../components/navigation/Navbar';
+import CreateBooking from '@/pages/bookings/CreateBooking.tsx';
+import BookingPreview from '@/pages/bookings/BookingPreview.tsx';
+import BookingSuccess from '@/pages/bookings/BookingSuccess.tsx';
 
 const Router = () => {
   return (
@@ -12,7 +15,10 @@ const Router = () => {
             path="/bookings/create"
             element={<CreateBookingActivities />}
           />
+          <Route path="/bookings/:id/preview" element={<BookingPreview />} />
+          <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         </Routes>
+        <CreateBooking />
       </section>
     </main>
   );

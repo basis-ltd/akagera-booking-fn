@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import CreateBooking from '../bookings/CreateBooking';
 import { AppDispatch } from '../../states/store';
 import { useDispatch } from 'react-redux';
 import {
@@ -49,7 +48,6 @@ const LandingPage = () => {
           </menu>
         </section>
       </figure>
-      <CreateBooking />
       <ListDraftBookings />
     </main>
   );

@@ -9,7 +9,7 @@ import { AppDispatch, RootState } from '@/states/store';
 import { Activity } from '@/types/models/activity.types';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse } from 'react-router-dom';
+import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const CreateBookingGuidesActivity = () => {
@@ -19,6 +19,10 @@ const CreateBookingGuidesActivity = () => {
     (state: RootState) => state.service
   );
   const { activitiesList } = useSelector((state: RootState) => state.activity);
+  const { booking } = useSelector((state: RootState) => state.booking);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH ACTIVITIES QUERY
   const [
@@ -102,13 +106,7 @@ const CreateBookingGuidesActivity = () => {
           }
           onClick={(e) => {
             e.preventDefault();
-            dispatch(
-              setSelectedService(
-                servicesList.indexOf(selectedService) + 1 <
-                  servicesList.length &&
-                  servicesList[servicesList.indexOf(selectedService) + 1]
-              )
-            );
+            navigate(`/bookings/${booking?.id}/preview`);
           }}
         >
           Next

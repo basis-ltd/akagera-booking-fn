@@ -50,7 +50,7 @@ const Button: FC<ButtonProps> = ({
     <Link
       to={route}
       onClick={(e) => {
-        if (disabled || !onClick) {
+        if (disabled) {
           e.preventDefault();
           return;
         }

@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from '../pages/home/LandingPage';
 import Navbar from '../components/navigation/Navbar';
+import CreateBooking from '@/pages/bookings/CreateBooking';
 
 export const PublicRoutes = () => {
   return (
@@ -9,6 +10,7 @@ export const PublicRoutes = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
       </Routes>
+      <CreateBooking />
     </main>
   );
 };

@@ -91,7 +91,7 @@ export const apiSlice = createApi({
       // GET BOOKING DETAILS
       getBookingDetails: builder.query({
         query: ({ id, referenceId }) =>
-          `bookings/${id}?${referenceId ? `referenceId=${referenceId}` : ''}`,
+          `bookings/${id}${referenceId ? `?referenceId=${referenceId}` : ''}`,
       }),
 
       // CREATE BOOKING PERSON
@@ -103,7 +103,7 @@ export const apiSlice = createApi({
           nationality,
           residence,
           dateOfBirth,
-          bookingId
+          bookingId,
         }) => ({
           url: `booking-people`,
           method: 'POST',
@@ -114,9 +114,9 @@ export const apiSlice = createApi({
             nationality,
             residence,
             dateOfBirth,
-            bookingId
+            bookingId,
           },
-        })
+        }),
       }),
 
       // FETCH BOOKING PEOPLE
@@ -134,7 +134,12 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING VEHICLE
       createBookingVehicle: builder.mutation({
-        query: ({ bookingId, plateNumber, registrationCountry, vehicleType }) => ({
+        query: ({
+          bookingId,
+          plateNumber,
+          registrationCountry,
+          vehicleType,
+        }) => ({
           url: `booking-vehicles`,
           method: 'POST',
           body: {
@@ -184,6 +189,21 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // UPDATE BOOKING
+      updateBooking: builder.mutation({
+        query: ({ id, status, name, notes, createdBy, startDate }) => ({
+          url: `bookings/${id}`,
+          method: 'PATCH',
+          body: {
+            status,
+            name,
+            notes,
+            createdBy,
+            startDate,
+          },
+        }),
+      }),
     };
   },
 });
@@ -200,6 +220,7 @@ export const {
   useLazyFetchBookingVehiclesQuery,
   useCreateBookingActivityMutation,
   useLazyFetchBookingActivitiesQuery,
+  useUpdateBookingMutation,
 } = apiSlice;
 
 export default apiSlice;
