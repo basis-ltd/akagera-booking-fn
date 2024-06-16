@@ -158,6 +158,19 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // CREATE BOOKING ACTIVITY
+      createBookingActivity: builder.mutation({
+        query: ({ bookingId, activityId, startTime }) => ({
+          url: `booking-activities`,
+          method: 'POST',
+          body: {
+            bookingId,
+            activityId,
+            startTime,
+          },
+        }),
+      })
     };
   },
 });
@@ -172,6 +185,7 @@ export const {
   useLazyFetchBookingPeopleQuery,
   useCreateBookingVehicleMutation,
   useLazyFetchBookingVehiclesQuery,
+  useCreateBookingActivityMutation,
 } = apiSlice;
 
 export default apiSlice;
