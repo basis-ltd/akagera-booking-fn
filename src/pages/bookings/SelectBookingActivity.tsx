@@ -14,6 +14,8 @@ import { useCreateBookingActivityMutation } from '@/states/apiSlice';
 import { ErrorResponse } from 'react-router-dom';
 import { addBookingActivity } from '@/states/features/bookingActivitySlice';
 import Loader from '@/components/inputs/Loader';
+import { Controller, useForm } from 'react-hook-form';
+import Select from '@/components/inputs/Select';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -34,6 +36,9 @@ const SelectBookingActivity = () => {
 
   // CALENDAR LOCALIZER
   const localizer = momentLocalizer(moment);
+
+  // REACT HOOK FORM
+  const { control } = useForm();
 
   // INITIALIZE CREATE BOOKING ACTIVITY MUTATION
   const [
@@ -110,6 +115,29 @@ const SelectBookingActivity = () => {
             </section>
           )}
 
+        {selectedActivity?.name?.toLowerCase() ===
+          'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() && (
+          <Controller
+            name="period"
+            control={control}
+            rules={{ required: 'Select time period' }}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-2">
+                  <Select
+                    {...field}
+                    label="Time Period"
+                    options={[
+                      { label: 'Full day', value: 'fullDay' },
+                      { label: '1/2 Day', value: 'halfDaye' },
+                    ]}
+                  />
+                </label>
+              );
+            }}
+          />
+        )}
+
         <menu className="flex items-center gap-3 justify-between mt-3">
           <Button
             className="btn btn-primary"
@@ -125,13 +153,16 @@ const SelectBookingActivity = () => {
             className="btn btn-primary"
             onClick={(e) => {
               e.preventDefault();
-              if (!bookingActivity?.startTime || bookingActivity?.startTime === undefined) {
+              if (
+                !bookingActivity?.startTime ||
+                bookingActivity?.startTime === undefined
+              ) {
                 toast.error('Please select a schedule for this activity');
                 return;
               }
               createBookingActivity({
                 bookingId: bookingActivity?.bookingId,
-                activityId: bookingActivity?.activityId || selectedActivity?.id,
+                activityId: selectedActivity?.id,
                 startTime: bookingActivity?.startTime,
               });
             }}

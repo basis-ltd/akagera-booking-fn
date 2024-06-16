@@ -3,7 +3,7 @@ import {
   useLazyFetchServicesQuery,
   useLazyGetBookingDetailsQuery,
 } from '../../states/apiSlice';
-import { ErrorResponse, useLocation } from 'react-router-dom';
+import { ErrorResponse, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppDispatch, RootState } from '../../states/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +20,8 @@ import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
 import { setBooking } from '@/states/features/bookingSlice';
 import { formatDate } from '@/helpers/strings';
+import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
+import SelectBookingActivity from './SelectBookingActivity';
 
 const CreateBookingActivities = () => {
   // STATE VARIABLES
@@ -35,6 +37,7 @@ const CreateBookingActivities = () => {
 
   // NAVIGATION
   const { search } = useLocation();
+  const navigate = useNavigate();
 
   // PARSE URL QUERY PARAMS
   useEffect(() => {
@@ -68,8 +71,10 @@ const CreateBookingActivities = () => {
         toast.error(
           'An error occured while fetching booking details. Please try again later.'
         );
+        navigate('/');
       } else {
         toast.error((bookingDetailsError as ErrorResponse).data.message);
+        navigate('/');
       }
     } else if (bookingDetailsIsSuccess) {
       dispatch(setBooking(bookingDetailsData?.data));
@@ -80,6 +85,7 @@ const CreateBookingActivities = () => {
     bookingDetailsData,
     bookingDetailsError,
     dispatch,
+    navigate,
   ]);
 
   // HANDLE FORM SUBMISSION
@@ -167,10 +173,16 @@ const CreateBookingActivities = () => {
                 {servicesList.indexOf(selectedService) === 1 && (
                   <CreateBookingActivitiesActivity />
                 )}
+                {
+                  servicesList.indexOf(selectedService) === 2 && (
+                    <CreateBookingGuidesActivity />
+                  )
+                }
               </section>
             </fieldset>
           </form>
         )}
+              <SelectBookingActivity />
     </main>
   );
 };

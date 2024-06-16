@@ -170,7 +170,20 @@ export const apiSlice = createApi({
             startTime,
           },
         }),
-      })
+      }),
+
+      // FETCH BOOKING ACTIVITIES
+      fetchBookingActivities: builder.query({
+        query: ({ take = 10, skip = 0, bookingId }) => {
+          let url = `booking-activities?take=${take}&skip=${skip}`;
+          if (bookingId) {
+            url += `&bookingId=${bookingId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -186,6 +199,7 @@ export const {
   useCreateBookingVehicleMutation,
   useLazyFetchBookingVehiclesQuery,
   useCreateBookingActivityMutation,
+  useLazyFetchBookingActivitiesQuery,
 } = apiSlice;
 
 export default apiSlice;
