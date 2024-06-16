@@ -131,6 +131,33 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // CREATE BOOKING VEHICLE
+      createBookingVehicle: builder.mutation({
+        query: ({ bookingId, plateNumber, registrationCountry, vehicleType }) => ({
+          url: `booking-vehicles`,
+          method: 'POST',
+          body: {
+            bookingId,
+            plateNumber,
+            registrationCountry,
+            vehicleType,
+          },
+        }),
+      }),
+
+      // FETCH BOOKING VEHICLES
+      fetchBookingVehicles: builder.query({
+        query: ({ take = 10, skip = 0, bookingId }) => {
+          let url = `booking-vehicles?take=${take}&skip=${skip}`;
+          if (bookingId) {
+            url += `&bookingId=${bookingId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -142,7 +169,9 @@ export const {
   useLazyFetchBookingsQuery,
   useLazyGetBookingDetailsQuery,
   useCreateBookingPersonMutation,
-  useLazyFetchBookingPeopleQuery
+  useLazyFetchBookingPeopleQuery,
+  useCreateBookingVehicleMutation,
+  useLazyFetchBookingVehiclesQuery,
 } = apiSlice;
 
 export default apiSlice;

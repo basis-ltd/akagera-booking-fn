@@ -5,7 +5,10 @@ import {
   accommodationOptions,
   exitGateOptions,
 } from '@/constants/bookings.constants';
-import { setBookingPeopleList, setCreateBookingPersonModal } from '@/states/features/bookingPeopleSlice';
+import {
+  setBookingPeopleList,
+  setCreateBookingPersonModal,
+} from '@/states/features/bookingPeopleSlice';
 import { setSelectedService } from '@/states/features/serviceSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -17,12 +20,22 @@ import Table from '@/components/table/Table';
 import { genderOptions } from '@/constants/inputs.constants';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { COUNTRIES } from '@/constants/countries.constants';
-import { useLazyFetchBookingPeopleQuery } from '@/states/apiSlice';
+import {
+  useLazyFetchBookingPeopleQuery,
+  useLazyFetchBookingVehiclesQuery,
+} from '@/states/apiSlice';
 import { useEffect } from 'react';
 import { ErrorResponse } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from '@/components/inputs/Loader';
 import moment from 'moment';
+import {
+  setBookingVehiclesList,
+  setCreateBookingVehicleModal,
+} from '@/states/features/bookingVehicleSlice';
+import CreateBookingVehicle from './CreateBookingVehicle';
+import { BookingVehicle } from '@/types/models/bookingVehicle.types';
+import { vehicleTypes } from '@/constants/vehicles';
 
 const CreateBookingEntryActivity = () => {
   // STATE VARIABLES
@@ -34,6 +47,9 @@ const CreateBookingEntryActivity = () => {
     (state: RootState) => state.bookingPeople
   );
   const { booking } = useSelector((state: RootState) => state.booking);
+  const { bookingVehiclesList } = useSelector(
+    (state: RootState) => state.bookingVehicle
+  );
 
   // REACT HOOK FORM
   const {
@@ -45,7 +61,7 @@ const CreateBookingEntryActivity = () => {
 
   // INITIALIZE FETCH BOOKING PEOPLE QUERY
   const [
-    fetchBookingProple,
+    fetchBookingPeople,
     {
       data: fetchBookingPeopleData,
       error: fetchBookingPeopleError,
@@ -57,8 +73,8 @@ const CreateBookingEntryActivity = () => {
 
   // FETCH BOOKING PEOPLE
   useEffect(() => {
-    fetchBookingProple({ bookingId: booking?.id });
-  }, [booking?.id, fetchBookingProple, selectedService]);
+    fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
+  }, [booking?.id, fetchBookingPeople, selectedService]);
 
   // HANDLE FETCH BOOKING PEOPLE RESPONSE
   useEffect(() => {
@@ -81,9 +97,49 @@ const CreateBookingEntryActivity = () => {
     fetchBookingPeopleError,
   ]);
 
+  // INITIALIZE FETCH BOOKING VEHICLES QUERY
+  const [
+    fetchBookingVehicles,
+    {
+      data: fetchBookingVehiclesData,
+      error: fetchBookingVehiclesError,
+      isLoading: fetchBookingVehiclesIsLoading,
+      isSuccess: fetchBookingVehiclesIsSuccess,
+      isError: fetchBookingVehiclesIsError,
+    },
+  ] = useLazyFetchBookingVehiclesQuery();
+
+  // FETCH BOOKING VEHICLES
+  useEffect(() => {
+    fetchBookingVehicles({ bookingId: booking?.id });
+  }, [booking?.id, fetchBookingVehicles, selectedService]);
+
+  // HANDLE FETCH BOOKING VEHICLES RESPONSE
+  useEffect(() => {
+    if (fetchBookingVehiclesIsError) {
+      if ((fetchBookingVehiclesError as ErrorResponse)?.status === 500) {
+        toast.error(
+          'An error occurred while fetching booking vehicles. Please try again later'
+        );
+      } else {
+        toast.error(
+          (fetchBookingVehiclesError as ErrorResponse)?.data?.message
+        );
+      }
+    } else if (fetchBookingVehiclesIsSuccess) {
+      dispatch(setBookingVehiclesList(fetchBookingVehiclesData?.data?.rows));
+    }
+  }, [
+    fetchBookingVehiclesIsSuccess,
+    fetchBookingVehiclesData,
+    dispatch,
+    fetchBookingVehiclesIsError,
+    fetchBookingVehiclesError,
+  ]);
+
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
-    console.log(data);
+    return data;
   };
 
   // BOOKING PEOPLE COLUMNS
@@ -121,12 +177,16 @@ const CreateBookingEntryActivity = () => {
   // BOOKING VEHICLES COLUMNS
   const bookingVehiclesColumns = [
     {
+      header: 'No',
+      accessorKey: 'no',
+    },
+    {
       header: 'Vehicle Type',
       accessorKey: 'vehicleType',
     },
     {
-      header: 'Vehicle Registration',
-      accessorKey: 'vehicleRegistration',
+      header: 'Registration Country',
+      accessorKey: 'registrationCountry',
     },
     {
       header: 'Plate Number',
@@ -244,10 +304,59 @@ const CreateBookingEntryActivity = () => {
           {/**
            * BOOKING VEHICLES DETAILS
            */}
-          <menu className="w-full flex flex-col gap-3">
-            <h3 className="text-primary uppercase text-lg font-bold min-h-[10vh]">
-              Booking vehicle details
-            </h3>
+          <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
+            <ul className="flex items-center gap-3 justify-between">
+              <h3 className="text-primary uppercase text-lg font-bold">
+                Booking vehicles
+              </h3>
+              <Button
+                primary
+                className="!py-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(setCreateBookingVehicleModal(true));
+                }}
+              >
+                <ul className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faPlus} />
+                  <p className="text-[13px]">
+                    {' '}
+                    Add{' '}
+                    {bookingVehiclesList?.length <= 0
+                      ? `vehicle`
+                      : 'new vehicle'}
+                  </p>
+                </ul>
+              </Button>
+            </ul>
+            {fetchBookingVehiclesIsLoading && (
+              <figure className="min-h-[40vh] flex items-center justify-center">
+                <Loader />
+              </figure>
+            )}
+            {fetchBookingVehiclesIsSuccess &&
+              bookingVehiclesList?.length > 0 && (
+                <Table
+                  columns={bookingVehiclesColumns}
+                  data={bookingVehiclesList?.map(
+                    (bookingVehicle: BookingVehicle, index: number) => {
+                      return {
+                        ...bookingVehicle,
+                        no: index + 1,
+                        vehicleType: vehicleTypes?.find(
+                          (vehicle) =>
+                            vehicle?.value === bookingVehicle?.vehicleType
+                        )?.label,
+                        registrationCountry: COUNTRIES?.find(
+                          (country) =>
+                            country?.code ===
+                            bookingVehicle?.registrationCountry
+                        )?.name,
+                      };
+                    }
+                  )}
+                />
+              )}
           </menu>
         </section>
         <menu className="flex items-center gap-3 justify-between w-full">
@@ -270,7 +379,7 @@ const CreateBookingEntryActivity = () => {
             disabled={
               servicesList.indexOf(selectedService) + 1 >= servicesList.length
             }
-            onClick={async (e) => {
+            onClick={(e) => {
               e.preventDefault();
               dispatch(
                 setSelectedService(
@@ -286,6 +395,7 @@ const CreateBookingEntryActivity = () => {
         </menu>
       </form>
       <CreateBookingPerson />
+      <CreateBookingVehicle />
     </section>
   );
 };
