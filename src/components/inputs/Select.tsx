@@ -50,7 +50,7 @@ const Select: FC<SelectProps> = ({
           <SelectValue
             className="!text-[10px]"
             placeholder={
-              <p className="text-[14px] text-gray-500">{placeholder}</p>
+              <p className="text-[14px] text-gray-500">{placeholder || 'Select option'}</p>
             }
           />
         </SelectTrigger>

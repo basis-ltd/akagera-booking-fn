@@ -1,14 +1,28 @@
 import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
-import Input from '@/components/inputs/Input';
 import Select from '@/components/inputs/Select';
-import { COUNTRIES } from '@/constants/countries';
-import { genderOptions } from '@/constants/inputs';
-import { vehicleRegistration, vehicleTypes } from '@/constants/vehicles';
+import {
+  accommodationOptions,
+  exitGateOptions,
+} from '@/constants/bookings.constants';
+import { setBookingPeopleList, setCreateBookingPersonModal } from '@/states/features/bookingPeopleSlice';
 import { setSelectedService } from '@/states/features/serviceSlice';
 import { AppDispatch, RootState } from '@/states/store';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import CreateBookingPerson from './CreateBookingPerson';
+import Table from '@/components/table/Table';
+import { genderOptions } from '@/constants/inputs.constants';
+import { BookingPerson } from '@/types/models/bookingPerson.types';
+import { COUNTRIES } from '@/constants/countries.constants';
+import { useLazyFetchBookingPeopleQuery } from '@/states/apiSlice';
+import { useEffect } from 'react';
+import { ErrorResponse } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import Loader from '@/components/inputs/Loader';
+import moment from 'moment';
 
 const CreateBookingEntryActivity = () => {
   // STATE VARIABLES
@@ -16,15 +30,56 @@ const CreateBookingEntryActivity = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
+  const { bookingPeopleList } = useSelector(
+    (state: RootState) => state.bookingPeople
+  );
+  const { booking } = useSelector((state: RootState) => state.booking);
 
   // REACT HOOK FORM
   const {
     handleSubmit,
     control,
-    watch,
     trigger,
     formState: { errors },
   } = useForm();
+
+  // INITIALIZE FETCH BOOKING PEOPLE QUERY
+  const [
+    fetchBookingProple,
+    {
+      data: fetchBookingPeopleData,
+      error: fetchBookingPeopleError,
+      isLoading: fetchBookingPeopleIsLoading,
+      isSuccess: fetchBookingPeopleIsSuccess,
+      isError: fetchBookingPeopleIsError,
+    },
+  ] = useLazyFetchBookingPeopleQuery();
+
+  // FETCH BOOKING PEOPLE
+  useEffect(() => {
+    fetchBookingProple({ bookingId: booking?.id });
+  }, [booking?.id, fetchBookingProple, selectedService]);
+
+  // HANDLE FETCH BOOKING PEOPLE RESPONSE
+  useEffect(() => {
+    if (fetchBookingPeopleIsError) {
+      if ((fetchBookingPeopleError as ErrorResponse)?.status === 500) {
+        toast.error(
+          'An error occurred while fetching booking people. Please try again later'
+        );
+      } else {
+        toast.error((fetchBookingPeopleError as ErrorResponse)?.data?.message);
+      }
+    } else if (fetchBookingPeopleIsSuccess) {
+      dispatch(setBookingPeopleList(fetchBookingPeopleData?.data?.rows));
+    }
+  }, [
+    fetchBookingPeopleIsSuccess,
+    fetchBookingPeopleData,
+    dispatch,
+    fetchBookingPeopleIsError,
+    fetchBookingPeopleError,
+  ]);
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -36,6 +91,10 @@ const CreateBookingEntryActivity = () => {
     {
       header: 'Full Names',
       accessorKey: 'name',
+    },
+    {
+      header: 'Age',
+      accessorKey: 'age',
     },
     {
       header: 'Nationality',
@@ -50,8 +109,12 @@ const CreateBookingEntryActivity = () => {
       accessorKey: 'gender',
     },
     {
-      header: 'Date of birth',
-      accessorKey: 'dateOfBirth',
+      header: 'Email',
+      accessorKey: 'email',
+    },
+    {
+      header: 'Phone',
+      accessorKey: 'phone',
     },
   ];
 
@@ -72,523 +135,119 @@ const CreateBookingEntryActivity = () => {
   ];
 
   return (
-    <section className="w-full flex flex-col gap-3">
+    <section className="w-full flex flex-col gap-3 pb-6">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <menu className="grid grid-cols-2 gap-5">
           <Controller
-            name="numberOfPeople"
+            name="exitGate"
             rules={{ required: 'Number of people is required' }}
             control={control}
-            defaultValue={1}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1 w-full">
-                  <Input
+                  <Select
                     {...field}
+                    label="Select exit gate"
+                    placeholder="Select exit gate"
+                    required
+                    options={exitGateOptions}
                     onChange={(e) => {
-                      field.onChange(e.target.value);
+                      field.onChange(e);
                       trigger(field.name);
                     }}
-                    label="Total number of people in group"
-                    placeholder="Enter the total number of people in your group"
                   />
-                  {errors?.numberOfPeople && (
-                    <InputErrorMessage
-                      message={errors.numberOfPeople.message}
-                    />
+                  {errors?.exitGate && (
+                    <InputErrorMessage message={errors.exitGate.message} />
                   )}
                 </label>
               );
             }}
           />
           <Controller
-            name="numberOfVehicles"
+            name="accomodation"
             control={control}
-            defaultValue={1}
-            rules={{ required: 'Number of vehicles is required' }}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1 w-full">
-                  <Input
+                  <Select
+                    options={accommodationOptions}
                     {...field}
+                    label="Select place of accomodation"
                     onChange={(e) => {
-                      field.onChange(e.target.value);
+                      field.onChange(e);
                       trigger(field.name);
                     }}
-                    label="Total number of vehicles in group"
-                    placeholder="Enter the total number of vehicles in your group"
+                    placeholder="Select accomodation"
                   />
-                  {errors?.numberOfVehicles && (
-                    <InputErrorMessage
-                      message={errors.numberOfVehicles.message}
-                    />
-                  )}
                 </label>
               );
             }}
           />
         </menu>
-        <section className="flex flex-col gap-6">
+        <section className="flex flex-col gap-6 mt-4">
           {/**
            * BOOKING PEOPLE DETAILS
            */}
-          <menu className="w-full flex flex-col gap-3">
-            <h3 className="text-primary uppercase text-lg font-bold">
-              Booking people details
-            </h3>
-            <table className="w-full flex flex-col gap-3">
-              <thead className="w-full">
-                <tr className="w-full grid grid-cols-5 gap-4">
-                  {bookingPeopleColumns.map((person) => (
-                    <th className="w-full text-start" key={person?.accessorKey}>
-                      {person?.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="w-full flex flex-col gap-3">
-                {Array.from({ length: watch('numberOfPeople') }).map(
-                  (_, index) => {
-                    return (
-                      <tr key={index} className="w-full grid grid-cols-5 gap-4">
-                        {bookingPeopleColumns.map((person) => {
-                          switch (person.accessorKey) {
-                            case 'dateOfBirth':
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Input
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          type="date"
-                                          placeholder={`Enter ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'name':
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Input
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e.target.value);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'gender':
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Select
-                                          options={genderOptions}
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Select ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'nationality':
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    defaultValue={'RW'}
-                                    render={({ field }) => {
-                                      return (
-                                        <Select
-                                          options={COUNTRIES.map((country) => {
-                                            return {
-                                              label: country.name,
-                                              value: country.code,
-                                            };
-                                          })}
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'residence':
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    defaultValue={'RW'}
-                                    render={({ field }) => {
-                                      return (
-                                        <Select
-                                          options={COUNTRIES.map((country) => {
-                                            return {
-                                              label: country.name,
-                                              value: country.code,
-                                            };
-                                          })}
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            default:
-                              return (
-                                <td
-                                  className="w-full flex flex-col gap-1"
-                                  key={person.accessorKey}
-                                >
-                                  <Controller
-                                    name={`people[${index}].${person.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${person.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Input
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e.target.value);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${person.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.people?.[index]?.[
-                                    person.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.people[index][person.accessorKey]
-                                          ?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                          }
-                        })}
-                      </tr>
-                    );
-                  }
-                )}
-              </tbody>
-            </table>
+          <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
+            <ul className="flex items-center gap-3 justify-between">
+              <h3 className="text-primary uppercase text-lg font-bold">
+                Booking people
+              </h3>
+              <Button
+                primary
+                className="!py-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(setCreateBookingPersonModal(true));
+                }}
+              >
+                <ul className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faPlus} />
+                  <p className="text-[13px]">
+                    {' '}
+                    Add{' '}
+                    {bookingPeopleList?.length <= 0 ? `person` : 'new person'}
+                  </p>
+                </ul>
+              </Button>
+            </ul>
+            {fetchBookingPeopleIsLoading && (
+              <figure className="min-h-[40vh] flex items-center justify-center">
+                <Loader />
+              </figure>
+            )}
+            {bookingPeopleList?.length > 0 && (
+              <Table
+                data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
+                  return {
+                    ...bookingPerson,
+                    gender: genderOptions?.find(
+                      (gender) => gender.value === bookingPerson?.gender
+                    )?.label,
+                    nationality: COUNTRIES?.find(
+                      (country) => country.code === bookingPerson?.nationality
+                    )?.name,
+                    residence: COUNTRIES?.find(
+                      (country) => country.code === bookingPerson?.residence
+                    )?.name,
+                    age: moment().diff(
+                      bookingPerson?.dateOfBirth,
+                      'years',
+                      false
+                    ),
+                  };
+                })}
+                columns={bookingPeopleColumns}
+              />
+            )}
           </menu>
           {/**
            * BOOKING VEHICLES DETAILS
            */}
           <menu className="w-full flex flex-col gap-3">
-            <h3 className="text-primary uppercase text-lg font-bold">
+            <h3 className="text-primary uppercase text-lg font-bold min-h-[10vh]">
               Booking vehicle details
             </h3>
-            <table className="w-full flex flex-col gap-3">
-              <thead className="w-full">
-                <tr className="w-full grid grid-cols-3 gap-4">
-                  {bookingVehiclesColumns.map((vehicle) => (
-                    <th
-                      className="w-full text-start"
-                      key={vehicle?.accessorKey}
-                    >
-                      {vehicle?.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="w-full flex flex-col gap-3">
-                {Array.from({ length: watch('numberOfVehicles') }).map(
-                  (_, index) => {
-                    return (
-                      <tr key={index} className="w-full grid grid-cols-3 gap-4">
-                        {bookingVehiclesColumns.map((vehicle) => {
-                          switch (vehicle.accessorKey) {
-                            case 'vehicleType':
-                              return (
-                                <td
-                                  className="w-full"
-                                  key={vehicle.accessorKey}
-                                >
-                                  <Controller
-                                    name={`vehicles[${index}].${vehicle.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${vehicle.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Select
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          options={vehicleTypes}
-                                          placeholder={`Enter ${vehicle.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.vehicles?.[index]?.[
-                                    vehicle.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.vehicles[index][
-                                          vehicle.accessorKey
-                                        ]?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'plateNumber':
-                              return (
-                                <td
-                                  className="w-full"
-                                  key={vehicle.accessorKey}
-                                >
-                                  <Controller
-                                    name={`vehicles[${index}].${vehicle.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${vehicle.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Input
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e.target.value);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${vehicle.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.vehicles?.[index]?.[
-                                    vehicle.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.vehicles[index][
-                                          vehicle.accessorKey
-                                        ]?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            case 'vehicleRegistration':
-                              return (
-                                <td
-                                  className="w-full"
-                                  key={vehicle.accessorKey}
-                                >
-                                  <Controller
-                                    name={`vehicles[${index}].${vehicle.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${vehicle.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Select
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            trigger(field.name);
-                                          }}
-                                          options={vehicleRegistration}
-                                          placeholder={`Enter ${vehicle.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.vehicles?.[index]?.[
-                                    vehicle.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.vehicles[index][
-                                          vehicle.accessorKey
-                                        ]?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                            default:
-                              return (
-                                <td
-                                  className="w-full"
-                                  key={vehicle.accessorKey}
-                                >
-                                  <Controller
-                                    name={`vehicles[${index}].${vehicle.accessorKey}`}
-                                    control={control}
-                                    rules={{
-                                      required: `${vehicle.header} is required`,
-                                    }}
-                                    render={({ field }) => {
-                                      return (
-                                        <Input
-                                          {...field}
-                                          onChange={(e) => {
-                                            field.onChange(e.target.value);
-                                            trigger(field.name);
-                                          }}
-                                          placeholder={`Enter ${vehicle.header}`}
-                                        />
-                                      );
-                                    }}
-                                  />
-                                  {errors?.vehicles?.[index]?.[
-                                    vehicle.accessorKey
-                                  ] && (
-                                    <InputErrorMessage
-                                      message={
-                                        errors.vehicles[index][
-                                          vehicle.accessorKey
-                                        ]?.message
-                                      }
-                                    />
-                                  )}
-                                </td>
-                              );
-                          }
-                        })}
-                      </tr>
-                    );
-                  }
-                )}
-              </tbody>
-            </table>
           </menu>
         </section>
         <menu className="flex items-center gap-3 justify-between w-full">
@@ -626,6 +285,7 @@ const CreateBookingEntryActivity = () => {
           </Button>
         </menu>
       </form>
+      <CreateBookingPerson />
     </section>
   );
 };

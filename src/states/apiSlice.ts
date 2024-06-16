@@ -93,6 +93,44 @@ export const apiSlice = createApi({
         query: ({ id, referenceId }) =>
           `bookings/${id}?${referenceId ? `referenceId=${referenceId}` : ''}`,
       }),
+
+      // CREATE BOOKING PERSON
+      createBookingPerson: builder.mutation({
+        query: ({
+          name,
+          email,
+          phone,
+          nationality,
+          residence,
+          dateOfBirth,
+          bookingId
+        }) => ({
+          url: `booking-people`,
+          method: 'POST',
+          body: {
+            name,
+            email,
+            phone,
+            nationality,
+            residence,
+            dateOfBirth,
+            bookingId
+          },
+        })
+      }),
+
+      // FETCH BOOKING PEOPLE
+      fetchBookingPeople: builder.query({
+        query: ({ take = 10, skip = 0, bookingId }) => {
+          let url = `booking-people?take=${take}&skip=${skip}`;
+          if (bookingId) {
+            url += `&bookingId=${bookingId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -103,6 +141,8 @@ export const {
   useCreateBookingMutation,
   useLazyFetchBookingsQuery,
   useLazyGetBookingDetailsQuery,
+  useCreateBookingPersonMutation,
+  useLazyFetchBookingPeopleQuery
 } = apiSlice;
 
 export default apiSlice;

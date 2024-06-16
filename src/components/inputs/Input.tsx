@@ -12,6 +12,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from 'react-router-dom';
 import DatePicker from './DatePicker';
+import { SelectSingleEventHandler } from 'react-day-picker';
 
 interface InputProps {
   label?: string;
@@ -127,7 +128,15 @@ const Input: FC<InputProps> = ({
             *
           </span>
         </p>
-        <DatePicker onChange={onChange} value={value as Date | undefined} />
+        <DatePicker
+          onChange={
+            onChange as
+              | SelectSingleEventHandler
+              | ((e: Date | ChangeEvent<HTMLInputElement>) => void)
+              | undefined
+          }
+          value={value as Date | undefined}
+        />
       </label>
     );
   }
@@ -136,7 +145,7 @@ const Input: FC<InputProps> = ({
     <label className={`flex flex-col gap-[5px] w-full ${labelClassName}`}>
       <p
         className={`${
-          label ? 'flex items-center gap-[5px] text-[14px]' : 'hidden'
+          label ? 'pl-1 flex items-center gap-[5px] text-[14px]' : 'hidden'
         }`}
       >
         {label}{' '}
