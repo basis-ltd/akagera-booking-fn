@@ -7,6 +7,7 @@ import activityRateSlice from './features/activityRateSlice';
 import bookingPeopleSlice from './features/bookingPeopleSlice';
 import bookingVehicleSlice from './features/bookingVehicleSlice';
 import bookingActivitySlice from './features/bookingActivitySlice';
+import userSlice from './features/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     bookingPeople: bookingPeopleSlice,
     bookingVehicle: bookingVehicleSlice,
     bookingActivity: bookingActivitySlice,
+    user: userSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware);

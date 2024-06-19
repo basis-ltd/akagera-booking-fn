@@ -205,6 +205,18 @@ export const apiSlice = createApi({
           },
         }),
       }),
+
+      // LOGIN
+      login: builder.mutation({
+        query: ({ email, password }) => ({
+          url: `auth/login`,
+          method: 'POST',
+          body: {
+            email,
+            password,
+          },
+        }),
+      }),
     };
   },
 });
@@ -222,6 +234,7 @@ export const {
   useCreateBookingActivityMutation,
   useLazyFetchBookingActivitiesQuery,
   useUpdateBookingMutation,
+  useLoginMutation
 } = apiSlice;
 
 export default apiSlice;

@@ -4,6 +4,7 @@ import Navbar from '../components/navigation/Navbar';
 import CreateBooking from '@/pages/bookings/CreateBooking.tsx';
 import BookingPreview from '@/pages/bookings/BookingPreview.tsx';
 import BookingSuccess from '@/pages/bookings/BookingSuccess.tsx';
+import Login from '@/pages/auth/Login.tsx';
 
 const Router = () => {
   return (
@@ -17,6 +18,7 @@ const Router = () => {
           />
           <Route path="/bookings/:id/preview" element={<BookingPreview />} />
           <Route path="/bookings/:id/success" element={<BookingSuccess />} />
+          <Route path='/auth/login' element={<Login />} />
         </Routes>
         <CreateBooking />
       </section>

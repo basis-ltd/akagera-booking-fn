@@ -13,6 +13,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from 'react-router-dom';
 import DatePicker from './DatePicker';
 import { SelectSingleEventHandler } from 'react-day-picker';
+import { Checkbox } from '../ui/checkbox';
 
 interface InputProps {
   label?: string;
@@ -75,6 +76,14 @@ const Input: FC<InputProps> = ({
   }, [defaultValue, value]);
 
   if (['checkbox', 'radio'].includes(type)) {
+    if (type === 'checkbox') {
+      return (
+        <label className="flex w-fit items-center gap-2 text-[13px]">
+          <Checkbox name={name} value={value} checked={checked} />
+          <p className={`${label ? 'flex' : 'hidden'} text-[13px]`}>{label}</p>
+        </label>
+      );
+    }
     return (
       <label className="flex items-center gap-2 text-[13px]">
         <input
