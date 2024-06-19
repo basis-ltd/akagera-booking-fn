@@ -17,7 +17,7 @@ const LandingPage = () => {
       <figure className="hero-section w-full h-[100vh] flex flex-col items-start justify-center">
         <section className="w-[85%] mx-auto flex flex-col gap-4">
           <article className="w-full mx-auto flex flex-col gap-5 text-white">
-            <h1 className="font-semibold text-[60px]">Agakera National Park</h1>
+            <h1 className="font-semibold text-[60px]">Akagera National Park</h1>
             <p className="font-medium text-xl">
               Akagera lies on the eastern border of Rwanda, making it easy to
               visit and admire the wildlife – from lion to rhino – that thrives
