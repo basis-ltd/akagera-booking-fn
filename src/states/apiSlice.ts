@@ -1,9 +1,10 @@
+import { localApiUrl, stagingApiUrl } from '@/constants/environments.constants';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: localApiUrl || stagingApiUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
