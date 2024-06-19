@@ -22,6 +22,7 @@ import { setBooking } from '@/states/features/bookingSlice';
 import { formatDate } from '@/helpers/strings';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
 import SelectBookingActivity from './SelectBookingActivity';
+import PublicLayout from '@/containers/PublicLayout';
 
 const CreateBookingActivities = () => {
   // STATE VARIABLES
@@ -50,7 +51,7 @@ const CreateBookingActivities = () => {
     getBookingDetails,
     {
       data: bookingDetailsData,
-      isLoading: bookingDetailsIsLoading,
+      isFetching: bookingDetailsIsFetching,
       isSuccess: bookingDetailsIsSuccess,
       isError: bookingDetailsIsError,
       error: bookingDetailsError,
@@ -99,7 +100,7 @@ const CreateBookingActivities = () => {
     {
       data: servicesData,
       error: servicesError,
-      isLoading: servicesIsLoading,
+      isFetching: servicesIsFetching,
       isSuccess: servicesIsSuccess,
       isError: servicesIsError,
     },
@@ -133,18 +134,19 @@ const CreateBookingActivities = () => {
   ]);
 
   return (
-    <main className="w-full flex flex-col gap-6 p-4 max-h-[90vh]">
+    <PublicLayout>
+      <main className="w-[100vw] flex flex-col gap-6 p-4 max-h-[90vh]">
       <h1 className="text-primary font-medium uppercase text-lg text-center">
         Complete booking for {bookingDetailsIsSuccess ? booking?.name : '...'}{' '}
         scheduled on{' '}
         {bookingDetailsIsSuccess ? formatDate(booking?.startDate) : '...'}
       </h1>
-      {servicesIsLoading ||
-        (bookingDetailsIsLoading && (
-          <figure className="flex items-center gap-4 w-full min-h-[40vh]">
+      {(servicesIsFetching ||
+        bookingDetailsIsFetching) && (
+          <figure className="flex flex-col items-center gap-4 w-full min-h-[40vh]">
             <Loader className='text-primary' />
           </figure>
-        ))}
+        )}
       {bookingDetailsIsSuccess &&
         servicesIsSuccess && (
           <form
@@ -183,6 +185,7 @@ const CreateBookingActivities = () => {
         )}
               <SelectBookingActivity />
     </main>
+    </PublicLayout>
   );
 };
 

@@ -7,14 +7,16 @@ import {
 } from '../../states/features/bookingSlice';
 import Button from '@/components/inputs/Button';
 import ListDraftBookings from '../bookings/ListDraftBookings';
+import PublicLayout from '@/containers/PublicLayout';
 
 const LandingPage = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
 
   return (
-    <main className="p-0 m-0 flex flex-col gap-0 w-full text-white">
-      <figure className="hero-section w-full h-[100vh] flex flex-col items-start justify-center">
+    <PublicLayout>
+      <main className="p-0 m-0 flex flex-col gap-0 w-full text-white">
+      <figure className="hero-section w-full h-[90vh] flex flex-col items-start justify-center">
         <section className="w-[85%] mx-auto flex flex-col gap-4">
           <article className="w-full mx-auto flex flex-col gap-5 text-white">
             <h1 className="font-semibold text-[60px]">Akagera National Park</h1>
@@ -50,6 +52,7 @@ const LandingPage = () => {
       </figure>
       <ListDraftBookings />
     </main>
+    </PublicLayout>
   );
 };
 

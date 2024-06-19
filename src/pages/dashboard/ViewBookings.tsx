@@ -32,7 +32,7 @@ const ViewBookings = () => {
     {
       data: bookingActivitiesData,
       error: bookingActivitiesError,
-      isLoading: bookingActivitiesIsLoading,
+      isFetching: bookingActivitiesIsFetching,
       isError: bookingActivitiesIsError,
       isSuccess: bookingActivitiesIsSuccess,
     },
@@ -52,7 +52,7 @@ const ViewBookings = () => {
     {
       data: bookingsData,
       error: bookingsError,
-      isLoading: bookingsIsLoading,
+      isFetching: bookingsIsFetching,
       isError: bookingsIsError,
       isSuccess: bookingsIsSuccess,
     },
@@ -114,7 +114,7 @@ const ViewBookings = () => {
         <h1 className="text-black">
           Bookings scheduled for {moment().format('dddd, MMMM Do YYYY')}
         </h1>
-        {bookingActivitiesIsLoading ? (
+        {bookingActivitiesIsFetching ? (
           <figure className="w-full flex justify-center items-center">
             <Loader className="text-primary" />
           </figure>

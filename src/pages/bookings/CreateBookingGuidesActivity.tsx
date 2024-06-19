@@ -32,7 +32,7 @@ const CreateBookingGuidesActivity = () => {
       error: activitiesError,
       isSuccess: activitiesIsSuccess,
       isError: activitiesIsError,
-      isLoading: activitiesIsLoading,
+      isFetching: activitiesIsFetching,
     },
   ] = useLazyFetchActivitiesQuery();
 
@@ -71,7 +71,7 @@ const CreateBookingGuidesActivity = () => {
 
   return (
     <section className="flex flex-col gap-6 w-full">
-      {activitiesIsLoading ? (
+      {activitiesIsFetching ? (
         <figure className="flex items-center justify-center w-full min-h-[50vh]">
           <Loader />
         </figure>

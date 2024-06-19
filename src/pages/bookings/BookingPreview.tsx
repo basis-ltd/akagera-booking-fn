@@ -51,7 +51,7 @@ const BookingPreview = () => {
       error: bookingDetailsError,
       isSuccess: bookingDetailsIsSuccess,
       isError: bookingDetailsIsError,
-      isLoading: bookingDetailsIsLoading,
+      isFetching: bookingDetailsIsFetching,
     },
   ] = useLazyGetBookingDetailsQuery();
 
@@ -63,7 +63,7 @@ const BookingPreview = () => {
       error: bookingActivitiesError,
       isSuccess: bookingActivitiesIsSuccess,
       isError: bookingActivitiesIsError,
-      isLoading: bookingActivitiesIsLoading,
+      isFetching: bookingActivitiesIsFetching,
     },
   ] = useLazyFetchBookingActivitiesQuery();
 
@@ -75,7 +75,7 @@ const BookingPreview = () => {
       error: bookingPeopleError,
       isSuccess: bookingPeopleIsSuccess,
       isError: bookingPeopleIsError,
-      isLoading: bookingPeopleIsLoading,
+      isFetching: bookingPeopleIsFetching,
     },
   ] = useLazyFetchBookingPeopleQuery();
 
@@ -87,7 +87,7 @@ const BookingPreview = () => {
       error: bookingVehiclesError,
       isSuccess: bookingVehiclesIsSuccess,
       isError: bookingVehiclesIsError,
-      isLoading: bookingVehiclesIsLoading,
+      isFetching: bookingVehiclesIsFetching,
     },
   ] = useLazyFetchBookingVehiclesQuery();
 
@@ -396,7 +396,7 @@ const BookingPreview = () => {
 
   return (
     <main className="w-[95%] mx-auto flex flex-col gap-3 mb-4">
-      {bookingDetailsIsLoading && (
+      {bookingDetailsIsFetching && (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
           <Loader />
         </figure>
@@ -430,7 +430,7 @@ const BookingPreview = () => {
           <p>{formatDate(booking?.startDate)}</p>
         </ul>
       </menu>
-      {bookingActivitiesIsLoading ? (
+      {bookingActivitiesIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
           <Loader />
         </figure>
@@ -471,7 +471,7 @@ const BookingPreview = () => {
           </menu>
         )
       )}
-      {bookingPeopleIsLoading ? (
+      {bookingPeopleIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
           <Loader />
         </figure>
@@ -519,7 +519,7 @@ const BookingPreview = () => {
           </menu>
         )
       )}
-      {bookingVehiclesIsLoading ? (
+      {bookingVehiclesIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
           <Loader />
         </figure>

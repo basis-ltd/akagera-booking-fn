@@ -25,7 +25,7 @@ const BookingSuccess = () => {
       error: bookingDetailsError,
       isSuccess: bookingDetailsIsSuccess,
       isError: bookingDetailsIsError,
-      isLoading: bookingDetailsIsLoading,
+      isFetching: bookingDetailsIsFetching,
     },
   ] = useLazyGetBookingDetailsQuery();
 
@@ -60,7 +60,7 @@ const BookingSuccess = () => {
 
   return (
     <main className='w-full flex flex-col gap-5'>
-      {bookingDetailsIsLoading ? (
+      {bookingDetailsIsFetching ? (
         <figure className="flex w-full min-h-[50vh] justify-center items-center">
           <Loader />
         </figure>

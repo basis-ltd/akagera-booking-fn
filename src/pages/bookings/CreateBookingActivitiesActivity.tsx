@@ -30,7 +30,7 @@ const CreateBookingActivitiesActivity = () => {
       error: activitiesError,
       isSuccess: activitiesIsSuccess,
       isError: activitiesIsError,
-      isLoading: activitiesIsLoading,
+      isFetching: activitiesIsFetching,
     },
   ] = useLazyFetchActivitiesQuery();
 
@@ -42,7 +42,7 @@ const CreateBookingActivitiesActivity = () => {
       error: bookingActivitiesError,
       isSuccess: bookingActivitiesIsSuccess,
       isError: bookingActivitiesIsError,
-      isLoading: bookingActivitiesIsLoading,
+      isFetching: bookingActivitiesIsFetching,
     },
   ] = useLazyFetchBookingActivitiesQuery();
 
@@ -111,7 +111,7 @@ const CreateBookingActivitiesActivity = () => {
 
   return (
     <section className="w-full flex flex-col gap-5 py-6">
-      {activitiesIsLoading || bookingActivitiesIsLoading && (
+      {activitiesIsFetching || bookingActivitiesIsFetching && (
         <figure className="w-full min-h-[40vh] flex items-center justify-center">
           <Loader />
         </figure>
