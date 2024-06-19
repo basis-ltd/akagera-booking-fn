@@ -142,12 +142,11 @@ const CreateBookingActivities = () => {
       {servicesIsLoading ||
         (bookingDetailsIsLoading && (
           <figure className="flex items-center gap-4 w-full min-h-[40vh]">
-            <Loader />
+            <Loader className='text-primary' />
           </figure>
         ))}
       {bookingDetailsIsSuccess &&
-        servicesIsSuccess &&
-        servicesList?.length > 0 && (
+        servicesIsSuccess && (
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 w-[80%] mx-auto"

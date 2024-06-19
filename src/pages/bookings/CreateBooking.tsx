@@ -62,6 +62,7 @@ const CreateBooking = () => {
       }
     } else if (createBookingIsSuccess) {
       toast.success('Booking created successfully');
+      dispatch(setCreateBookingModal(false));
       navigate(
         `/bookings/create?referenceId=${createBookingData?.data?.referenceId}`
       );
@@ -71,6 +72,7 @@ const CreateBooking = () => {
     createBookingError,
     createBookingIsError,
     createBookingIsSuccess,
+    dispatch,
     navigate,
   ]);
 

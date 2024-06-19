@@ -52,7 +52,7 @@ const Login = () => {
       dispatch(setUser(loginData?.data?.user));
       dispatch(setToken(loginData?.data?.token));
       toast.success('Login successful, redirecting...');
-      navigate('/dashboard');
+      navigate('/dashboard/bookings');
     }
     if (loginIsError) {
       if ((loginError as ErrorResponse)?.status === 500) {
@@ -132,7 +132,9 @@ const Login = () => {
           <menu className="w-full flex flex-col gap-4 my-2">
             <Input type="checkbox" label="Remember me" />
             <ul className="w-full flex flex-col gap-2">
-              <Button submit primary>{loginIsLoading ? <Loader /> : 'Login'}</Button>
+              <Button submit primary>
+                {loginIsLoading ? <Loader /> : 'Login'}
+              </Button>
               <Link
                 to="/auth/register"
                 className="text-center text-sm text-primary hover:underline"
