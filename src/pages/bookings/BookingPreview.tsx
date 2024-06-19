@@ -264,7 +264,11 @@ const BookingPreview = () => {
     {
       header: 'Actions',
       accessorKey: 'actions',
+<<<<<<< HEAD
       cell: ({ row }) => {
+=======
+      cell: () => {
+>>>>>>> 8f53be0 (feature (deployment))
         return (
           <menu className="flex items-center gap-2">
             <FontAwesomeIcon
@@ -325,7 +329,11 @@ const BookingPreview = () => {
     {
       header: 'Actions',
       accessorKey: 'actions',
+<<<<<<< HEAD
       cell: ({ row }) => {
+=======
+      cell: () => {
+>>>>>>> 8f53be0 (feature (deployment))
         return (
           <menu className="flex items-center gap-2">
             <FontAwesomeIcon
@@ -370,7 +378,11 @@ const BookingPreview = () => {
     {
       header: 'Actions',
       accessorKey: 'actions',
+<<<<<<< HEAD
       cell: ({ row }) => {
+=======
+      cell: () => {
+>>>>>>> 8f53be0 (feature (deployment))
         return (
           <menu className="flex items-center gap-2">
             <FontAwesomeIcon
