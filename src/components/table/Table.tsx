@@ -138,11 +138,7 @@ const Table = <T extends object>({
                         'action',
                         'checkbox',
                         'actions',
-<<<<<<< HEAD
-                      ].includes(cell.column.id || cell.column.accessorKey);
-=======
                       ].includes(cell.column.id);
->>>>>>> 8f53be0 (feature (deployment))
                       return (
                         <TableCell
                           className={`${
