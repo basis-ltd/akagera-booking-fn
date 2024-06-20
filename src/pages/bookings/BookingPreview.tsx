@@ -4,6 +4,7 @@ import Table from '@/components/table/Table';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { vehicleTypes } from '@/constants/vehicles';
+import PublicLayout from '@/containers/PublicLayout';
 import { formatDate } from '@/helpers/strings';
 import {
   useLazyFetchBookingActivitiesQuery,
@@ -51,7 +52,7 @@ const BookingPreview = () => {
       error: bookingDetailsError,
       isSuccess: bookingDetailsIsSuccess,
       isError: bookingDetailsIsError,
-      isLoading: bookingDetailsIsLoading,
+      isFetching: bookingDetailsIsFetching,
     },
   ] = useLazyGetBookingDetailsQuery();
 
@@ -63,7 +64,7 @@ const BookingPreview = () => {
       error: bookingActivitiesError,
       isSuccess: bookingActivitiesIsSuccess,
       isError: bookingActivitiesIsError,
-      isLoading: bookingActivitiesIsLoading,
+      isFetching: bookingActivitiesIsFetching,
     },
   ] = useLazyFetchBookingActivitiesQuery();
 
@@ -75,7 +76,7 @@ const BookingPreview = () => {
       error: bookingPeopleError,
       isSuccess: bookingPeopleIsSuccess,
       isError: bookingPeopleIsError,
-      isLoading: bookingPeopleIsLoading,
+      isFetching: bookingPeopleIsFetching,
     },
   ] = useLazyFetchBookingPeopleQuery();
 
@@ -87,7 +88,7 @@ const BookingPreview = () => {
       error: bookingVehiclesError,
       isSuccess: bookingVehiclesIsSuccess,
       isError: bookingVehiclesIsError,
-      isLoading: bookingVehiclesIsLoading,
+      isFetching: bookingVehiclesIsFetching,
     },
   ] = useLazyFetchBookingVehiclesQuery();
 
@@ -395,16 +396,17 @@ const BookingPreview = () => {
   ];
 
   return (
-    <main className="w-[95%] mx-auto flex flex-col gap-3 mb-4">
-      {bookingDetailsIsLoading && (
-        <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader />
-        </figure>
-      )}
+    <PublicLayout>
+      <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
       <h1 className="text-xl text-primary text-center font-bold uppercase">
         Booking Preview for {booking?.name} scheduled on{' '}
         {formatDate(booking?.startDate)}
       </h1>
+      {bookingDetailsIsFetching && (
+        <figure className="w-full flex items-center justify-center min-h-[50vh]">
+          <Loader className='text-primary' />
+        </figure>
+      )}
       <menu className="w-full flex flex-col gap-3 mt-4">
         <ul className="flex items-center gap-6 my-2">
           <h1 className="font-bold text-xl uppercase">Details</h1>
@@ -430,9 +432,9 @@ const BookingPreview = () => {
           <p>{formatDate(booking?.startDate)}</p>
         </ul>
       </menu>
-      {bookingActivitiesIsLoading ? (
+      {bookingActivitiesIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader />
+          <Loader className='text-primary' />
         </figure>
       ) : (
         bookingActivitiesIsSuccess && (
@@ -471,9 +473,9 @@ const BookingPreview = () => {
           </menu>
         )
       )}
-      {bookingPeopleIsLoading ? (
+      {bookingPeopleIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader />
+          <Loader className='text-primary' />
         </figure>
       ) : (
         bookingPeopleIsSuccess && (
@@ -519,9 +521,9 @@ const BookingPreview = () => {
           </menu>
         )
       )}
-      {bookingVehiclesIsLoading ? (
+      {bookingVehiclesIsFetching ? (
         <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader />
+          <Loader className='text-primary' />
         </figure>
       ) : (
         bookingVehiclesIsSuccess && (
@@ -579,10 +581,11 @@ const BookingPreview = () => {
             updateBooking({ id: booking?.id, status: 'pending' });
           }}
         >
-          {updateBookingIsLoading ? <Loader /> : 'Submit'}
+          {updateBookingIsLoading ? <Loader className='text-primary' /> : 'Submit'}
         </Button>
       </menu>
     </main>
+    </PublicLayout>
   );
 };
 

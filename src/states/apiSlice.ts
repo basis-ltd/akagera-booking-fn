@@ -205,6 +205,37 @@ export const apiSlice = createApi({
           },
         }),
       }),
+
+      // LOGIN
+      login: builder.mutation({
+        query: ({ email, password }) => ({
+          url: `auth/login`,
+          method: 'POST',
+          body: {
+            email,
+            password,
+          },
+        }),
+      }),
+
+      // FETCH BOOKING STATUSES
+      fetchBookingStatuses: builder.query({
+        query: ({
+          startDate,
+          endDate,
+        }) => {
+          let url = `booking-statuses?take=100&skip=0`;
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
+          }
+          return {
+            url,
+          }
+        },
+      }),
     };
   },
 });
@@ -222,6 +253,8 @@ export const {
   useCreateBookingActivityMutation,
   useLazyFetchBookingActivitiesQuery,
   useUpdateBookingMutation,
+  useLoginMutation,
+  useLazyFetchBookingStatusesQuery
 } = apiSlice;
 
 export default apiSlice;

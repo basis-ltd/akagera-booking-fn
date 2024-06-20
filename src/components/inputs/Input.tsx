@@ -13,6 +13,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from 'react-router-dom';
 import DatePicker from './DatePicker';
 import { SelectSingleEventHandler } from 'react-day-picker';
+import { Checkbox } from '../ui/checkbox';
 
 interface InputProps {
   label?: string;
@@ -39,6 +40,7 @@ interface InputProps {
   multiple?: boolean;
   labelClassName?: string;
   range?: boolean;
+  fromDate?: Date;
 }
 
 const Input: FC<InputProps> = ({
@@ -63,6 +65,7 @@ const Input: FC<InputProps> = ({
   readOnly = false,
   labelClassName = '',
   multiple = false,
+  fromDate,
 }) => {
   const hiddenFileInput = useRef<HTMLButtonElement>(null);
 
@@ -75,6 +78,14 @@ const Input: FC<InputProps> = ({
   }, [defaultValue, value]);
 
   if (['checkbox', 'radio'].includes(type)) {
+    if (type === 'checkbox') {
+      return (
+        <label className="flex w-fit items-center gap-2 text-[13px]">
+          <Checkbox name={name} value={value} checked={checked} />
+          <p className={`${label ? 'flex' : 'hidden'} text-[13px]`}>{label}</p>
+        </label>
+      );
+    }
     return (
       <label className="flex items-center gap-2 text-[13px]">
         <input
@@ -129,6 +140,8 @@ const Input: FC<InputProps> = ({
           </span>
         </p>
         <DatePicker
+        placeholder={placeholder}
+        fromDate={fromDate}
           onChange={
             onChange as
               | SelectSingleEventHandler

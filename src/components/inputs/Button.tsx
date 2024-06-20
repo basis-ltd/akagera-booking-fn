@@ -28,7 +28,7 @@ const Button: FC<ButtonProps> = ({
   if (submit) {
     return (
       <button
-        className={`border-[1.5px] flex items-center justify-center text-center text-[14px] border-primary rounded-md py-[6px] px-4 hover:bg-primary hover:text-white transition-all hover:scale-[1.02] ${
+        className={`border-[1.5px] flex items-center justify-center text-center text-[14px] border-primary rounded-md py-[6px] px-4 hover:bg-primary hover:text-white transition-all hover:scale-[1.01] ${
           primary && 'bg-primary text-white'
         } ${
           danger &&
@@ -56,7 +56,7 @@ const Button: FC<ButtonProps> = ({
         }
         onClick && onClick(e);
       }}
-      className={`border-[1.5px] flex text-[14px] items-center justify-center text-center border-primary rounded-md py-[6px] px-4 hover:bg-primary hover:text-white transition-all hover:scale-[1.02] ${
+      className={`border-[1.5px] flex text-[14px] items-center justify-center text-center border-primary rounded-md py-[6px] px-4 hover:bg-primary hover:text-white transition-all hover:scale-[1.01] ${
         primary && 'bg-primary text-white'
       } ${
         danger &&

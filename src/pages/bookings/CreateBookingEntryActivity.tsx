@@ -65,7 +65,7 @@ const CreateBookingEntryActivity = () => {
     {
       data: fetchBookingPeopleData,
       error: fetchBookingPeopleError,
-      isLoading: fetchBookingPeopleIsLoading,
+      isFetching: fetchBookingPeopleIsFetching,
       isSuccess: fetchBookingPeopleIsSuccess,
       isError: fetchBookingPeopleIsError,
     },
@@ -103,7 +103,7 @@ const CreateBookingEntryActivity = () => {
     {
       data: fetchBookingVehiclesData,
       error: fetchBookingVehiclesError,
-      isLoading: fetchBookingVehiclesIsLoading,
+      isFetching: fetchBookingVehiclesIsFetching,
       isSuccess: fetchBookingVehiclesIsSuccess,
       isError: fetchBookingVehiclesIsError,
     },
@@ -271,9 +271,9 @@ const CreateBookingEntryActivity = () => {
                 </ul>
               </Button>
             </ul>
-            {fetchBookingPeopleIsLoading && (
-              <figure className="min-h-[40vh] flex items-center justify-center">
-                <Loader />
+            {fetchBookingPeopleIsFetching && (
+              <figure className="min-h-[10vh] flex items-center justify-center">
+                <Loader className='text-primary' />
               </figure>
             )}
             {bookingPeopleList?.length > 0 && (
@@ -329,9 +329,9 @@ const CreateBookingEntryActivity = () => {
                 </ul>
               </Button>
             </ul>
-            {fetchBookingVehiclesIsLoading && (
+            {fetchBookingVehiclesIsFetching && (
               <figure className="min-h-[40vh] flex items-center justify-center">
-                <Loader />
+                <Loader className='text-primary' />
               </figure>
             )}
             {fetchBookingVehiclesIsSuccess &&

@@ -46,7 +46,7 @@ const ListDraftBookings = () => {
     {
       data: bookingsData,
       error: bookingsError,
-      isLoading: bookingsIsLoading,
+      isFetching: bookingsIsFetching,
       isSuccess: bookingsIsSuccess,
       isError: bookingsIsError,
     },
@@ -338,7 +338,7 @@ const ListDraftBookings = () => {
             </Button>
           ) : (
             <Button submit primary>
-              {bookingsIsLoading ? <Loader /> : 'Find Booking(s)'}
+              {bookingsIsFetching ? <Loader /> : 'Find Booking(s)'}
             </Button>
           )}
         </menu>
