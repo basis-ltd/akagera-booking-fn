@@ -63,6 +63,7 @@ const SelectBookingActivity = () => {
         );
       }
     } else if (createBookingActivityIsSuccess) {
+      toast.success('Activity added to booking successfully');
       dispatch(addBookingActivity(createdBookingActivityData?.data));
       dispatch(setSelectBookingActivityModal(false));
     }

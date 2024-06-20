@@ -11,6 +11,7 @@ import { AppDispatch } from '@/states/store';
 import { useDispatch } from 'react-redux';
 import { setToken, setUser } from '@/states/features/userSlice';
 import Loader from '@/components/inputs/Loader';
+import PublicLayout from '@/containers/PublicLayout';
 
 const Login = () => {
   // STATE VARIABLES
@@ -72,7 +73,8 @@ const Login = () => {
   ]);
 
   return (
-    <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center">
+    <PublicLayout>
+      <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center">
       <form
         className="flex flex-col gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl"
         onSubmit={handleSubmit(onSubmit)}
@@ -146,6 +148,7 @@ const Login = () => {
         </fieldset>
       </form>
     </main>
+    </PublicLayout>
   );
 };
 

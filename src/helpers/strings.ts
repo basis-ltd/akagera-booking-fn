@@ -14,7 +14,10 @@ export const capitalizeString = (string: string) => {
   return capitalizedWords && capitalizedWords.join(' ');
 };
 
-export const generateRecurringEvents = (selectedActivity: Activity, numberOfDays = 60) => {
+export const generateRecurringEvents = (
+  selectedActivity: Activity,
+  numberOfDays = 60
+) => {
   const events: Event[] = [];
   const today = moment();
 
@@ -38,4 +41,8 @@ export const generateRecurringEvents = (selectedActivity: Activity, numberOfDays
   }
 
   return events;
+};
+
+export const removeDuplicates = (array: never[]) => {
+  return array.filter((value, index) => array.indexOf(value) === index);
 };

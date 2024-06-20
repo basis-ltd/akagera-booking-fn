@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from '@/components/inputs/Loader';
+import moment from 'moment';
 
 const CreateBooking = () => {
   // STATE VARIABLES
@@ -184,6 +185,7 @@ const CreateBooking = () => {
                       {...field}
                       label="Entrance date"
                       required
+                      fromDate={moment().add(1, 'week').toDate()}
                     />
                     {errors.startDate && (
                       <InputErrorMessage message={errors.startDate.message} />

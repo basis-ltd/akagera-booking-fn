@@ -1,5 +1,9 @@
+import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
+import Select from '@/components/inputs/Select';
+import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
+import { capitalizeString, formatDate } from '@/helpers/strings';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingsQuery,
@@ -7,21 +11,24 @@ import {
 import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { BookingActivity } from '@/types/models/bookingActivity.types';
+import { Booking } from '@/types/models/booking.types';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse } from 'react-router-dom';
+import { ErrorResponse, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ViewBookings = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { bookingsList } = useSelector((state: RootState) => state.booking);
-  const { bookingActivitiesList } = useSelector(
-    (state: RootState) => state.bookingActivity
-  );
+  const [createdBy, setCreatedBy] = useState<string | null>(null);
+
+  // REACT HOOK FORM
+  const { control, watch } = useForm();
 
   // INITIALIZE LOCALIZER
   const localizer = momentLocalizer(moment);
@@ -63,14 +70,18 @@ const ViewBookings = () => {
     fetchBookings({
       take: 100,
       skip: 0,
-      startDate: moment().startOf('day').toISOString(),
-      endDate: moment().endOf('day').toISOString(),
+      startDate:
+        watch('startDate') && moment(watch('startDate')).format('YYYY-MM-DD'),
+      status: watch('status'),
+      createdBy,
     });
-  }, [fetchBookings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchBookings, watch('startDate'), watch('status'), createdBy]);
 
   // HANDLE FETCH BOOKINGS RESPONSE
   useEffect(() => {
     if (bookingsIsError) {
+      dispatch(setBookingsList([]));
       if ((bookingsError as ErrorResponse)?.status === 500) {
         toast.error('Failed to fetch bookings. Please try again later.');
       } else {
@@ -110,29 +121,132 @@ const ViewBookings = () => {
 
   return (
     <AdminLayout>
-      <main className="w-full flex flex-col gap-6 p-6">
-        <h1 className="text-black">
-          Bookings scheduled for {moment().format('dddd, MMMM Do YYYY')}
+      <main className="w-[95%] mx-auto flex flex-col gap-6 p-6">
+        <h1 className="text-primary text-center uppercase font-semibold text-lg">
+          Bookings scheduled for{' '}
+          {watch('startDate')
+            ? formatDate(watch('startDate'))
+            : moment().format('dddd, MMMM Do YYYY')}
         </h1>
-        {bookingActivitiesIsFetching ? (
-          <figure className="w-full flex justify-center items-center">
+        {bookingsIsSuccess && (
+          <section className="grid grid-cols-4 items-start gap-4">
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      className="w-fit"
+                      type="date"
+                      placeholder="Select day"
+                      {...field}
+                    />
+                    <Link
+                      onClick={(e) => {
+                        e.preventDefault();
+                        field.onChange(null);
+                      }}
+                      className="px-1 text-[12px] text-primary"
+                      to={'#'}
+                    >
+                      Reset date
+                    </Link>
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Select
+                      {...field}
+                      placeholder="Status"
+                      options={Object.values(bookingStatus).map((status) => ({
+                        label: capitalizeString(status),
+                        value: status,
+                      }))}
+                    />
+                    <Link
+                      onClick={(e) => {
+                        e.preventDefault();
+                        field.onChange({
+                          target: {
+                            value: null,
+                          },
+                        });
+                      }}
+                      className="px-1 text-[12px] text-primary"
+                      to={'#'}
+                    >
+                      Reset status
+                    </Link>
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              control={control}
+              name="createdBy"
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Input
+                      placeholder="Email or phone"
+                      suffixIcon={faSearch}
+                      suffixIconPrimary
+                      suffixIconHandler={(e) => {
+                        e.preventDefault();
+                        setCreatedBy(field.value);
+                      }}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                        if (!e.target.value) {
+                          setCreatedBy(null);
+                        }
+                      }}
+                    />
+                    <Link
+                      onClick={(e) => {
+                        e.preventDefault();
+                        field.value = null;
+                      }}
+                      className="px-1 text-[12px] text-primary"
+                      to={'#'}
+                    >
+                      Clear
+                    </Link>
+                  </label>
+                );
+              }}
+            />
+          </section>
+        )}
+        {bookingActivitiesIsFetching || bookingsIsFetching ? (
+          <figure className="w-full flex justify-center items-center min-h-[40vh]">
             <Loader className="text-primary" />
           </figure>
         ) : (
           <section className="w-full flex flex-col gap-4">
             <Calendar
               localizer={localizer}
-              events={bookingActivitiesList?.map(
-                (activity: BookingActivity, index: number) => {
-                  return {
-                    id: index,
-                    start: activity?.startTime,
-                    end:
-                      activity?.endTime ||
-                      moment(activity?.startTime).add(1, 'hour').toISOString(),
-                  };
-                }
-              )}
+              defaultView="month"
+              className="bg-white rounded-lg shadow-md p-4 text-[12px]"
+              events={bookingsList?.map((booking: Booking, index: number) => {
+                return {
+                  ...booking,
+                  id: index,
+                  title: `${booking?.name} at ${moment(
+                    booking?.startDate
+                  ).format('hh:mm A')}`,
+                  start: new Date(booking?.startDate),
+                  end: booking?.endDate ? new Date(booking?.endDate) : null,
+                };
+              })}
               startAccessor="start"
               endAccessor="end"
               style={{ height: 500 }}

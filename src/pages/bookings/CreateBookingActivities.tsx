@@ -153,8 +153,8 @@ const CreateBookingActivities = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 w-[80%] mx-auto"
           >
-            <fieldset className="flex flex-col gap-3">
-              <section className="flex flex-col gap-5">
+            <fieldset className="flex flex-col gap-3 w-full">
+              <section className="flex flex-col gap-5 w-full">
                 <h1 className="text-lg text-center font-medium">
                   Select a service to view available activities, schedules, and
                   their respective prices.

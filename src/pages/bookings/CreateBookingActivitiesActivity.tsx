@@ -111,18 +111,19 @@ const CreateBookingActivitiesActivity = () => {
 
   return (
     <section className="w-full flex flex-col gap-5 py-6">
-      {activitiesIsFetching || bookingActivitiesIsFetching && (
+      {activitiesIsFetching || bookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[40vh] flex items-center justify-center">
-          <Loader />
+          <Loader className='text-primary' />
         </figure>
+      ): (
+        <menu className='w-full grid grid-cols-2 gap-6'>
+        {activitiesIsSuccess &&
+          activitiesList?.length > 0 &&
+          activitiesList.map((activity) => {
+            return <ActivityCard activity={activity} />;
+          })}
+        </menu>
       )}
-      <menu className='w-full grid grid-cols-2 gap-6'>
-      {activitiesIsSuccess &&
-        activitiesList?.length > 0 &&
-        activitiesList.map((activity) => {
-          return <ActivityCard activity={activity} />;
-        })}
-      </menu>
       <menu className="flex items-center gap-3 justify-between w-full">
         <Button
           onClick={(e) => {

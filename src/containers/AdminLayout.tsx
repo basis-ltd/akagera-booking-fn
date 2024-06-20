@@ -18,7 +18,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       <Navbar />
       <Sidebar />
       <section
-        className={`w-full h-full top-[10vh] absolute ${
+        className={`h-full top-[10vh] absolute ${
           sidebarOpen ? 'w-[80vw] left-[20vw]' : 'w-[95vw] left-[5vw]'
         }`}
       >

@@ -40,6 +40,7 @@ interface InputProps {
   multiple?: boolean;
   labelClassName?: string;
   range?: boolean;
+  fromDate?: Date;
 }
 
 const Input: FC<InputProps> = ({
@@ -64,6 +65,7 @@ const Input: FC<InputProps> = ({
   readOnly = false,
   labelClassName = '',
   multiple = false,
+  fromDate,
 }) => {
   const hiddenFileInput = useRef<HTMLButtonElement>(null);
 
@@ -138,6 +140,8 @@ const Input: FC<InputProps> = ({
           </span>
         </p>
         <DatePicker
+        placeholder={placeholder}
+        fromDate={fromDate}
           onChange={
             onChange as
               | SelectSingleEventHandler
