@@ -4,7 +4,7 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import { accommodationOptions } from '@/constants/bookings.constants';
+import { accommodationOptions, bookingDaysOptions } from '@/constants/bookings.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { formatDate } from '@/helpers/strings';
@@ -15,6 +15,7 @@ import {
   setCreateBookingPersonModal,
 } from '@/states/features/bookingPeopleSlice';
 import { AppDispatch, RootState } from '@/states/store';
+import moment from 'moment';
 import { useEffect } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -60,7 +61,12 @@ const CreateBookingPerson = () => {
       bookingId: booking?.id,
       email: data?.email,
       phone: data?.phone,
-    });
+      accomodation: data?.accomodation,
+      endDate:
+        Number(data?.numberOfDays) > 0
+          ? moment(booking?.startDate).add(Number(data?.numberOfDays), 'd').format()
+          : null,
+    })
   };
 
   // HANDLE CREATE BOOKING PERSON SUCCESS
@@ -135,6 +141,7 @@ const CreateBookingPerson = () => {
                     type="date"
                     label="Date of birth"
                     required
+                    toDate={new Date()}
                     {...field}
                   />
                   {errors?.dateOfBirth && (
@@ -249,21 +256,44 @@ const CreateBookingPerson = () => {
             }}
           />
           <Controller
-            name="accomodation"
+            name="numberOfDays"
+            rules={{ required: 'Enter your entrance date' }}
             control={control}
+            defaultValue={'0'}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Select
+                    placeholder="Select number of days"
+                    options={bookingDaysOptions}
                     {...field}
-                    label="Accomodation"
-                    placeholder="Select accomodation"
-                    options={accommodationOptions}
+                    label="Number of days (if applicable)"
                   />
+                  {errors.startDate && (
+                    <InputErrorMessage message={errors.startDate.message} />
+                  )}
                 </label>
               );
             }}
           />
+          {watch('numberOfDays') !== '0' && (
+            <Controller
+              name="accomodation"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1">
+                    <Select
+                      {...field}
+                      label="Accomodation"
+                      placeholder="Select accomodation"
+                      options={accommodationOptions}
+                    />
+                  </label>
+                );
+              }}
+            />
+          )}
         </fieldset>
         <menu className="flex items-center gap-3 justify-between">
           <Button

@@ -41,6 +41,7 @@ interface InputProps {
   labelClassName?: string;
   range?: boolean;
   fromDate?: Date;
+  toDate?: Date;
 }
 
 const Input: FC<InputProps> = ({
@@ -66,6 +67,7 @@ const Input: FC<InputProps> = ({
   labelClassName = '',
   multiple = false,
   fromDate,
+  toDate,
 }) => {
   const hiddenFileInput = useRef<HTMLButtonElement>(null);
 
@@ -142,6 +144,7 @@ const Input: FC<InputProps> = ({
         <DatePicker
         placeholder={placeholder}
         fromDate={fromDate}
+        toDate={toDate}
           onChange={
             onChange as
               | SelectSingleEventHandler

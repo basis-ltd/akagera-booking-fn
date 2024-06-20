@@ -5,13 +5,17 @@ export type BookingPerson = {
     id: UUID;
     name: string;
     email: string;
-    nationality: string;
+    nationality?: string;
     residence?: string
     phone?: string
     createdAt: Date;
     updatedAt: Date;
     bookingId: UUID;
     booking?: Booking;
-    gender: string;
+    gender?: string;
     dateOfBirth: Date;
+    startDate: Date;
+    endDate: Date;
+    age?: number;
+    numberOfDays?: number;
 };

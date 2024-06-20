@@ -5,10 +5,12 @@ const initialState: {
   bookingVehiclesList: BookingVehicle[];
   selectedBookingVehicle: BookingVehicle;
   createBookingVehicleModal: boolean;
+  deleteBookingVehicleModal: boolean;
 } = {
   bookingVehiclesList: [],
   selectedBookingVehicle: {} as BookingVehicle,
   createBookingVehicleModal: false,
+  deleteBookingVehicleModal: false,
 };
 
 const bookingVehicleSlice = createSlice({
@@ -31,6 +33,9 @@ const bookingVehicleSlice = createSlice({
     },
     setCreateBookingVehicleModal: (state, action) => {
       state.createBookingVehicleModal = action.payload;
+    },
+    setDeleteBookingVehicleModal: (state, action) => {
+      state.deleteBookingVehicleModal = action.payload;
     }
   },
 });
@@ -41,6 +46,7 @@ export const {
   addBookingVehicle,
   removeBookingVehicle,
   setCreateBookingVehicleModal,
+  setDeleteBookingVehicleModal,
 } = bookingVehicleSlice.actions;
 
 export default bookingVehicleSlice.reducer;

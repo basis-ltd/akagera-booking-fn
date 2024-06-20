@@ -35,13 +35,13 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
         <h1 className="text-primary uppercase font-semibold">
           {activity?.name} {activityBooked ? '(Booked)' : ''}
         </h1>
-        {activity?.description && (
+        {activity?.description && activity?.description?.toUpperCase() !== 'NULL' && (
           <ul className="flex items-center gap-2">
             <h3 className="underline font-medium">Description:</h3>
             <p>{activity?.description}</p>
           </ul>
         )}
-        {activity?.disclaimer && (
+        {activity?.disclaimer && activity?.disclaimer?.toUpperCase() !== 'NULL' && (
           <ul className="flex items-center gap-2">
             <h3 className="underline font-medium">Disclaimer:</h3>
             <p>{activity?.disclaimer}</p>

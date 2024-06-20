@@ -263,6 +263,10 @@ const BookingPreview = () => {
       accessorKey: 'numberOfPeople',
     },
     {
+      header: 'Price',
+      accessorKey: 'activityRate',
+    },
+    {
       header: 'Actions',
       accessorKey: 'actions',
       cell: () => {
@@ -324,6 +328,10 @@ const BookingPreview = () => {
       accessorKey: 'phone',
     },
     {
+      header: 'Price',
+      accessorKey: 'personPrice',
+    },
+    {
       header: 'Actions',
       accessorKey: 'actions',
       cell: () => {
@@ -367,6 +375,10 @@ const BookingPreview = () => {
     {
       header: 'Plate Number',
       accessorKey: 'plateNumber',
+    },
+    {
+      header: 'Price',
+      accessorKey: 'vehiclePrice',
     },
     {
       header: 'Actions',
@@ -464,6 +476,9 @@ const BookingPreview = () => {
                   activity: bookingActivity?.activity,
                   endTime: bookingActivity.endTime,
                   numberOfPeople: bookingActivity.numberOfPeople,
+                  activityRate:
+                    bookingActivity?.activity?.activityRates &&
+                    `USD ${bookingActivity?.activity?.activityRates[0]?.amountUsd}`,
                   startTime: moment(bookingActivity.startTime).format(
                     'hh:mm A'
                   ),
@@ -565,6 +580,13 @@ const BookingPreview = () => {
           </menu>
         )
       )}
+      <menu className='flex flex-col items-center gap-3 justify-end w-full'>
+        <h1>Total</h1>
+        <ul>
+          <p>USD: </p>
+          <p>RWF: </p>
+        </ul>
+      </menu>
       <menu className="flex items-center gap-3 justify-between">
         <Button
           onClick={(e) => {

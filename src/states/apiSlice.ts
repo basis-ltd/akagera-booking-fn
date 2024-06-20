@@ -36,14 +36,17 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING
       createBooking: builder.mutation({
-        query: ({ name, startDate, createdBy, phone }) => ({
+        query: ({ name, startDate, email, phone, accomodation, exitGate, endDate }) => ({
           url: `bookings`,
           method: 'POST',
           body: {
             name,
             startDate,
-            createdBy,
+            email,
             phone,
+            accomodation,
+            exitGate,
+            endDate,
           },
         }),
       }),
@@ -54,7 +57,8 @@ export const apiSlice = createApi({
           take = 10,
           skip = 0,
           referenceId,
-          createdBy,
+          email,
+          phone,
           approvedBy,
           approvedAt,
           startDate,
@@ -68,8 +72,11 @@ export const apiSlice = createApi({
           if (referenceId) {
             url += `&referenceId=${referenceId}`;
           }
-          if (createdBy) {
-            url += `&createdBy=${createdBy}`;
+          if (email) {
+            url += `&email=${email}`;
+          }
+          if (phone) {
+            url += `&phone=${phone}`;
           }
           if (approvedBy) {
             url += `&approvedBy=${approvedBy}`;
@@ -105,6 +112,8 @@ export const apiSlice = createApi({
           residence,
           dateOfBirth,
           bookingId,
+          endDate,
+          accomodation,
         }) => ({
           url: `booking-people`,
           method: 'POST',
@@ -116,6 +125,8 @@ export const apiSlice = createApi({
             residence,
             dateOfBirth,
             bookingId,
+            accomodation,
+            endDate
           },
         }),
       }),
@@ -193,14 +204,14 @@ export const apiSlice = createApi({
 
       // UPDATE BOOKING
       updateBooking: builder.mutation({
-        query: ({ id, status, name, notes, createdBy, startDate }) => ({
+        query: ({ id, status, name, notes, email, phone, startDate }) => ({
           url: `bookings/${id}`,
           method: 'PATCH',
           body: {
             status,
             name,
             notes,
-            createdBy,
+            email, phone,
             startDate,
           },
         }),
@@ -236,6 +247,22 @@ export const apiSlice = createApi({
           }
         },
       }),
+
+      // DELETE BOOKING PERSON
+      deleteBookingPerson: builder.mutation({
+        query: ({ id }) => ({
+          url: `booking-people/${id}`,
+          method: 'DELETE',
+        }),
+      }),
+
+      // DELETE BOOKING VEHICLE
+      deleteBookingVehicle: builder.mutation({
+        query: ({ id }) => ({
+          url: `booking-vehicles/${id}`,
+          method: 'DELETE',
+        }),
+      }),
     };
   },
 });
@@ -254,7 +281,9 @@ export const {
   useLazyFetchBookingActivitiesQuery,
   useUpdateBookingMutation,
   useLoginMutation,
-  useLazyFetchBookingStatusesQuery
+  useLazyFetchBookingStatusesQuery,
+  useDeleteBookingPersonMutation,
+  useDeleteBookingVehicleMutation,
 } = apiSlice;
 
 export default apiSlice;

@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { setToken, setUser } from '@/states/features/userSlice';
 import Loader from '@/components/inputs/Loader';
 import PublicLayout from '@/containers/PublicLayout';
+import validateInputs from '@/helpers/validations';
 
 const Login = () => {
   // STATE VARIABLES
@@ -75,79 +76,89 @@ const Login = () => {
   return (
     <PublicLayout>
       <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center">
-      <form
-        className="flex flex-col gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <figure className="w-full flex flex-col gap-5 my-4">
-          <img
-            src={akageraLogo}
-            alt="Akagera Logo"
-            className="w-[100px] h-auto mx-auto"
-          />
-          <h1 className="text-lg font-semibold text-center uppercase">
-            Log into your account to continue
-          </h1>
-        </figure>
-        <fieldset className="w-full flex flex-col gap-4">
-          <Controller
-            name="username"
-            rules={{ required: 'Username is required' }}
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="w-full flex flex-col gap-1">
-                  <Input
-                    {...field}
-                    label="Username"
-                    required
-                    placeholder="Enter your email or phone number"
-                  />
-                  {errors?.username && (
-                    <InputErrorMessage message={errors?.username?.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="password"
-            rules={{ required: 'Password is required' }}
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="w-full flex flex-col gap-1">
-                  <Input
-                    {...field}
-                    label="Password"
-                    required
-                    type="password"
-                    placeholder="Enter your password"
-                  />
-                  {errors?.password && (
-                    <InputErrorMessage message={errors?.password?.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <menu className="w-full flex flex-col gap-4 my-2">
-            <Input type="checkbox" label="Remember me" />
-            <ul className="w-full flex flex-col gap-2">
-              <Button submit primary>
-                {loginIsLoading ? <Loader /> : 'Login'}
-              </Button>
-              <Link
-                to="/auth/register"
-                className="text-center text-sm text-primary hover:underline"
-              >
-                Don't have an account? Register
-              </Link>
-            </ul>
-          </menu>
-        </fieldset>
-      </form>
-    </main>
+        <form
+          className="flex flex-col gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <figure className="w-full flex flex-col gap-5 my-4">
+            <img
+              src={akageraLogo}
+              alt="Akagera Logo"
+              className="w-[100px] h-auto mx-auto"
+            />
+            <h1 className="text-lg font-semibold text-center uppercase">
+              Log into your account to continue
+            </h1>
+          </figure>
+          <fieldset className="w-full flex flex-col gap-4">
+            <Controller
+              name="username"
+              rules={{
+                required: 'Username is required',
+                validate: (value) => {
+                  if (value.includes('@')) {
+                    return validateInputs(value, 'email') || 'Invalid email';
+                  } else if (value.includes('07')) {
+                    return validateInputs(value, 'tel') || 'Invalid phone number';
+                  }
+                  return 'Invalid username';
+                },
+              }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="w-full flex flex-col gap-1">
+                    <Input
+                      {...field}
+                      label="Username"
+                      required
+                      placeholder="Enter your email or phone number"
+                    />
+                    {errors?.username && (
+                      <InputErrorMessage message={errors?.username?.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="password"
+              rules={{ required: 'Password is required' }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="w-full flex flex-col gap-1">
+                    <Input
+                      {...field}
+                      label="Password"
+                      required
+                      type="password"
+                      placeholder="Enter your password"
+                    />
+                    {errors?.password && (
+                      <InputErrorMessage message={errors?.password?.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <menu className="w-full flex flex-col gap-4 my-2">
+              <Input type="checkbox" label="Remember me" />
+              <ul className="w-full flex flex-col gap-2">
+                <Button submit primary>
+                  {loginIsLoading ? <Loader /> : 'Login'}
+                </Button>
+                <Link
+                  to="/auth/register"
+                  className="text-center text-sm text-primary hover:underline"
+                >
+                  Don't have an account? Register
+                </Link>
+              </ul>
+            </menu>
+          </fieldset>
+        </form>
+      </main>
     </PublicLayout>
   );
 };

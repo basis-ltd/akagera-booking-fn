@@ -57,7 +57,8 @@ const ListDraftBookings = () => {
     dispatch(setDraftBookingsList([]));
     fetchBookings({
       referenceId: data?.referenceId,
-      createdBy: data?.email || data?.phone,
+      email: data?.email,
+      phone: data?.phone,
       status: 'in_progress',
     });
   };
@@ -132,6 +133,7 @@ const ListDraftBookings = () => {
                 navigate(
                   `/bookings/create?referenceId=${row.original.referenceId}`
                 );
+                dispatch(setDraftBookingsModal(false));
               }}
               className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
             >
@@ -144,6 +146,7 @@ const ListDraftBookings = () => {
                 navigate(
                   `/bookings/create?referenceId=${row.original.referenceId}`
                 );
+                dispatch(setDraftBookingsModal(false));
               }}
               className="text-[13px] p-2 rounded-md bg-red-600 text-white transition-all hover:scale-[1.01]"
             >
