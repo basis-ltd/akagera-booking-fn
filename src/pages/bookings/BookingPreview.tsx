@@ -5,6 +5,7 @@ import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { vehicleTypes } from '@/constants/vehicles';
 import PublicLayout from '@/containers/PublicLayout';
+import { calculateActivityPrice, calculateEntryPrice } from '@/helpers/booking.helper';
 import { formatDate } from '@/helpers/strings';
 import {
   useLazyFetchBookingActivitiesQuery,
@@ -14,12 +15,19 @@ import {
   useUpdateBookingMutation,
 } from '@/states/apiSlice';
 import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
-import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
+import {
+  setBookingPeopleList,
+  setDeleteBookingPersonModal,
+  setSelectedBookingPerson,
+} from '@/states/features/bookingPeopleSlice';
 import { setBooking } from '@/states/features/bookingSlice';
 import { setBookingVehiclesList } from '@/states/features/bookingVehicleSlice';
 import { AppDispatch, RootState } from '@/states/store';
+import { BookingActivity } from '@/types/models/bookingActivity.types';
+import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Row } from '@tanstack/react-table';
 import moment from 'moment';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -166,7 +174,20 @@ const BookingPreview = () => {
         toast.error((bookingActivitiesError as ErrorResponse).data.message);
       }
     } else if (bookingActivitiesIsSuccess) {
-      dispatch(setBookingActivitiesList(bookingActivitiesData?.data?.rows));
+      const formattedBookingActivities = bookingActivitiesData?.data?.rows.map(
+        (bookingActivity: BookingActivity, index: number) => {
+          return {
+            ...bookingActivity,
+            no: index + 1,
+            activity: bookingActivity?.activity,
+            endTime: bookingActivity.endTime,
+            price: `USD ${calculateActivityPrice(bookingActivity, bookingActivity?.bookingActivityPeople)}`,
+            startTime: moment(bookingActivity.startTime).format('hh:mm A'),
+            numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
+          };
+        }
+      );
+      dispatch(setBookingActivitiesList(formattedBookingActivities));
     }
   }, [
     bookingActivitiesIsSuccess,
@@ -263,6 +284,10 @@ const BookingPreview = () => {
       accessorKey: 'numberOfPeople',
     },
     {
+      header: 'Price',
+      accessorKey: 'price',
+    },
+    {
       header: 'Actions',
       accessorKey: 'actions',
       cell: () => {
@@ -292,10 +317,6 @@ const BookingPreview = () => {
   // BOOKING PEOPLE COLUMNS
   const bookingPeopleColumns = [
     {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
       header: 'Full Names',
       accessorKey: 'name',
     },
@@ -324,25 +345,31 @@ const BookingPreview = () => {
       accessorKey: 'phone',
     },
     {
+      header: 'Number of days',
+      accessorKey: 'numberOfDays',
+    },
+    {
+      header: 'Entry fee',
+      accessorKey: 'price',
+    },
+    {
       header: 'Actions',
       accessorKey: 'actions',
-      cell: () => {
+      cell: ({ row }: { row: Row<BookingPerson> }) => {
         return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] rounded-full bg-primary text-white"
+          <menu className="flex items-center gap-3">
+            {/* <FontAwesomeIcon
               icon={faPenToSquare}
-            />
-
+              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
+            /> */}
             <FontAwesomeIcon
+              icon={faTrash}
               onClick={(e) => {
                 e.preventDefault();
+                dispatch(setSelectedBookingPerson(row?.original));
+                dispatch(setDeleteBookingPersonModal(true));
               }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
+              className="bg-red-600 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
             />
           </menu>
         );
@@ -367,6 +394,10 @@ const BookingPreview = () => {
     {
       header: 'Plate Number',
       accessorKey: 'plateNumber',
+    },
+    {
+      header: 'Price',
+      accessorKey: 'vehiclePrice',
     },
     {
       header: 'Actions',
@@ -458,17 +489,7 @@ const BookingPreview = () => {
               showFilter={false}
               showPagination={false}
               columns={bookingActivitiesColumns}
-              data={bookingActivitiesList?.map((bookingActivity, index) => {
-                return {
-                  no: index + 1,
-                  activity: bookingActivity?.activity,
-                  endTime: bookingActivity.endTime,
-                  numberOfPeople: bookingActivity.numberOfPeople,
-                  startTime: moment(bookingActivity.startTime).format(
-                    'hh:mm A'
-                  ),
-                };
-              })}
+              data={bookingActivitiesList}
             />
           </menu>
         )
@@ -499,22 +520,28 @@ const BookingPreview = () => {
               showFilter={false}
               showPagination={false}
               columns={bookingPeopleColumns}
-              data={bookingPeopleList?.map((bookingPerson, index) => {
+              data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                 return {
                   ...bookingPerson,
-                  no: index + 1,
-                  name: bookingPerson.name,
-                  age: moment().diff(bookingPerson.dateOfBirth, 'years'),
-                  email: bookingPerson.email,
-                  nationality: COUNTRIES.find(
-                    (country) => country?.code === bookingPerson?.nationality
-                  )?.name,
-                  residence: COUNTRIES.find(
-                    (country) => country?.code === bookingPerson?.residence
-                  )?.name,
                   gender: genderOptions?.find(
-                    (gender) => gender?.value === bookingPerson?.gender
+                    (gender) => gender.value === bookingPerson?.gender
                   )?.label,
+                  nationality: COUNTRIES?.find(
+                    (country) => country.code === bookingPerson?.nationality
+                  )?.name,
+                  residence: COUNTRIES?.find(
+                    (country) => country.code === bookingPerson?.residence
+                  )?.name,
+                  age: Number(
+                    moment().diff(bookingPerson?.dateOfBirth, 'years', false)
+                  ),
+                  numberOfDays: Number(
+                    moment(bookingPerson?.endDate).diff(
+                      bookingPerson?.startDate,
+                      'days'
+                    )
+                  ),
+                  price: `USD ${calculateEntryPrice(bookingPerson)}`,
                 };
               })}
             />
@@ -565,6 +592,13 @@ const BookingPreview = () => {
           </menu>
         )
       )}
+      <menu className='flex flex-col items-center gap-3 justify-end w-full'>
+        <h1>Total</h1>
+        <ul>
+          <p>USD: </p>
+          <p>RWF: </p>
+        </ul>
+      </menu>
       <menu className="flex items-center gap-3 justify-between">
         <Button
           onClick={(e) => {

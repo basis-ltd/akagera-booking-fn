@@ -16,12 +16,18 @@ import { addBookingActivity } from '@/states/features/bookingActivitySlice';
 import Loader from '@/components/inputs/Loader';
 import { Controller, useForm } from 'react-hook-form';
 import Select from '@/components/inputs/Select';
+import MultiSelect from '@/components/inputs/MultiSelect';
+import { BookingPerson } from '@/types/models/bookingPerson.types';
+import { setSelectedBookingPeople } from '@/states/features/bookingPeopleSlice';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
+  );
+  const { bookingPeopleList, selectedBookingPeople } = useSelector(
+    (state: RootState) => state.bookingPeople
   );
   const { booking } = useSelector((state: RootState) => state.booking);
   const [bookingActivity, setBookingActivity] = useState<{
@@ -88,7 +94,7 @@ const SelectBookingActivity = () => {
       <menu className="flex flex-col gap-2 w-full">
         {selectedActivity?.activitySchedules &&
           selectedActivity?.activitySchedules?.length > 0 && (
-            <section className="flex w-full flex-col gap-4 my-3 max-w-[50vw]">
+            <section className="flex w-full flex-col gap-4 my-3">
               <article className="flex flex-col gap-1">
                 <h3 className="uppercase font-bold w-full">Schedule</h3>
                 <p className="text-[13px]">
@@ -98,14 +104,14 @@ const SelectBookingActivity = () => {
                 </p>
               </article>
               <Calendar
-                className="!h-[60vh]"
+                className="!h-[55vh]"
                 events={generateRecurringEvents(selectedActivity)}
                 localizer={localizer}
                 defaultView="day"
                 defaultDate={booking?.startDate}
                 startAccessor="start"
                 endAccessor="end"
-                style={{ height: 500 }}
+                style={{ height: 500, width: '100%' }}
                 onSelectEvent={(event) => {
                   setBookingActivity({
                     ...bookingActivity,
@@ -117,7 +123,7 @@ const SelectBookingActivity = () => {
           )}
 
         {selectedActivity?.name?.toLowerCase() ===
-          'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() && (
+        'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() ? (
           <Controller
             name="period"
             control={control}
@@ -137,6 +143,33 @@ const SelectBookingActivity = () => {
               );
             }}
           />
+        ) : (
+          bookingPeopleList?.length > 0 && (
+            <section className="w-full flex flex-col gap-4">
+              <h1 className="text-black uppercase font-medium ">
+                Select people who will participate in this activity
+              </h1>
+              <menu className="flex items-center gap-3 w-full">
+                <MultiSelect
+                  className="w-full"
+                  multiple
+                  options={bookingPeopleList?.map(
+                    (bookingPerson: BookingPerson) => {
+                      return {
+                        label: bookingPerson.name,
+                        value: bookingPerson.id,
+                      };
+                    }
+                  )}
+                  onChange={(e) => {
+                    dispatch(
+                      setSelectedBookingPeople(e)
+                    );
+                  }}
+                />
+              </menu>
+            </section>
+          )
         )}
 
         <menu className="flex items-center gap-3 justify-between mt-3">
@@ -155,16 +188,19 @@ const SelectBookingActivity = () => {
             onClick={(e) => {
               e.preventDefault();
               if (
-                !bookingActivity?.startTime ||
-                bookingActivity?.startTime === undefined
+                !bookingActivity?.startTime &&
+                bookingActivity?.startTime === undefined && !booking?.startDate
               ) {
                 toast.error('Please select a schedule for this activity');
                 return;
               }
               createBookingActivity({
+                bookingActivityPeople: selectedBookingPeople?.map((person) => ({
+                  bookingPersonId: person,
+                })),
                 bookingId: booking?.id,
                 activityId: selectedActivity?.id,
-                startTime: bookingActivity?.startTime,
+                startTime: bookingActivity?.startTime || booking?.startDate,
               });
             }}
             primary

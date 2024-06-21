@@ -1,7 +1,11 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
 import ActivityCard from '@/containers/ActivityCard';
-import { useLazyFetchActivitiesQuery, useLazyFetchBookingActivitiesQuery } from '@/states/apiSlice';
+import {
+  useLazyFetchActivitiesQuery,
+  useLazyFetchBookingActivitiesQuery,
+  useLazyFetchBookingPeopleQuery,
+} from '@/states/apiSlice';
 import { setActivityRatesList } from '@/states/features/activityRateSlice';
 import { setActivitiesList } from '@/states/features/activitySlice';
 import { setSelectedService } from '@/states/features/serviceSlice';
@@ -12,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
+import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
 
 const CreateBookingActivitiesActivity = () => {
   // STATE VARIABLES
@@ -21,6 +26,46 @@ const CreateBookingActivitiesActivity = () => {
   );
   const { activitiesList } = useSelector((state: RootState) => state.activity);
   const { booking } = useSelector((state: RootState) => state.booking);
+
+  // INITIALIZE FETCH BOOKING PEOPLE
+  const [
+    fetchBookingPeople,
+    {
+      data: bookingPeopleData,
+      error: bookingPeopleError,
+      isSuccess: bookingPeopleIsSuccess,
+      isError: bookingPeopleIsError,
+      isFetching: bookingPeopleIsFetching,
+    },
+  ] = useLazyFetchBookingPeopleQuery();
+
+  // FETCH BOOKING PEOPLE
+  useEffect(() => {
+    if (booking) {
+      fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
+    }
+  }, [booking, fetchBookingPeople]);
+
+  // HANDLE FETCH BOOKING PEOPLE RESPONSE
+  useEffect(() => {
+    if (bookingPeopleIsError) {
+      if ((bookingPeopleError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while fetching booking people. Please try again later.'
+        );
+      } else {
+        toast.error((bookingPeopleError as ErrorResponse).data.message);
+      }
+    } else if (bookingPeopleIsSuccess) {
+      dispatch(setBookingPeopleList(bookingPeopleData?.data?.rows));
+    }
+  }, [
+    bookingPeopleIsSuccess,
+    bookingPeopleIsError,
+    bookingPeopleData,
+    bookingPeopleError,
+    dispatch,
+  ]);
 
   // INITIALIZE FETCH ACTIVITIES QUERY
   const [
@@ -111,7 +156,7 @@ const CreateBookingActivitiesActivity = () => {
 
   return (
     <section className="w-full flex flex-col gap-5 py-6">
-      {activitiesIsFetching || bookingActivitiesIsFetching ? (
+      {activitiesIsFetching || bookingActivitiesIsFetching || bookingPeopleIsFetching ? (
         <figure className="w-full min-h-[40vh] flex items-center justify-center">
           <Loader className='text-primary' />
         </figure>

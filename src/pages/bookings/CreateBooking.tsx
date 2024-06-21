@@ -13,6 +13,12 @@ import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from '@/components/inputs/Loader';
 import moment from 'moment';
+import Select from '@/components/inputs/Select';
+import {
+  accommodationOptions,
+  bookingDaysOptions,
+  exitGateOptions,
+} from '@/constants/bookings.constants';
 
 const CreateBooking = () => {
   // STATE VARIABLES
@@ -29,6 +35,7 @@ const CreateBooking = () => {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
 
   // INITIALIZE CREATE BOOKING MUTATION
@@ -49,8 +56,13 @@ const CreateBooking = () => {
       name: data.name,
       phone: data.phone,
       startDate: data.startDate,
-      createdBy: data.email,
-    });
+      endDate:
+        Number(data?.numberOfDays) > 0 ?
+        moment(data.startDate).add(Number(data?.numberOfDays), 'd').format() : null,
+      email: data.email,
+      accomodation: data?.accomodation,
+      exitGate: data?.exitGate,
+    })
   };
 
   // HANDLE CREATE BOOKING RESPONSE
@@ -185,7 +197,7 @@ const CreateBooking = () => {
                       {...field}
                       label="Entrance date"
                       required
-                      fromDate={moment().add(1, 'week').toDate()}
+                      fromDate={moment().add(1, 'd').toDate()}
                     />
                     {errors.startDate && (
                       <InputErrorMessage message={errors.startDate.message} />
@@ -194,6 +206,75 @@ const CreateBooking = () => {
                 );
               }}
             />
+            <Controller
+              name="numberOfDays"
+              rules={{ required: 'Enter your entrance date' }}
+              control={control}
+              defaultValue={'0'}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Select
+                      placeholder="Select number of days"
+                      options={bookingDaysOptions}
+                      {...field}
+                      label="Number of days"
+                      required
+                    />
+                    {errors.startDate && (
+                      <InputErrorMessage message={errors.startDate.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            {watch('numberOfDays') === '0' && (
+              <Controller
+                name="exitGate"
+                rules={{ required: 'Select exit gate' }}
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-1 w-full">
+                      <Select
+                        {...field}
+                        label="Select exit gate"
+                        placeholder="Select exit gate"
+                        required
+                        options={exitGateOptions}
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                      />
+                      {errors?.exitGate && (
+                        <InputErrorMessage message={errors.exitGate.message} />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            )}
+            {watch('numberOfDays') !== '0' && (
+              <Controller
+                name="accomodation"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-1 w-full">
+                      <Select
+                        options={accommodationOptions}
+                        {...field}
+                        label="Select place of accomodation"
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                        placeholder="Select accomodation"
+                      />
+                    </label>
+                  );
+                }}
+              />
+            )}
           </fieldset>
           <menu className="flex w-full items-center gap-3 justify-between">
             <Button

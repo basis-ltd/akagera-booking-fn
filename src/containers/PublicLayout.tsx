@@ -23,7 +23,7 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
   }, [pathname]);
 
   return (
-    <main className="w-[100vw] relative">
+    <main className="w-[100vw] min-h-[90vh] relative">
       <PublicNavbar hideActions={hideNavigation} />
       <section className={`w-full h-full top-[10vh] absolute`}>
         {children}

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/states/store';
@@ -24,10 +24,15 @@ const navbarNav = [
 ];
 
 const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
+
+  // STATE VARIABLES
   const { isOpen: sidebarOpen } = useSelector(
     (state: RootState) => state.sidebar
   );
   const [isOpen, setIsOpen] = useState(false);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   return (
     <header
@@ -37,7 +42,10 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
         showLogo && '!w-[100vw] !left-0'
       } bg-white flex items-center gap-3 justify-between h-[10vh] mx-auto px-[7.5%] bg-transparent fixed py-6 z-[1000] ${className}`}
     >
-      <Link to={'/'} className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}>
+      <Link to={'#'} onClick={(e) => {
+        e.preventDefault();
+        navigate('/');
+      }} className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}>
         <img className="text-white h-full w-auto" src={akageraLogo} />
       </Link>
       <menu

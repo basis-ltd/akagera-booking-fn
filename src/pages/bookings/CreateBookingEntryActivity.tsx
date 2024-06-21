@@ -1,21 +1,15 @@
-import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
-import Select from '@/components/inputs/Select';
-import {
-  accommodationOptions,
-  exitGateOptions,
-} from '@/constants/bookings.constants';
 import {
   setBookingPeopleList,
   setCreateBookingPersonModal,
+  setDeleteBookingPersonModal,
+  setSelectedBookingPerson,
 } from '@/states/features/bookingPeopleSlice';
 import { setSelectedService } from '@/states/features/serviceSlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import CreateBookingPerson from './CreateBookingPerson';
 import Table from '@/components/table/Table';
 import { genderOptions } from '@/constants/inputs.constants';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
@@ -32,10 +26,12 @@ import moment from 'moment';
 import {
   setBookingVehiclesList,
   setCreateBookingVehicleModal,
+  setDeleteBookingVehicleModal,
+  setSelectedBookingVehicle,
 } from '@/states/features/bookingVehicleSlice';
-import CreateBookingVehicle from './CreateBookingVehicle';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import { vehicleTypes } from '@/constants/vehicles';
+import { ColumnDef, Row } from '@tanstack/react-table';
 
 const CreateBookingEntryActivity = () => {
   // STATE VARIABLES
@@ -50,14 +46,6 @@ const CreateBookingEntryActivity = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-
-  // REACT HOOK FORM
-  const {
-    handleSubmit,
-    control,
-    trigger,
-    formState: { errors },
-  } = useForm();
 
   // INITIALIZE FETCH BOOKING PEOPLE QUERY
   const [
@@ -137,11 +125,6 @@ const CreateBookingEntryActivity = () => {
     fetchBookingVehiclesError,
   ]);
 
-  // HANDLE FORM SUBMISSION
-  const onSubmit = (data: FieldValues) => {
-    return data;
-  };
-
   // BOOKING PEOPLE COLUMNS
   const bookingPeopleColumns = [
     {
@@ -172,6 +155,33 @@ const CreateBookingEntryActivity = () => {
       header: 'Phone',
       accessorKey: 'phone',
     },
+    {
+      header: 'Number of days',
+      accessorKey: 'numberOfDays',
+    },
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<BookingPerson> }) => {
+        return (
+          <menu className="flex items-center gap-3">
+            {/* <FontAwesomeIcon
+              icon={faPenToSquare}
+              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
+            /> */}
+            <FontAwesomeIcon
+              icon={faTrash}
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setSelectedBookingPerson(row?.original));
+                dispatch(setDeleteBookingPersonModal(true));
+              }}
+              className="bg-red-600 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
+            />
+          </menu>
+        );
+      },
+    },
   ];
 
   // BOOKING VEHICLES COLUMNS
@@ -192,58 +202,34 @@ const CreateBookingEntryActivity = () => {
       header: 'Plate Number',
       accessorKey: 'plateNumber',
     },
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<BookingVehicle> }) => {
+        return (
+          <menu className="flex items-center gap-3">
+            {/* <FontAwesomeIcon
+              icon={faPenToSquare}
+              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
+            /> */}
+            <FontAwesomeIcon
+              icon={faTrash}
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setSelectedBookingVehicle(row?.original));
+                dispatch(setDeleteBookingVehicleModal(true));
+              }}
+              className="bg-red-600 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
+            />
+          </menu>
+        );
+      },
+    },
   ];
 
   return (
     <section className="w-full flex flex-col gap-3 pb-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <menu className="grid grid-cols-2 gap-5">
-          <Controller
-            name="exitGate"
-            rules={{ required: 'Number of people is required' }}
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1 w-full">
-                  <Select
-                    {...field}
-                    label="Select exit gate"
-                    placeholder="Select exit gate"
-                    required
-                    options={exitGateOptions}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      trigger(field.name);
-                    }}
-                  />
-                  {errors?.exitGate && (
-                    <InputErrorMessage message={errors.exitGate.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="accomodation"
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1 w-full">
-                  <Select
-                    options={accommodationOptions}
-                    {...field}
-                    label="Select place of accomodation"
-                    onChange={(e) => {
-                      field.onChange(e);
-                      trigger(field.name);
-                    }}
-                    placeholder="Select accomodation"
-                  />
-                </label>
-              );
-            }}
-          />
-        </menu>
+      <form className="flex flex-col gap-4">
         <section className="flex flex-col gap-6 mt-4">
           {/**
            * BOOKING PEOPLE DETAILS
@@ -273,10 +259,10 @@ const CreateBookingEntryActivity = () => {
             </ul>
             {fetchBookingPeopleIsFetching && (
               <figure className="min-h-[10vh] flex items-center justify-center">
-                <Loader className='text-primary' />
+                <Loader className="text-primary" />
               </figure>
             )}
-            {bookingPeopleList?.length > 0 && (
+            {bookingPeopleList?.length > 0 ? (
               <Table
                 data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                   return {
@@ -290,15 +276,27 @@ const CreateBookingEntryActivity = () => {
                     residence: COUNTRIES?.find(
                       (country) => country.code === bookingPerson?.residence
                     )?.name,
-                    age: moment().diff(
-                      bookingPerson?.dateOfBirth,
-                      'years',
-                      false
+                    age: Number(
+                      moment().diff(bookingPerson?.dateOfBirth, 'years', false)
+                    ),
+                    numberOfDays: Number(
+                      moment(bookingPerson?.endDate).diff(
+                        bookingPerson?.startDate,
+                        'days'
+                      )
                     ),
                   };
                 })}
-                columns={bookingPeopleColumns}
+                columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
               />
+            ) : (
+              fetchBookingPeopleIsSuccess && (
+                <figure className="min-h-[10vh] flex items-center justify-center">
+                  <p className="text-black text-[14px]">
+                    You have not yet added people to your booking.
+                  </p>
+                </figure>
+              )
             )}
           </menu>
           {/**
@@ -330,33 +328,40 @@ const CreateBookingEntryActivity = () => {
               </Button>
             </ul>
             {fetchBookingVehiclesIsFetching && (
-              <figure className="min-h-[40vh] flex items-center justify-center">
-                <Loader className='text-primary' />
+              <figure className="min-h-[10vh] flex items-center justify-center">
+                <Loader className="text-primary" />
               </figure>
             )}
             {fetchBookingVehiclesIsSuccess &&
-              bookingVehiclesList?.length > 0 && (
-                <Table
-                  columns={bookingVehiclesColumns}
-                  data={bookingVehiclesList?.map(
-                    (bookingVehicle: BookingVehicle, index: number) => {
-                      return {
-                        ...bookingVehicle,
-                        no: index + 1,
-                        vehicleType: vehicleTypes?.find(
-                          (vehicle) =>
-                            vehicle?.value === bookingVehicle?.vehicleType
-                        )?.label,
-                        registrationCountry: COUNTRIES?.find(
-                          (country) =>
-                            country?.code ===
-                            bookingVehicle?.registrationCountry
-                        )?.name,
-                      };
-                    }
-                  )}
-                />
-              )}
+            bookingVehiclesList?.length > 0 ? (
+              <Table
+                columns={bookingVehiclesColumns}
+                data={bookingVehiclesList?.map(
+                  (bookingVehicle: BookingVehicle, index: number) => {
+                    return {
+                      ...bookingVehicle,
+                      no: index + 1,
+                      vehicleType: vehicleTypes?.find(
+                        (vehicle) =>
+                          vehicle?.value === bookingVehicle?.vehicleType
+                      )?.label,
+                      registrationCountry: COUNTRIES?.find(
+                        (country) =>
+                          country?.code === bookingVehicle?.registrationCountry
+                      )?.name,
+                    };
+                  }
+                )}
+              />
+            ) : (
+              fetchBookingVehiclesIsSuccess && (
+                <figure className="min-h-[5vh] flex items-center justify-center">
+                  <p className="text-black text-[14px]">
+                    You have not yet added vehicles to your booking.
+                  </p>
+                </figure>
+              )
+            )}
           </menu>
         </section>
         <menu className="flex items-center gap-3 justify-between w-full">
@@ -394,8 +399,6 @@ const CreateBookingEntryActivity = () => {
           </Button>
         </menu>
       </form>
-      <CreateBookingPerson />
-      <CreateBookingVehicle />
     </section>
   );
 };

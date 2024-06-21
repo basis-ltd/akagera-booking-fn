@@ -22,6 +22,7 @@ interface DatePickerProps {
   selectionType?: 'date' | 'month' | 'year' | 'recurringDate';
   fromDate?: Date;
   placeholder?: string;
+  toDate?: Date;
 }
 
 const DatePicker: FC<DatePickerProps> = ({
@@ -30,6 +31,7 @@ const DatePicker: FC<DatePickerProps> = ({
   selectionType,
   fromDate = undefined,
   placeholder = 'Select date',
+  toDate = undefined,
 }) => {
   // SET MONTH AND YEAR
   const [year, setYear] = useState<string | undefined>(moment().format('YYYY'));
@@ -96,6 +98,7 @@ const DatePicker: FC<DatePickerProps> = ({
           </ul>
           <Calendar
           fromDate={fromDate}
+          toDate={toDate}
             mode="single"
             month={defaultMonth}
             onMonthChange={(e) => {

@@ -6,6 +6,10 @@ import BookingSuccess from '@/pages/bookings/BookingSuccess.tsx';
 import Login from '@/pages/auth/Login.tsx';
 import LandingPage from '@/pages/home/LandingPage.tsx';
 import ViewBookings from '@/pages/dashboard/ViewBookings.tsx';
+import CreateBookingPerson from '@/pages/bookings/CreateBookingPerson.tsx';
+import CreateBookingVehicle from '@/pages/bookings/CreateBookingVehicle.tsx';
+import DeleteBookingPerson from '@/pages/bookings/DeleteBookingPerson.tsx';
+import DeleteBookingVehicle from '@/pages/bookings/DeleteBookingVehicle.tsx';
 
 const Router = () => {
   return (
@@ -19,6 +23,10 @@ const Router = () => {
         <Route path="/dashboard/bookings" element={<ViewBookings />} />
       </Routes>
       <CreateBooking />
+      <CreateBookingPerson />
+      <CreateBookingVehicle />
+      <DeleteBookingPerson />
+      <DeleteBookingVehicle />
     </section>
   );
 };
