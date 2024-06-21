@@ -1,6 +1,7 @@
 import { UUID } from 'crypto';
 import { Booking } from './booking.types';
 import { Activity } from './activity.types';
+import { BookingActivityPerson } from './bookingActivityPerson.types';
 
 export type BookingActivity = {
   id: UUID;
@@ -13,4 +14,5 @@ export type BookingActivity = {
   activity: Activity;
   booking: Booking;
   numberOfPeople: number | string;
+  bookingActivityPeople?: BookingActivityPerson[];
 };

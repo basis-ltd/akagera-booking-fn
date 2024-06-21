@@ -178,13 +178,14 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING ACTIVITY
       createBookingActivity: builder.mutation({
-        query: ({ bookingId, activityId, startTime }) => ({
+        query: ({ bookingId, activityId, startTime, bookingActivityPeople }) => ({
           url: `booking-activities`,
           method: 'POST',
           body: {
             bookingId,
             activityId,
             startTime,
+            bookingActivityPeople,
           },
         }),
       }),

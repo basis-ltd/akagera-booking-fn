@@ -1,6 +1,7 @@
 import {
   ChangeEvent,
   FC,
+  FormEventHandler,
   LegacyRef,
   MouseEventHandler,
   ReactNode,
@@ -33,7 +34,7 @@ interface InputProps {
   prefixIconHandler?: MouseEventHandler<HTMLAnchorElement> | undefined;
   prefixIconPrimary?: boolean;
   prefixText?: string | ReactNode;
-  checked?: boolean | undefined;
+  defaultChecked?: boolean | undefined;
   accept?: string;
   min?: string | number;
   readOnly?: boolean;
@@ -42,6 +43,7 @@ interface InputProps {
   range?: boolean;
   fromDate?: Date;
   toDate?: Date;
+  checked?: boolean;
 }
 
 const Input: FC<InputProps> = ({
@@ -59,7 +61,7 @@ const Input: FC<InputProps> = ({
   prefixIcon = null,
   prefixIconHandler,
   prefixText = null,
-  checked = undefined,
+  defaultChecked = undefined,
   name,
   accept = '*',
   min,
@@ -68,6 +70,7 @@ const Input: FC<InputProps> = ({
   multiple = false,
   fromDate,
   toDate,
+  checked,
 }) => {
   const hiddenFileInput = useRef<HTMLButtonElement>(null);
 
@@ -83,7 +86,7 @@ const Input: FC<InputProps> = ({
     if (type === 'checkbox') {
       return (
         <label className="flex w-fit items-center gap-2 text-[13px]">
-          <Checkbox name={name} value={value} checked={checked} />
+          <Checkbox onChange={onChange as FormEventHandler<HTMLButtonElement> | undefined} name={name} value={value} checked={checked} defaultChecked={defaultChecked} />
           <p className={`${label ? 'flex' : 'hidden'} text-[13px]`}>{label}</p>
         </label>
       );
@@ -94,7 +97,7 @@ const Input: FC<InputProps> = ({
           type={type}
           name={name}
           value={value}
-          checked={checked}
+          defaultChecked={defaultChecked}
           onChange={onChange}
           className={`w-4 h-4 border-[1.5px] rounded-xl cursor-pointer border-secondary outline-none focus:outline-none accent-primary focus:border-[1.6px] focus:border-primary ease-in-out duration-50 ${className}`}
         />

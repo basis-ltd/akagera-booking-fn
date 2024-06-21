@@ -10,7 +10,6 @@ import { AppDispatch, RootState } from '@/states/store';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
-import CreateBookingPerson from './CreateBookingPerson';
 import Table from '@/components/table/Table';
 import { genderOptions } from '@/constants/inputs.constants';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
@@ -30,12 +29,9 @@ import {
   setDeleteBookingVehicleModal,
   setSelectedBookingVehicle,
 } from '@/states/features/bookingVehicleSlice';
-import CreateBookingVehicle from './CreateBookingVehicle';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import { vehicleTypes } from '@/constants/vehicles';
-import DeleteBookingPerson from './DeleteBookingPerson';
 import { ColumnDef, Row } from '@tanstack/react-table';
-import DeleteBookingVehicle from './DeleteBookingVehicle';
 
 const CreateBookingEntryActivity = () => {
   // STATE VARIABLES
@@ -403,10 +399,6 @@ const CreateBookingEntryActivity = () => {
           </Button>
         </menu>
       </form>
-      <CreateBookingPerson />
-      <CreateBookingVehicle />
-      <DeleteBookingPerson />
-      <DeleteBookingVehicle />
     </section>
   );
 };

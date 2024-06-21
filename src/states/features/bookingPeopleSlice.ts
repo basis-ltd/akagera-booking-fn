@@ -6,11 +6,13 @@ const initialState: {
   selectedBookingPerson: BookingPerson;
   createBookingPersonModal: boolean;
   deleteBookingPersonModal: boolean;
+  selectedBookingPeople: BookingPerson[];
 } = {
   bookingPeopleList: [],
   selectedBookingPerson: {} as BookingPerson,
   createBookingPersonModal: false,
   deleteBookingPersonModal: false,
+  selectedBookingPeople: [],
 };
 
 const bookingPeopleSlice = createSlice({
@@ -36,6 +38,17 @@ const bookingPeopleSlice = createSlice({
       state.bookingPeopleList = state.bookingPeopleList.filter(
         (bookingPerson) => bookingPerson.id !== action.payload.id
       );
+    },
+    setSelectedBookingPeople: (state, action) => {
+      state.selectedBookingPeople = action.payload;
+    },
+    addSelectedBookingPerson: (state, action) => {
+      state.selectedBookingPeople.push(action.payload);
+    },
+    removeSelectedBookingPerson: (state, action) => {
+      state.selectedBookingPeople = state.selectedBookingPeople.filter(
+        (bookingPerson) => bookingPerson.id !== action.payload.id
+      );
     }
   },
 });
@@ -47,6 +60,9 @@ export const {
   addBookingPerson,
   setDeleteBookingPersonModal,
   removeBookingPerson,
+  setSelectedBookingPeople,
+  addSelectedBookingPerson,
+  removeSelectedBookingPerson,
 } = bookingPeopleSlice.actions;
 
 export default bookingPeopleSlice.reducer;
