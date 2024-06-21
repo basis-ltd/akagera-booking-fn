@@ -264,6 +264,14 @@ export const apiSlice = createApi({
           method: 'DELETE',
         }),
       }),
+
+      // DELETE BOOKING ACTIVITY
+      deleteBookingActivity: builder.mutation({
+        query: ({ id }) => ({
+          url: `booking-activities/${id}`,
+          method: 'DELETE',
+        }),
+      }),
     };
   },
 });
@@ -285,6 +293,7 @@ export const {
   useLazyFetchBookingStatusesQuery,
   useDeleteBookingPersonMutation,
   useDeleteBookingVehicleMutation,
+  useDeleteBookingActivityMutation,
 } = apiSlice;
 
 export default apiSlice;

@@ -10,6 +10,7 @@ import CreateBookingPerson from '@/pages/bookings/CreateBookingPerson.tsx';
 import CreateBookingVehicle from '@/pages/bookings/CreateBookingVehicle.tsx';
 import DeleteBookingPerson from '@/pages/bookings/DeleteBookingPerson.tsx';
 import DeleteBookingVehicle from '@/pages/bookings/DeleteBookingVehicle.tsx';
+import DeleteBookingActivity from '@/pages/bookings/DeleteBookingActivity.tsx';
 
 const Router = () => {
   return (
@@ -27,6 +28,7 @@ const Router = () => {
       <CreateBookingVehicle />
       <DeleteBookingPerson />
       <DeleteBookingVehicle />
+      <DeleteBookingActivity />
     </section>
   );
 };

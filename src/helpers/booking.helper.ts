@@ -1,12 +1,18 @@
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingActivityPerson } from '@/types/models/bookingActivityPerson.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
+import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import moment from 'moment';
 
 export const calculateActivityPrice = (
   bookingActivity: BookingActivity,
   bookingActivityPeople: BookingActivityPerson[] | undefined
 ) => {
+  if (bookingActivityPeople?.length === 0) {
+    return bookingActivity?.activity?.activityRates?.find(
+      (rate) => rate?.ageRange === 'adults'
+    )?.amountUsd;
+  }
   const prices = bookingActivityPeople?.map((person) => {
     if (
       calculateAge(person?.bookingPerson?.dateOfBirth) >= 13) {
@@ -25,7 +31,6 @@ export const calculateActivityPrice = (
       return 0
     }
   });
-  console.log(prices)
   return prices
     ?.filter((price) => price !== undefined)
     .reduce((acc, curr) => Number(acc) + Number(curr), 0);
@@ -122,4 +127,20 @@ export function countryBelongsInAfrica(country: string | undefined) {
 export function calculateAge(dateOfBirth: Date) {
     console.log(moment().diff(dateOfBirth, 'years'));
     return moment().diff(dateOfBirth, 'years');
+}
+
+export const calculateVehiclePrice = (vehicle: BookingVehicle) => {
+  if (countryBelongsToEAC(vehicle?.registrationCountry)) {
+    if (vehicle?.vehicleType === 'omnibus/bus/overlander') {
+      return 20
+    } else {
+      return 100
+    }
+  } else {
+    if (vehicle?.vehicleType === 'vehicle/minibus') {
+      return 10
+    } else {
+      return 40
+    }
+  }
 }

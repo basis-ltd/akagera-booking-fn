@@ -26,7 +26,7 @@ const SelectBookingActivity = () => {
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
-  const { bookingPeopleList, selectedBookingPeople } = useSelector(
+  const { bookingPeopleList } = useSelector(
     (state: RootState) => state.bookingPeople
   );
   const { booking } = useSelector((state: RootState) => state.booking);
@@ -44,7 +44,7 @@ const SelectBookingActivity = () => {
   const localizer = momentLocalizer(moment);
 
   // REACT HOOK FORM
-  const { control } = useForm();
+  const { control, watch, reset } = useForm();
 
   // INITIALIZE CREATE BOOKING ACTIVITY MUTATION
   const [
@@ -71,6 +71,10 @@ const SelectBookingActivity = () => {
     } else if (createBookingActivityIsSuccess) {
       toast.success('Activity added to booking successfully');
       dispatch(addBookingActivity(createdBookingActivityData?.data));
+      dispatch(setSelectedBookingPeople([]));
+      reset({
+        selectedBookingPeople: null,
+      });
       dispatch(setSelectBookingActivityModal(false));
     }
   }, [
@@ -79,6 +83,7 @@ const SelectBookingActivity = () => {
     createBookingActivityError,
     dispatch,
     createdBookingActivityData?.data,
+    reset,
   ]);
 
   return (
@@ -150,20 +155,28 @@ const SelectBookingActivity = () => {
                 Select people who will participate in this activity
               </h1>
               <menu className="flex items-center gap-3 w-full">
-                <MultiSelect
-                  className="w-full"
-                  multiple
-                  options={bookingPeopleList?.map(
-                    (bookingPerson: BookingPerson) => {
-                      return {
-                        label: bookingPerson.name,
-                        value: bookingPerson.id,
-                      };
-                    }
-                  )}
-                  onChange={(e) => {
-                    dispatch(
-                      setSelectedBookingPeople(e)
+                <Controller
+                  name="selectedBookingPeople"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MultiSelect
+                        className="w-full"
+                        multiple
+                        options={bookingPeopleList?.map(
+                          (bookingPerson: BookingPerson) => {
+                            return {
+                              label: bookingPerson.name,
+                              value: bookingPerson.id,
+                            };
+                          }
+                        )}
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          dispatch(setSelectedBookingPeople(e));
+                        }}
+                      />
                     );
                   }}
                 />
@@ -189,15 +202,18 @@ const SelectBookingActivity = () => {
               e.preventDefault();
               if (
                 !bookingActivity?.startTime &&
-                bookingActivity?.startTime === undefined && !booking?.startDate
+                bookingActivity?.startTime === undefined &&
+                !booking?.startDate
               ) {
                 toast.error('Please select a schedule for this activity');
                 return;
               }
               createBookingActivity({
-                bookingActivityPeople: selectedBookingPeople?.map((person) => ({
-                  bookingPersonId: person,
-                })),
+                bookingActivityPeople: watch('selectedBookingPeople')?.map(
+                  (person: BookingPerson) => ({
+                    bookingPersonId: person,
+                  })
+                ),
                 bookingId: booking?.id,
                 activityId: selectedActivity?.id,
                 startTime: bookingActivity?.startTime || booking?.startDate,

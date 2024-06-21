@@ -5,7 +5,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import { COUNTRIES } from '@/constants/countries.constants';
-import { vehicleTypes } from '@/constants/vehicles';
+import { vehicleTypes } from '@/constants/vehicles.constants';
 import { formatDate } from '@/helpers/strings';
 import { useCreateBookingVehicleMutation } from '@/states/apiSlice';
 import {
@@ -72,7 +72,11 @@ const CreateBookingVehicle = () => {
         `Vehicle with plate number ${createBookingVehicleData?.data?.plateNumber} added to booking successfully.`
       );
       dispatch(addBookingVehicle(createBookingVehicleData?.data));
-      reset();
+      reset({
+        vehicleType: '',
+        registrationCountry: 'RW',
+        plateNumber: '',
+      });
       dispatch(setCreateBookingVehicleModal(false));
     }
   }, [
