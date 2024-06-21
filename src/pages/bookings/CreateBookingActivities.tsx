@@ -89,6 +89,10 @@ const CreateBookingActivities = () => {
     navigate,
   ]);
 
+  useEffect(() => {
+    document.title = `${booking?.referenceId} - ${booking?.name} - Activities`;
+  }, [booking]);
+
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
     console.log(data);

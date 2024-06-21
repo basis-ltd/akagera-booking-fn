@@ -20,6 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { getLuminance } from 'polished';
 
 const ViewBookings = () => {
   // STATE VARIABLES
@@ -118,6 +119,41 @@ const ViewBookings = () => {
     bookingActivitiesIsSuccess,
     dispatch,
   ]);
+
+    // CUSTOMIZE EVENT PROPAGATION
+    const eventStyleGetter = (event: Booking) => {
+      let backgroundColor = '#036124'
+      switch (event?.status) {
+          case 'pending':
+              backgroundColor = '#F59E0B';
+              break;
+          case 'approved':
+              backgroundColor = '#036124';
+              break;
+          case 'cancelled':
+              backgroundColor = '#DC2626';
+              break;
+          case 'in_progress':
+              backgroundColor = '#808080';
+              break;
+          default:
+              break;
+      }
+      const luminance = getLuminance(backgroundColor);
+      const color = luminance > 0.5 ? 'black' : 'white';
+      const style = {
+        backgroundColor,
+        borderRadius: '5px',
+        padding: '5px',
+        shadow: '0px 0px 5px 0px rgba(0,0,0,0.75)',
+        color,
+        border: '0px',
+        display: 'block',
+      };
+      return {
+          style: style
+      };
+  }
 
   return (
     <AdminLayout>
@@ -234,19 +270,24 @@ const ViewBookings = () => {
           <section className="w-full flex flex-col gap-4">
             <Calendar
               localizer={localizer}
+              eventPropGetter={(event) =>
+                eventStyleGetter(event as unknown as Booking)
+              }
               defaultView="month"
               className="bg-white rounded-lg shadow-md p-4 text-[12px]"
-              events={bookingsList?.map((booking: Booking, index: number) => {
-                return {
-                  ...booking,
-                  id: index,
-                  title: `${booking?.name} at ${moment(
-                    booking?.startDate
-                  ).format('hh:mm A')}`,
-                  start: new Date(booking?.startDate),
-                  end: booking?.endDate ? new Date(booking?.endDate) : null,
-                };
-              })}
+              events={bookingsList
+                ?.filter((booking) => booking?.status !== 'in_progress')
+                ?.map((booking: Booking, index: number) => {
+                  return {
+                    ...booking,
+                    id: index,
+                    title: `${booking?.name} (${capitalizeString(
+                      booking?.status
+                    )})`,
+                    start: new Date(booking?.startDate),
+                    end: booking?.endDate ? new Date(booking?.endDate) : null,
+                  };
+                })}
               startAccessor="start"
               endAccessor="end"
               style={{ height: 500 }}

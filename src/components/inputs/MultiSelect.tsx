@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import ReactSelect, {
   SingleValue,
   MultiValue,
@@ -32,6 +33,7 @@ type MultiSelectProps = {
   required?: boolean;
   labelClassName?: string;
   placeholder?: string;
+  value?: string[];
 };
 
 const MultiSelect = ({
@@ -49,6 +51,7 @@ const MultiSelect = ({
   required = false,
   labelClassName = undefined,
   placeholder = undefined,
+  value,
 }: MultiSelectProps) => {
   const mappedOptions: OptionsOrGroups<
     Option,
@@ -59,6 +62,14 @@ const MultiSelect = ({
     value: option.value || option.id || '',
     isDisabled: option.disabled,
   }));
+
+  const ref = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if ((!value || value?.length <= 0) && ref?.current) {
+      ref.current.value = '';
+    }
+  }, [value]);
 
   return (
     <label
@@ -87,6 +98,7 @@ const MultiSelect = ({
         placeholder={placeholder || 'Select option...'}
         onBlur={onBlur}
         unstyled={!styled}
+        ref={ref}
         options={mappedOptions}
         defaultValue={options?.find(
           (option) => option.value === String(defaultValue)

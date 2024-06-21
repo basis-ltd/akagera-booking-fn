@@ -272,6 +272,14 @@ export const apiSlice = createApi({
           method: 'DELETE',
         }),
       }),
+
+      // SUBMIT BOOKING
+      submitBooking: builder.mutation({
+        query: ({ id }) => ({
+          url: `bookings/${id}/submit`,
+          method: 'PATCH',
+        }),
+      }),
     };
   },
 });
@@ -294,6 +302,7 @@ export const {
   useDeleteBookingPersonMutation,
   useDeleteBookingVehicleMutation,
   useDeleteBookingActivityMutation,
+  useSubmitBookingMutation
 } = apiSlice;
 
 export default apiSlice;

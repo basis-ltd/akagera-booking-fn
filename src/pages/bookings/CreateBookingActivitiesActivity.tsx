@@ -24,7 +24,7 @@ const CreateBookingActivitiesActivity = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const { activitiesList } = useSelector((state: RootState) => state.activity);
+  const { activitiesList, selectBookingActivityModal } = useSelector((state: RootState) => state.activity);
   const { booking } = useSelector((state: RootState) => state.booking);
 
   // INITIALIZE FETCH BOOKING PEOPLE
@@ -41,10 +41,10 @@ const CreateBookingActivitiesActivity = () => {
 
   // FETCH BOOKING PEOPLE
   useEffect(() => {
-    if (booking) {
+    if (booking && !selectBookingActivityModal) {
       fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
     }
-  }, [booking, fetchBookingPeople]);
+  }, [booking, fetchBookingPeople, selectBookingActivityModal]);
 
   // HANDLE FETCH BOOKING PEOPLE RESPONSE
   useEffect(() => {
@@ -93,10 +93,10 @@ const CreateBookingActivitiesActivity = () => {
 
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
-    if (booking) {
+    if (booking && !selectBookingActivityModal) {
       fetchBookingActivities({ bookingId: booking?.id, take: 100, skip: 0 });
     }
-  }, [booking, fetchBookingActivities]);
+  }, [booking, fetchBookingActivities, selectBookingActivityModal]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
   useEffect(() => {

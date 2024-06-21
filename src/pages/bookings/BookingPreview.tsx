@@ -16,7 +16,7 @@ import {
   useLazyFetchBookingPeopleQuery,
   useLazyFetchBookingVehiclesQuery,
   useLazyGetBookingDetailsQuery,
-  useUpdateBookingMutation,
+  useSubmitBookingMutation,
 } from '@/states/apiSlice';
 import {
   setBookingActivitiesList,
@@ -125,7 +125,7 @@ const BookingPreview = () => {
       isSuccess: updateBookingIsSuccess,
       isError: updateBookingIsError,
     },
-  ] = useUpdateBookingMutation();
+  ] = useSubmitBookingMutation();
 
   // FETCH BOOKING VEHICLES
   useEffect(() => {
@@ -662,7 +662,7 @@ const BookingPreview = () => {
             }}
           >
             {updateBookingIsLoading ? (
-              <Loader className="text-primary" />
+              <Loader />
             ) : (
               'Submit'
             )}
