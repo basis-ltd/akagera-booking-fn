@@ -4,7 +4,10 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import { accommodationOptions, bookingDaysOptions } from '@/constants/bookings.constants';
+import {
+  accommodationOptions,
+  bookingDaysOptions,
+} from '@/constants/bookings.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { formatDate } from '@/helpers/strings';
@@ -64,9 +67,11 @@ const CreateBookingPerson = () => {
       accomodation: data?.accomodation,
       endDate:
         Number(data?.numberOfDays) > 0
-          ? moment(booking?.startDate).add(Number(data?.numberOfDays), 'd').format()
+          ? moment(booking?.startDate)
+              .add(Number(data?.numberOfDays), 'd')
+              .format()
           : null,
-    })
+    });
   };
 
   // HANDLE CREATE BOOKING PERSON SUCCESS
@@ -78,7 +83,17 @@ const CreateBookingPerson = () => {
         toast.error((createBookingPersonError as ErrorResponse).data.message);
       }
     } else if (createBookingPersonIsSuccess) {
-      reset();
+      reset({
+        name: '',
+        dateOfBirth: '',
+        nationality: 'RW',
+        residence: 'RW',
+        accomodation: '',
+        gender: '',
+        phone: '',
+        email: '',
+        numberOfDays: '0',
+      });
       toast.success(
         `${createBookingPersonData?.data?.name} added successfully`
       );

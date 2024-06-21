@@ -139,19 +139,6 @@ const ListDraftBookings = () => {
             >
               Complete
             </Link>
-            <Link
-              to={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(
-                  `/bookings/create?referenceId=${row.original.referenceId}`
-                );
-                dispatch(setDraftBookingsModal(false));
-              }}
-              className="text-[13px] p-2 rounded-md bg-red-600 text-white transition-all hover:scale-[1.01]"
-            >
-              Delete
-            </Link>
           </menu>
         );
       },

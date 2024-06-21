@@ -18,7 +18,7 @@ const CreateBookingGuidesActivity = () => {
   const { selectedService, servicesList } = useSelector(
     (state: RootState) => state.service
   );
-  const { activitiesList } = useSelector((state: RootState) => state.activity);
+  const { activitiesList, selectBookingActivityModal } = useSelector((state: RootState) => state.activity);
   const { booking } = useSelector((state: RootState) => state.booking);
 
   // NAVIGATION
@@ -38,8 +38,8 @@ const CreateBookingGuidesActivity = () => {
 
   // FETCH ACTIVITIES
   useEffect(() => {
-    fetchActivities({ serviceId: selectedService?.id });
-  }, [fetchActivities, selectedService]);
+    !selectBookingActivityModal && fetchActivities({ serviceId: selectedService?.id });
+  }, [fetchActivities, selectedService, selectBookingActivityModal]);
 
   // HANDLE FETCH ACTIVITIES RESPONSE
   useEffect(() => {

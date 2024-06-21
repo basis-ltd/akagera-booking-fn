@@ -3,31 +3,47 @@ import Loader from '@/components/inputs/Loader';
 import Table from '@/components/table/Table';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
-import { vehicleTypes } from '@/constants/vehicles';
+import { vehicleTypes } from '@/constants/vehicles.constants';
 import PublicLayout from '@/containers/PublicLayout';
-import { calculateActivityPrice, calculateEntryPrice } from '@/helpers/booking.helper';
+import {
+  calculateActivityPrice,
+  calculateEntryPrice,
+  calculateVehiclePrice,
+} from '@/helpers/booking.helper';
 import { formatDate } from '@/helpers/strings';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
   useLazyFetchBookingVehiclesQuery,
   useLazyGetBookingDetailsQuery,
-  useUpdateBookingMutation,
+  useSubmitBookingMutation,
 } from '@/states/apiSlice';
-import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
+import {
+  setBookingActivitiesList,
+  setDeleteBookingActivityModal,
+  setSelectedBookingActivity,
+} from '@/states/features/bookingActivitySlice';
 import {
   setBookingPeopleList,
   setDeleteBookingPersonModal,
   setSelectedBookingPerson,
 } from '@/states/features/bookingPeopleSlice';
-import { setBooking } from '@/states/features/bookingSlice';
-import { setBookingVehiclesList } from '@/states/features/bookingVehicleSlice';
+import {
+  addBookingTotalAmountUsd,
+  setBooking,
+} from '@/states/features/bookingSlice';
+import {
+  setBookingVehiclesList,
+  setDeleteBookingVehicleModal,
+  setSelectedBookingVehicle,
+} from '@/states/features/bookingVehicleSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
-import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { BookingVehicle } from '@/types/models/bookingVehicle.types';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Row } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -109,7 +125,7 @@ const BookingPreview = () => {
       isSuccess: updateBookingIsSuccess,
       isError: updateBookingIsError,
     },
-  ] = useUpdateBookingMutation();
+  ] = useSubmitBookingMutation();
 
   // FETCH BOOKING VEHICLES
   useEffect(() => {
@@ -181,9 +197,13 @@ const BookingPreview = () => {
             no: index + 1,
             activity: bookingActivity?.activity,
             endTime: bookingActivity.endTime,
-            price: `USD ${calculateActivityPrice(bookingActivity, bookingActivity?.bookingActivityPeople)}`,
+            price: `USD ${calculateActivityPrice(
+              bookingActivity,
+              bookingActivity?.bookingActivityPeople
+            )}`,
             startTime: moment(bookingActivity.startTime).format('hh:mm A'),
-            numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
+            numberOfPeople:
+              bookingActivity?.bookingActivityPeople?.length || 'N/A',
           };
         }
       );
@@ -290,20 +310,14 @@ const BookingPreview = () => {
     {
       header: 'Actions',
       accessorKey: 'actions',
-      cell: () => {
+      cell: ({ row }: { row: Row<BookingActivity> }) => {
         return (
           <menu className="flex items-center gap-2">
             <FontAwesomeIcon
               onClick={(e) => {
                 e.preventDefault();
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] rounded-full bg-primary text-white"
-              icon={faPenToSquare}
-            />
-
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
+                dispatch(setSelectedBookingActivity(row?.original));
+                dispatch(setDeleteBookingActivityModal(true));
               }}
               className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
               icon={faTrash}
@@ -402,20 +416,14 @@ const BookingPreview = () => {
     {
       header: 'Actions',
       accessorKey: 'actions',
-      cell: () => {
+      cell: ({ row }: { row: Row<BookingVehicle> }) => {
         return (
           <menu className="flex items-center gap-2">
             <FontAwesomeIcon
               onClick={(e) => {
                 e.preventDefault();
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] rounded-full bg-primary text-white"
-              icon={faPenToSquare}
-            />
-
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
+                dispatch(setSelectedBookingVehicle(row?.original));
+                dispatch(setDeleteBookingVehicleModal(true));
               }}
               className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
               icon={faTrash}
@@ -426,199 +434,241 @@ const BookingPreview = () => {
     },
   ];
 
+  // SET ACTIVITIES TOTAL AMOUNT
+  useEffect(() => {
+    dispatch(
+      addBookingTotalAmountUsd(
+        bookingActivitiesList?.reduce(
+          (acc, curr) => acc + Number(String(curr?.price)?.split(' ')[1]),
+          0
+        )
+      )
+    );
+  }, [bookingActivitiesList, dispatch]);
+
+  // SET PEOPLE TOTAL AMOUNT
+  useEffect(() => {
+    dispatch(
+      addBookingTotalAmountUsd(
+        bookingPeopleList?.reduce(
+          (acc, curr) => acc + Number(calculateEntryPrice(curr)),
+          0
+        )
+      )
+    );
+  }, [bookingPeopleList, dispatch]);
+
+  // SET VEHICLES TOTAL AMOUNT
+  useEffect(() => {
+    dispatch(
+      addBookingTotalAmountUsd(
+        bookingVehiclesList?.reduce(
+          (acc, curr) => acc + Number(calculateVehiclePrice(curr)),
+          0
+        )
+      )
+    );
+  }, [bookingVehiclesList, dispatch]);
+
   return (
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
-      <h1 className="text-xl text-primary text-center font-bold uppercase">
-        Booking Preview for {booking?.name} scheduled on{' '}
-        {formatDate(booking?.startDate)}
-      </h1>
-      {bookingDetailsIsFetching && (
-        <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader className='text-primary' />
-        </figure>
-      )}
-      <menu className="w-full flex flex-col gap-3 mt-4">
-        <ul className="flex items-center gap-6 my-2">
-          <h1 className="font-bold text-xl uppercase">Details</h1>
-          <Button className="!py-[2px] underline !text-[12px]" styled={false}>
-            Update
-          </Button>
-        </ul>
-        <ul className="flex items-center gap-2">
-          <p>Full Names / Tour company:</p>
-          <p>{booking?.name}</p>
-        </ul>
-        <ul className="flex items-center gap-2">
-          <p>Reference ID:</p>
-          <p className="flex items-center gap-1">
-            {booking?.referenceId}{' '}
-            <span className="text-[12px]">
-              (Use this reference ID to track or update your booking)
-            </span>
+        <h1 className="text-xl text-primary text-center font-bold uppercase">
+          Booking Preview for {booking?.name} scheduled on{' '}
+          {formatDate(booking?.startDate)}
+        </h1>
+        {bookingDetailsIsFetching && (
+          <figure className="w-full flex items-center justify-center min-h-[50vh]">
+            <Loader className="text-primary" />
+          </figure>
+        )}
+        <menu className="w-full flex flex-col gap-3 mt-4">
+          <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+            <h1 className="font-bold text-xl uppercase">Details</h1>
+            <Button className="!py-[2px] underline !text-[12px]" styled={false}>
+              Update
+            </Button>
+          </ul>
+          <ul className="flex items-center gap-2">
+            <p>Full Names / Tour company:</p>
+            <p>{booking?.name}</p>
+          </ul>
+          <ul className="flex items-center gap-2">
+            <p>Reference ID:</p>
+            <p className="flex items-center gap-1">
+              {booking?.referenceId}{' '}
+              <span className="text-[12px]">
+                (Use this reference ID to track or update your booking)
+              </span>
+            </p>
+          </ul>
+          <ul className="flex items-center gap-2">
+            <p>Date:</p>
+            <p>{formatDate(booking?.startDate)}</p>
+          </ul>
+        </menu>
+        {bookingActivitiesIsFetching ? (
+          <figure className="w-full flex items-center justify-center min-h-[50vh]">
+            <Loader className="text-primary" />
+          </figure>
+        ) : (
+          bookingActivitiesIsSuccess && (
+            <menu className="flex flex-col gap-2 w-full">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+                <h1 className="font-bold text-xl uppercase">Activities</h1>
+                <Button
+                  className="!py-[2px] underline !text-[12px]"
+                  styled={false}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(
+                      `/bookings/create?referenceId=${booking?.referenceId}`
+                    );
+                  }}
+                >
+                  Update
+                </Button>
+              </ul>
+              <Table
+                showFilter={false}
+                showPagination={false}
+                columns={bookingActivitiesColumns}
+                data={bookingActivitiesList}
+              />
+            </menu>
+          )
+        )}
+        {bookingPeopleIsFetching ? (
+          <figure className="w-full flex items-center justify-center min-h-[50vh]">
+            <Loader className="text-primary" />
+          </figure>
+        ) : (
+          bookingPeopleIsSuccess && (
+            <menu className="flex flex-col gap-2 w-full">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+                <h1 className="font-bold text-xl uppercase">People</h1>
+                <Button
+                  className="!py-[2px] underline !text-[12px]"
+                  styled={false}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(
+                      `/bookings/create?referenceId=${booking?.referenceId}`
+                    );
+                  }}
+                >
+                  Update
+                </Button>
+              </ul>
+              <Table
+                showFilter={false}
+                showPagination={false}
+                columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
+                data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
+                  return {
+                    ...bookingPerson,
+                    gender: genderOptions?.find(
+                      (gender) => gender.value === bookingPerson?.gender
+                    )?.label,
+                    nationality: COUNTRIES?.find(
+                      (country) => country.code === bookingPerson?.nationality
+                    )?.name,
+                    residence: COUNTRIES?.find(
+                      (country) => country.code === bookingPerson?.residence
+                    )?.name,
+                    age: Number(
+                      moment().diff(bookingPerson?.dateOfBirth, 'years', false)
+                    ),
+                    numberOfDays: Number(
+                      moment(bookingPerson?.endDate).diff(
+                        bookingPerson?.startDate,
+                        'days'
+                      )
+                    ),
+                    price: `USD ${calculateEntryPrice(bookingPerson)}`,
+                  };
+                })}
+              />
+            </menu>
+          )
+        )}
+        {bookingVehiclesIsFetching ? (
+          <figure className="w-full flex items-center justify-center min-h-[50vh]">
+            <Loader className="text-primary" />
+          </figure>
+        ) : (
+          bookingVehiclesIsSuccess && (
+            <menu className="flex flex-col gap-2 w-full">
+              <ul className="flex items-center gap-6 my-2">
+                <h1 className="font-bold text-xl uppercase">Vehicles</h1>
+                <Button
+                  className="!py-[2px] underline !text-[12px]"
+                  styled={false}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(
+                      `/bookings/create?referenceId=${booking?.referenceId}`
+                    );
+                  }}
+                >
+                  Update
+                </Button>
+              </ul>
+              <Table
+                showFilter={false}
+                showPagination={false}
+                columns={bookingVehiclesColumns as ColumnDef<BookingVehicle>[]}
+                data={bookingVehiclesList?.map((bookingVehicle, index) => {
+                  return {
+                    ...bookingVehicle,
+                    no: index + 1,
+                    vehicleType: vehicleTypes.find(
+                      (vehicleType) =>
+                        vehicleType?.value === bookingVehicle?.vehicleType
+                    )?.label,
+                    registrationCountry: COUNTRIES.find(
+                      (country) =>
+                        country?.code === bookingVehicle?.registrationCountry
+                    )?.name,
+                    vehiclePrice: `USD ${calculateVehiclePrice(
+                      bookingVehicle
+                    )}`,
+                  };
+                })}
+              />
+            </menu>
+          )
+        )}
+        <menu className="flex items-center gap-3 justify-between w-full my-4 px-2">
+          <h1 className="text-primary font-bold uppercase">Total</h1>
+          <p className="uppercase font-medium underline">
+            USD {booking?.totalAmountUsd}
           </p>
-        </ul>
-        <ul className="flex items-center gap-2">
-          <p>Date:</p>
-          <p>{formatDate(booking?.startDate)}</p>
-        </ul>
-      </menu>
-      {bookingActivitiesIsFetching ? (
-        <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader className='text-primary' />
-        </figure>
-      ) : (
-        bookingActivitiesIsSuccess && (
-          <menu className="flex flex-col gap-2 w-full">
-            <ul className="flex items-center gap-6 my-2">
-              <h1 className="font-bold text-xl uppercase">Activities</h1>
-              <Button
-                className="!py-[2px] underline !text-[12px]"
-                styled={false}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(
-                    `/bookings/create?referenceId=${booking?.referenceId}`
-                  );
-                }}
-              >
-                Update
-              </Button>
-            </ul>
-            <Table
-              showFilter={false}
-              showPagination={false}
-              columns={bookingActivitiesColumns}
-              data={bookingActivitiesList}
-            />
-          </menu>
-        )
-      )}
-      {bookingPeopleIsFetching ? (
-        <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader className='text-primary' />
-        </figure>
-      ) : (
-        bookingPeopleIsSuccess && (
-          <menu className="flex flex-col gap-2 w-full">
-            <ul className="flex items-center gap-6 my-2">
-              <h1 className="font-bold text-xl uppercase">People</h1>
-              <Button
-                className="!py-[2px] underline !text-[12px]"
-                styled={false}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(
-                    `/bookings/create?referenceId=${booking?.referenceId}`
-                  );
-                }}
-              >
-                Update
-              </Button>
-            </ul>
-            <Table
-              showFilter={false}
-              showPagination={false}
-              columns={bookingPeopleColumns}
-              data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
-                return {
-                  ...bookingPerson,
-                  gender: genderOptions?.find(
-                    (gender) => gender.value === bookingPerson?.gender
-                  )?.label,
-                  nationality: COUNTRIES?.find(
-                    (country) => country.code === bookingPerson?.nationality
-                  )?.name,
-                  residence: COUNTRIES?.find(
-                    (country) => country.code === bookingPerson?.residence
-                  )?.name,
-                  age: Number(
-                    moment().diff(bookingPerson?.dateOfBirth, 'years', false)
-                  ),
-                  numberOfDays: Number(
-                    moment(bookingPerson?.endDate).diff(
-                      bookingPerson?.startDate,
-                      'days'
-                    )
-                  ),
-                  price: `USD ${calculateEntryPrice(bookingPerson)}`,
-                };
-              })}
-            />
-          </menu>
-        )
-      )}
-      {bookingVehiclesIsFetching ? (
-        <figure className="w-full flex items-center justify-center min-h-[50vh]">
-          <Loader className='text-primary' />
-        </figure>
-      ) : (
-        bookingVehiclesIsSuccess && (
-          <menu className="flex flex-col gap-2 w-full">
-            <ul className="flex items-center gap-6 my-2">
-              <h1 className="font-bold text-xl uppercase">Vehicles</h1>
-              <Button
-                className="!py-[2px] underline !text-[12px]"
-                styled={false}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(
-                    `/bookings/create?referenceId=${booking?.referenceId}`
-                  );
-                }}
-              >
-                Update
-              </Button>
-            </ul>
-            <Table
-              showFilter={false}
-              showPagination={false}
-              columns={bookingVehiclesColumns}
-              data={bookingVehiclesList?.map((bookingVehicle, index) => {
-                return {
-                  ...bookingVehicle,
-                  no: index + 1,
-                  vehicleType: vehicleTypes.find(
-                    (vehicleType) =>
-                      vehicleType?.value === bookingVehicle?.vehicleType
-                  )?.label,
-                  registrationCountry: COUNTRIES.find(
-                    (country) =>
-                      country?.code === bookingVehicle?.registrationCountry
-                  )?.name,
-                };
-              })}
-            />
-          </menu>
-        )
-      )}
-      <menu className='flex flex-col items-center gap-3 justify-end w-full'>
-        <h1>Total</h1>
-        <ul>
-          <p>USD: </p>
-          <p>RWF: </p>
-        </ul>
-      </menu>
-      <menu className="flex items-center gap-3 justify-between">
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(`/bookings/create?referenceId=${booking?.referenceId}`);
-          }}
-        >
-          Back
-        </Button>
-        <Button
-          primary
-          onClick={(e) => {
-            e.preventDefault();
-            updateBooking({ id: booking?.id, status: 'pending' });
-          }}
-        >
-          {updateBookingIsLoading ? <Loader className='text-primary' /> : 'Submit'}
-        </Button>
-      </menu>
-    </main>
+        </menu>
+        <menu className="flex items-center gap-3 justify-between mb-6">
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/bookings/create?referenceId=${booking?.referenceId}`);
+            }}
+          >
+            Back
+          </Button>
+          <Button
+            primary
+            onClick={(e) => {
+              e.preventDefault();
+              updateBooking({ id: booking?.id, status: 'pending' });
+            }}
+          >
+            {updateBookingIsLoading ? (
+              <Loader />
+            ) : (
+              'Submit'
+            )}
+          </Button>
+        </menu>
+      </main>
     </PublicLayout>
   );
 };

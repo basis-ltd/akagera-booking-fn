@@ -39,6 +39,12 @@ export const bookingSlice = createSlice({
     setBooking: (state, action) => {
       state.booking = action.payload;
     },
+    setBookingTotalAmountUsd: (state, action) => {
+      state.booking.totalAmountUsd = action.payload;
+    },
+    addBookingTotalAmountUsd: (state, action) => {
+      state.booking.totalAmountUsd += Number(action.payload);
+    }
   },
 });
 
@@ -49,6 +55,8 @@ export const {
   setDraftBookingsModal,
   setDraftBookingsList,
   setBooking,
+  setBookingTotalAmountUsd,
+  addBookingTotalAmountUsd
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

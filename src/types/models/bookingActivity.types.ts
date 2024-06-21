@@ -15,4 +15,5 @@ export type BookingActivity = {
   booking: Booking;
   numberOfPeople: number | string;
   bookingActivityPeople?: BookingActivityPerson[];
+  price: number | string;
 };

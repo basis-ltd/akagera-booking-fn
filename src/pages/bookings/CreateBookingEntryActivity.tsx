@@ -30,7 +30,7 @@ import {
   setSelectedBookingVehicle,
 } from '@/states/features/bookingVehicleSlice';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
-import { vehicleTypes } from '@/constants/vehicles';
+import { vehicleTypes } from '@/constants/vehicles.constants';
 import { ColumnDef, Row } from '@tanstack/react-table';
 
 const CreateBookingEntryActivity = () => {
