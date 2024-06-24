@@ -168,7 +168,7 @@ const Table = <T extends object>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No records available.
                 </TableCell>
               </TableRow>
             )}

@@ -7,8 +7,6 @@ import {
   faChartSimple,
   faChevronCircleLeft,
   faChevronCircleRight,
-  faGear,
-  faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -26,16 +24,6 @@ const Sidebar = () => {
       label: 'Bookings',
       path: '/bookings',
       icon: faChartSimple,
-    },
-    {
-      label: 'Users',
-      path: '/admin/users',
-      icon: faUsers,
-    },
-    {
-      label: 'Settings',
-      path: '/admin/settings',
-      icon: faGear,
     },
   ];
 

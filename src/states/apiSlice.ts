@@ -36,7 +36,17 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING
       createBooking: builder.mutation({
-        query: ({ name, startDate, email, phone, accomodation, exitGate, endDate }) => ({
+        query: ({
+          name,
+          startDate,
+          email,
+          phone,
+          accomodation,
+          exitGate,
+          endDate,
+          entryGate,
+          type
+        }) => ({
           url: `bookings`,
           method: 'POST',
           body: {
@@ -47,6 +57,8 @@ export const apiSlice = createApi({
             accomodation,
             exitGate,
             endDate,
+            entryGate,
+            type
           },
         }),
       }),
@@ -126,7 +138,7 @@ export const apiSlice = createApi({
             dateOfBirth,
             bookingId,
             accomodation,
-            endDate
+            endDate,
           },
         }),
       }),
@@ -146,17 +158,11 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING VEHICLE
       createBookingVehicle: builder.mutation({
-        query: ({
-          bookingId,
-          plateNumber,
-          registrationCountry,
-          vehicleType,
-        }) => ({
+        query: ({ bookingId, registrationCountry, vehicleType }) => ({
           url: `booking-vehicles`,
           method: 'POST',
           body: {
             bookingId,
-            plateNumber,
             registrationCountry,
             vehicleType,
           },
@@ -178,7 +184,12 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING ACTIVITY
       createBookingActivity: builder.mutation({
-        query: ({ bookingId, activityId, startTime, bookingActivityPeople }) => ({
+        query: ({
+          bookingId,
+          activityId,
+          startTime,
+          bookingActivityPeople,
+        }) => ({
           url: `booking-activities`,
           method: 'POST',
           body: {
@@ -212,7 +223,8 @@ export const apiSlice = createApi({
             status,
             name,
             notes,
-            email, phone,
+            email,
+            phone,
             startDate,
           },
         }),
@@ -232,10 +244,7 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING STATUSES
       fetchBookingStatuses: builder.query({
-        query: ({
-          startDate,
-          endDate,
-        }) => {
+        query: ({ startDate, endDate }) => {
           let url = `booking-statuses?take=100&skip=0`;
           if (startDate) {
             url += `&startDate=${startDate}`;
@@ -245,7 +254,7 @@ export const apiSlice = createApi({
           }
           return {
             url,
-          }
+          };
         },
       }),
 
@@ -302,7 +311,7 @@ export const {
   useDeleteBookingPersonMutation,
   useDeleteBookingVehicleMutation,
   useDeleteBookingActivityMutation,
-  useSubmitBookingMutation
+  useSubmitBookingMutation,
 } = apiSlice;
 
 export default apiSlice;

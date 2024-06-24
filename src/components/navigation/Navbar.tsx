@@ -1,10 +1,12 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/states/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { User } from '@/types/models/user.types';
+import { capitalizeString } from '@/helpers/strings';
 
 type NavbarProps = {
   className?: string;
@@ -24,15 +26,12 @@ const navbarNav = [
 ];
 
 const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
-
   // STATE VARIABLES
   const { isOpen: sidebarOpen } = useSelector(
     (state: RootState) => state.sidebar
   );
+  const { user } = useSelector((state: RootState) => state.user);
   const [isOpen, setIsOpen] = useState(false);
-
-  // NAVIGATION
-  const navigate = useNavigate();
 
   return (
     <header
@@ -42,10 +41,10 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
         showLogo && '!w-[100vw] !left-0'
       } bg-white flex items-center gap-3 justify-between h-[10vh] mx-auto px-[7.5%] bg-transparent fixed py-6 z-[1000] ${className}`}
     >
-      <Link to={'#'} onClick={(e) => {
-        e.preventDefault();
-        navigate('/');
-      }} className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}>
+      <Link
+        to={'/'}
+        className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}
+      >
         <img className="text-white h-full w-auto" src={akageraLogo} />
       </Link>
       <menu
@@ -72,30 +71,38 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
         >
           <FontAwesomeIcon icon={faUser} />
         </Link>
-        <NavbarDropdown isOpen={isOpen} />
+        <NavbarDropdown isOpen={isOpen} user={user} />
       </menu>
     </header>
   );
 };
 
-const NavbarDropdown = ({ isOpen }: { isOpen: boolean }) => {
+const NavbarDropdown = ({ isOpen, user }: { isOpen: boolean; user: User }) => {
   return (
     <menu
       className={`w-[250px] right-[-95px] transition-all ease-out duration-500 flex flex-col gap-2 absolute translate-y-0 bg-white rounded-md shadow-md z-[10000] ${
         isOpen ? 'translate-y-0 top-14' : 'translate-y-[-400px]'
       }`}
     >
-      {navbarNav.map((navItem, index) => {
-        return (
-          <Link
-            key={index}
-            to={navItem?.path}
-            className="p-3 px-6 text-center text-black hover:bg-primary hover:text-white w-full"
-          >
-            {navItem?.label}
-          </Link>
-        );
-      })}
+      <article className="flex flex-col gap-1 my-2 p-2 rounded-t-md bg-slate-500">
+        <h1 className="text-white text-[13px] text-center">{user?.name}</h1>
+        <p className="text-white text-[13px] text-center">
+          {capitalizeString(user?.role)}
+        </p>
+      </article>
+      <menu className="flex flex-col gap-1 w-full">
+        {navbarNav.map((navItem, index) => {
+          return (
+            <Link
+              key={index}
+              to={navItem?.path}
+              className="p-3 px-6 text-center text-black hover:bg-primary hover:text-white w-full"
+            >
+              {navItem?.label}
+            </Link>
+          );
+        })}
+      </menu>
     </menu>
   );
 };

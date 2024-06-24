@@ -5,7 +5,7 @@ export type BookingVehicle = {
   id: UUID;
   bookingId: UUID;
   vehicleType?: string;
-  plateNumber: string;
+  plateNumber?: string;
   registrationCountry?: string;
   createdAt: Date;
   updatedAt: Date;

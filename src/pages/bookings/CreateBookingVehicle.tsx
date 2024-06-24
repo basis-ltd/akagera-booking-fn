@@ -1,6 +1,5 @@
 import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
-import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
@@ -51,7 +50,6 @@ const CreateBookingVehicle = () => {
   const onSubmit = (data: FieldValues) => {
     createBookingVehicle({
       bookingId: booking?.id,
-      plateNumber: data?.plateNumber,
       registrationCountry: data?.registrationCountry,
       vehicleType: data?.vehicleType,
     });
@@ -145,26 +143,6 @@ const CreateBookingVehicle = () => {
                     <InputErrorMessage
                       message={errors.registrationCountry.message}
                     />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="plateNumber"
-            control={control}
-            rules={{ required: 'Plate number is required' }}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1 w-full">
-                  <Input
-                    label="Plate number"
-                    placeholder="Enter plate number"
-                    required
-                    {...field}
-                  />
-                  {errors?.plateNumber && (
-                    <InputErrorMessage message={errors.plateNumber.message} />
                   )}
                 </label>
               );

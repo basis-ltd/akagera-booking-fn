@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   useLazyFetchServicesQuery,
   useLazyGetBookingDetailsQuery,
 } from '../../states/apiSlice';
-import { ErrorResponse, useLocation, useNavigate } from 'react-router-dom';
+import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppDispatch, RootState } from '../../states/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,10 +11,8 @@ import {
   setSelectedService,
   setServicesList,
 } from '../../states/features/serviceSlice';
-import { FieldValues, useForm } from 'react-hook-form';
 import ServiceCard from '../../containers/ServiceCard';
 import Loader from '../../components/inputs/Loader';
-import queryString from 'query-string';
 import { Service } from '@/types/models/service.types';
 import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
@@ -31,20 +29,10 @@ const CreateBookingActivities = () => {
     (state: RootState) => state.service
   );
   const { booking } = useSelector((state: RootState) => state.booking);
-  const [referenceId, setReferenceId] = useState<string>('');
-
-  // REACT HOOK FORM
-  const { handleSubmit } = useForm();
 
   // NAVIGATION
-  const { search } = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
-
-  // PARSE URL QUERY PARAMS
-  useEffect(() => {
-    const parsed = queryString.parse(search);
-    setReferenceId(String(parsed?.referenceId));
-  }, [search]);
 
   // INITIALIZE GET BOOKING DETAILS QUERY
   const [
@@ -60,10 +48,10 @@ const CreateBookingActivities = () => {
 
   // GET BOOKING DETAILS
   useEffect(() => {
-    if (referenceId) {
-      getBookingDetails({ referenceId });
+    if (id) {
+      getBookingDetails({ id });
     }
-  }, [referenceId, getBookingDetails]);
+  }, [id, getBookingDetails]);
 
   // HANDLE GET BOOKING DETAILS RESPONSE
   useEffect(() => {
@@ -90,13 +78,10 @@ const CreateBookingActivities = () => {
   ]);
 
   useEffect(() => {
-    document.title = `${booking?.referenceId} - ${booking?.name} - Activities`;
-  }, [booking]);
-
-  // HANDLE FORM SUBMISSION
-  const onSubmit = (data: FieldValues) => {
-    console.log(data);
-  };
+    if (bookingDetailsIsSuccess) {
+      document.title = `${booking?.referenceId} - ${booking?.name} - Activities`;
+    }
+  }, [booking, bookingDetailsIsSuccess]);
 
   // INITIALIZE FETCH SERVICES QUERY
   const [
@@ -140,23 +125,18 @@ const CreateBookingActivities = () => {
   return (
     <PublicLayout>
       <main className="w-[100vw] flex flex-col gap-6 p-4 max-h-[90vh]">
-      <h1 className="text-primary font-medium uppercase text-lg text-center">
-        Complete booking for {bookingDetailsIsSuccess ? booking?.name : '...'}{' '}
-        scheduled on{' '}
-        {bookingDetailsIsSuccess ? formatDate(booking?.startDate) : '...'}
-      </h1>
-      {(servicesIsFetching ||
-        bookingDetailsIsFetching) && (
+        <h1 className="text-primary font-medium uppercase text-lg text-center">
+          Complete booking for {bookingDetailsIsSuccess ? booking?.name : '...'}{' '}
+          scheduled on{' '}
+          {bookingDetailsIsSuccess ? formatDate(booking?.startDate) : '...'}
+        </h1>
+        {(servicesIsFetching || bookingDetailsIsFetching) && (
           <figure className="flex flex-col items-center gap-4 w-full min-h-[40vh]">
-            <Loader className='text-primary' />
+            <Loader className="text-primary" />
           </figure>
         )}
-      {bookingDetailsIsSuccess &&
-        servicesIsSuccess && (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 w-[80%] mx-auto"
-          >
+        {bookingDetailsIsSuccess && servicesIsSuccess && (
+          <form className="flex flex-col gap-4 w-[80%] mx-auto">
             <fieldset className="flex flex-col gap-3 w-full">
               <section className="flex flex-col gap-5 w-full">
                 <h1 className="text-lg text-center font-medium">
@@ -178,17 +158,15 @@ const CreateBookingActivities = () => {
                 {servicesList.indexOf(selectedService) === 1 && (
                   <CreateBookingActivitiesActivity />
                 )}
-                {
-                  servicesList.indexOf(selectedService) === 2 && (
-                    <CreateBookingGuidesActivity />
-                  )
-                }
+                {servicesList.indexOf(selectedService) === 2 && (
+                  <CreateBookingGuidesActivity />
+                )}
               </section>
             </fieldset>
           </form>
         )}
-              <SelectBookingActivity />
-    </main>
+        <SelectBookingActivity />
+      </main>
     </PublicLayout>
   );
 };

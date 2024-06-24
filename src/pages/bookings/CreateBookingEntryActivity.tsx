@@ -19,7 +19,7 @@ import {
   useLazyFetchBookingVehiclesQuery,
 } from '@/states/apiSlice';
 import { useEffect } from 'react';
-import { ErrorResponse } from 'react-router-dom';
+import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loader from '@/components/inputs/Loader';
 import moment from 'moment';
@@ -46,6 +46,9 @@ const CreateBookingEntryActivity = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH BOOKING PEOPLE QUERY
   const [
@@ -143,22 +146,7 @@ const CreateBookingEntryActivity = () => {
       header: 'Residence',
       accessorKey: 'residence',
     },
-    {
-      header: 'Gender',
-      accessorKey: 'gender',
-    },
-    {
-      header: 'Email',
-      accessorKey: 'email',
-    },
-    {
-      header: 'Phone',
-      accessorKey: 'phone',
-    },
-    {
-      header: 'Number of days',
-      accessorKey: 'numberOfDays',
-    },
+
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -198,10 +186,7 @@ const CreateBookingEntryActivity = () => {
       header: 'Registration Country',
       accessorKey: 'registrationCountry',
     },
-    {
-      header: 'Plate Number',
-      accessorKey: 'plateNumber',
-    },
+
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -235,7 +220,7 @@ const CreateBookingEntryActivity = () => {
            * BOOKING PEOPLE DETAILS
            */}
           <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
-            <ul className="flex items-center gap-3 justify-between">
+            <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
                 Booking people
               </h3>
@@ -264,6 +249,7 @@ const CreateBookingEntryActivity = () => {
             )}
             {bookingPeopleList?.length > 0 ? (
               <Table
+                showFilter={false}
                 data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                   return {
                     ...bookingPerson,
@@ -302,8 +288,8 @@ const CreateBookingEntryActivity = () => {
           {/**
            * BOOKING VEHICLES DETAILS
            */}
-          <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
-            <ul className="flex items-center gap-3 justify-between">
+          <menu className="w-full flex flex-col gap-3 min-h-[10vh] mb-4">
+            <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
                 Booking vehicles
               </h3>
@@ -335,7 +321,7 @@ const CreateBookingEntryActivity = () => {
             {fetchBookingVehiclesIsSuccess &&
             bookingVehiclesList?.length > 0 ? (
               <Table
-                columns={bookingVehiclesColumns}
+                columns={bookingVehiclesColumns as ColumnDef<BookingVehicle>[]}
                 data={bookingVehiclesList?.map(
                   (bookingVehicle: BookingVehicle, index: number) => {
                     return {
@@ -368,17 +354,28 @@ const CreateBookingEntryActivity = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
-              dispatch(
-                setSelectedService(
-                  servicesList.indexOf(selectedService) - 1 >= 0 &&
-                    servicesList[servicesList.indexOf(selectedService) - 1]
-                )
-              );
             }}
             disabled={servicesList.indexOf(selectedService) - 1 < 0}
           >
             Back
           </Button>
+          {booking?.type !== 'booking' && (
+            <Button
+              primary
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(
+                  setSelectedService(
+                    servicesList.indexOf(selectedService) + 1 <
+                      servicesList.length &&
+                      servicesList[servicesList.indexOf(selectedService) + 1]
+                  )
+                );
+              }}
+            >
+              Add activities
+            </Button>
+          )}
           <Button
             primary
             disabled={
@@ -386,6 +383,9 @@ const CreateBookingEntryActivity = () => {
             }
             onClick={(e) => {
               e.preventDefault();
+              if (booking?.type === 'registration') {
+                navigate(`/bookings/${booking?.id}/preview`);
+              }
               dispatch(
                 setSelectedService(
                   servicesList.indexOf(selectedService) + 1 <
@@ -395,7 +395,7 @@ const CreateBookingEntryActivity = () => {
               );
             }}
           >
-            Next
+            {booking?.type === 'booking' ? 'Next' : 'Complete'}
           </Button>
         </menu>
       </form>

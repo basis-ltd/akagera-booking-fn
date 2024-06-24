@@ -14,7 +14,7 @@ import {
 } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { Booking } from '@/types/models/booking.types';
-import { Row } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import { useEffect } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -131,7 +131,7 @@ const ListDraftBookings = () => {
               onClick={(e) => {
                 e.preventDefault();
                 navigate(
-                  `/bookings/create?referenceId=${row.original.referenceId}`
+                  `/bookings/${row.original.id}/create`
                 );
                 dispatch(setDraftBookingsModal(false));
               }}
@@ -294,7 +294,7 @@ const ListDraftBookings = () => {
         {bookingsIsSuccess && draftBookingsList?.length > 0 && (
           <section className="flex w-full flex-col gap-3">
             <Table
-              columns={draftBookingsColumns}
+              columns={draftBookingsColumns as ColumnDef<Booking>[]}
               data={draftBookingsList.map((booking: Booking, index: number) => {
                 return {
                   ...booking,

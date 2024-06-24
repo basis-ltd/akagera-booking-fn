@@ -68,6 +68,11 @@ const BookingPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // RESET TOTAL AMOUNT ON INITIAL LOAD
+  useEffect(() => {
+    dispatch(addBookingTotalAmountUsd(0));
+  }, [dispatch]);
+
   // INITIALIZE GET BOOKING DETAILS QUERY
   const [
     getBookingDetails,
@@ -346,22 +351,7 @@ const BookingPreview = () => {
       header: 'Residence',
       accessorKey: 'residence',
     },
-    {
-      header: 'Gender',
-      accessorKey: 'gender',
-    },
-    {
-      header: 'Email',
-      accessorKey: 'email',
-    },
-    {
-      header: 'Phone',
-      accessorKey: 'phone',
-    },
-    {
-      header: 'Number of days',
-      accessorKey: 'numberOfDays',
-    },
+
     {
       header: 'Entry fee',
       accessorKey: 'price',
@@ -405,10 +395,7 @@ const BookingPreview = () => {
       header: 'Registration Country',
       accessorKey: 'registrationCountry',
     },
-    {
-      header: 'Plate Number',
-      accessorKey: 'plateNumber',
-    },
+
     {
       header: 'Price',
       accessorKey: 'vehiclePrice',
@@ -470,6 +457,13 @@ const BookingPreview = () => {
     );
   }, [bookingVehiclesList, dispatch]);
 
+  // SET DOCUMENT TITLE
+  useEffect(() => {
+    document.title = `Booking Preview for ${
+      booking?.name
+    } scheduled on ${formatDate(booking?.startDate)}`;
+  }, [booking]);
+
   return (
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
@@ -482,29 +476,29 @@ const BookingPreview = () => {
             <Loader className="text-primary" />
           </figure>
         )}
-        <menu className="w-full flex flex-col gap-3 mt-4">
-          <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+        <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
+          <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>
             <Button className="!py-[2px] underline !text-[12px]" styled={false}>
               Update
             </Button>
           </ul>
-          <ul className="flex items-center gap-2">
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Full Names / Tour company:</p>
-            <p>{booking?.name}</p>
+            <p className="font-bold">{booking?.name}</p>
           </ul>
-          <ul className="flex items-center gap-2">
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Reference ID:</p>
-            <p className="flex items-center gap-1">
-              {booking?.referenceId}{' '}
+            <p className="flex items-center gap-1 max-[700px]:flex-col">
+              <strong>{booking?.referenceId} </strong>
               <span className="text-[12px]">
                 (Use this reference ID to track or update your booking)
               </span>
             </p>
           </ul>
-          <ul className="flex items-center gap-2">
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Date:</p>
-            <p>{formatDate(booking?.startDate)}</p>
+            <p className="font-bold">{formatDate(booking?.startDate)}</p>
           </ul>
         </menu>
         {bookingActivitiesIsFetching ? (
@@ -514,7 +508,7 @@ const BookingPreview = () => {
         ) : (
           bookingActivitiesIsSuccess && (
             <menu className="flex flex-col gap-2 w-full">
-              <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
                 <h1 className="font-bold text-xl uppercase">Activities</h1>
                 <Button
                   className="!py-[2px] underline !text-[12px]"
@@ -522,19 +516,33 @@ const BookingPreview = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(
-                      `/bookings/create?referenceId=${booking?.referenceId}`
+                      `/bookings/${booking?.id}/create`
                     );
                   }}
                 >
                   Update
                 </Button>
               </ul>
-              <Table
-                showFilter={false}
-                showPagination={false}
-                columns={bookingActivitiesColumns}
-                data={bookingActivitiesList}
-              />
+              {bookingActivitiesList?.length > 0 ? (
+                <Table
+                  showFilter={false}
+                  showPagination={false}
+                  columns={bookingActivitiesColumns}
+                  data={bookingActivitiesList}
+                />
+              ) : (
+                <article className="flex w-full flex-col items-center gap-4 my-6">
+                  <p className="text-center text-primary font-medium">
+                    No activities added to this booking. Click the button below to add them now.
+                  </p>
+                  <Button
+                    primary
+                    route={`/bookings/${booking?.id}/create`}
+                  >
+                    Add activities
+                  </Button>
+                </article>
+              )}
             </menu>
           )
         )}
@@ -545,7 +553,7 @@ const BookingPreview = () => {
         ) : (
           bookingPeopleIsSuccess && (
             <menu className="flex flex-col gap-2 w-full">
-              <ul className="flex items-center gap-3 w-full justify-between my-2 px-2">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
                 <h1 className="font-bold text-xl uppercase">People</h1>
                 <Button
                   className="!py-[2px] underline !text-[12px]"
@@ -553,7 +561,7 @@ const BookingPreview = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(
-                      `/bookings/create?referenceId=${booking?.referenceId}`
+                      `/bookings/${booking?.id}/create`
                     );
                   }}
                 >
@@ -607,7 +615,7 @@ const BookingPreview = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(
-                      `/bookings/create?referenceId=${booking?.referenceId}`
+                      `/bookings/${booking?.id}/create`
                     );
                   }}
                 >
@@ -649,7 +657,7 @@ const BookingPreview = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
-              navigate(`/bookings/create?referenceId=${booking?.referenceId}`);
+              navigate(`/bookings/${booking?.id}/create`);
             }}
           >
             Back
@@ -661,11 +669,7 @@ const BookingPreview = () => {
               updateBooking({ id: booking?.id, status: 'pending' });
             }}
           >
-            {updateBookingIsLoading ? (
-              <Loader />
-            ) : (
-              'Submit'
-            )}
+            {updateBookingIsLoading ? <Loader /> : 'Submit'}
           </Button>
         </menu>
       </main>
