@@ -133,7 +133,7 @@ const CreateBookingPerson = () => {
           <Controller
             name="age"
             control={control}
-            rules={{ required: 'Date of birth is required' }}
+            rules={{ required: 'Age is required' }}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1">

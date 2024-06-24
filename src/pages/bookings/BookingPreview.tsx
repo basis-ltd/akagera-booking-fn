@@ -8,7 +8,6 @@ import PublicLayout from '@/containers/PublicLayout';
 import {
   calculateActivityPrice,
   calculateBookingPersonPrice,
-  calculateEntryPrice,
   calculateVehiclePrice,
 } from '@/helpers/booking.helper';
 import { formatDate } from '@/helpers/strings';
@@ -439,7 +438,7 @@ const BookingPreview = () => {
     dispatch(
       addBookingTotalAmountUsd(
         bookingPeopleList?.reduce(
-          (acc, curr) => acc + Number(calculateEntryPrice(curr)),
+          (acc, curr) => acc + Number(calculateBookingPersonPrice(curr)),
           0
         )
       )
@@ -480,9 +479,6 @@ const BookingPreview = () => {
         <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
           <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>
-            <Button className="!py-[2px] underline !text-[12px]" styled={false}>
-              Update
-            </Button>
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Full Names / Tour company:</p>
