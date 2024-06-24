@@ -359,23 +359,6 @@ const CreateBookingEntryActivity = () => {
           >
             Back
           </Button>
-          {booking?.type !== 'booking' && (
-            <Button
-              primary
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(
-                  setSelectedService(
-                    servicesList.indexOf(selectedService) + 1 <
-                      servicesList.length &&
-                      servicesList[servicesList.indexOf(selectedService) + 1]
-                  )
-                );
-              }}
-            >
-              Add activities
-            </Button>
-          )}
           <Button
             primary
             disabled={

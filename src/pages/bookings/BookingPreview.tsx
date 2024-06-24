@@ -7,6 +7,7 @@ import { vehicleTypes } from '@/constants/vehicles.constants';
 import PublicLayout from '@/containers/PublicLayout';
 import {
   calculateActivityPrice,
+  calculateBookingPersonPrice,
   calculateEntryPrice,
   calculateVehiclePrice,
 } from '@/helpers/booking.helper';
@@ -501,51 +502,48 @@ const BookingPreview = () => {
             <p className="font-bold">{formatDate(booking?.startDate)}</p>
           </ul>
         </menu>
-        {bookingActivitiesIsFetching ? (
-          <figure className="w-full flex items-center justify-center min-h-[50vh]">
-            <Loader className="text-primary" />
-          </figure>
-        ) : (
-          bookingActivitiesIsSuccess && (
-            <menu className="flex flex-col gap-2 w-full">
-              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
-                <h1 className="font-bold text-xl uppercase">Activities</h1>
-                <Button
-                  className="!py-[2px] underline !text-[12px]"
-                  styled={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(
-                      `/bookings/${booking?.id}/create`
-                    );
-                  }}
-                >
-                  Update
-                </Button>
-              </ul>
-              {bookingActivitiesList?.length > 0 ? (
-                <Table
-                  showFilter={false}
-                  showPagination={false}
-                  columns={bookingActivitiesColumns}
-                  data={bookingActivitiesList}
-                />
-              ) : (
-                <article className="flex w-full flex-col items-center gap-4 my-6">
-                  <p className="text-center text-primary font-medium">
-                    No activities added to this booking. Click the button below to add them now.
-                  </p>
+        {booking?.type !== 'registration' &&
+          (bookingActivitiesIsFetching ? (
+            <figure className="w-full flex items-center justify-center min-h-[50vh]">
+              <Loader className="text-primary" />
+            </figure>
+          ) : (
+            bookingActivitiesIsSuccess && (
+              <menu className="flex flex-col gap-2 w-full">
+                <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
+                  <h1 className="font-bold text-xl uppercase">Activities</h1>
                   <Button
-                    primary
-                    route={`/bookings/${booking?.id}/create`}
+                    className="!py-[2px] underline !text-[12px]"
+                    styled={false}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/bookings/${booking?.id}/create`);
+                    }}
                   >
-                    Add activities
+                    Update
                   </Button>
-                </article>
-              )}
-            </menu>
-          )
-        )}
+                </ul>
+                {bookingActivitiesList?.length > 0 ? (
+                  <Table
+                    showFilter={false}
+                    showPagination={false}
+                    columns={bookingActivitiesColumns}
+                    data={bookingActivitiesList}
+                  />
+                ) : (
+                  <article className="flex w-full flex-col items-center gap-4 my-6">
+                    <p className="text-center text-primary font-medium">
+                      No activities added to this booking. Click the button
+                      below to add them now.
+                    </p>
+                    <Button primary route={`/bookings/${booking?.id}/create`}>
+                      Add activities
+                    </Button>
+                  </article>
+                )}
+              </menu>
+            )
+          ))}
         {bookingPeopleIsFetching ? (
           <figure className="w-full flex items-center justify-center min-h-[50vh]">
             <Loader className="text-primary" />
@@ -560,9 +558,7 @@ const BookingPreview = () => {
                   styled={false}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(
-                      `/bookings/${booking?.id}/create`
-                    );
+                    navigate(`/bookings/${booking?.id}/create`);
                   }}
                 >
                   Update
@@ -593,7 +589,7 @@ const BookingPreview = () => {
                         'days'
                       )
                     ),
-                    price: `USD ${calculateEntryPrice(bookingPerson)}`,
+                    price: `USD ${calculateBookingPersonPrice(bookingPerson)}`,
                   };
                 })}
               />
@@ -614,9 +610,7 @@ const BookingPreview = () => {
                   styled={false}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(
-                      `/bookings/${booking?.id}/create`
-                    );
+                    navigate(`/bookings/${booking?.id}/create`);
                   }}
                 >
                   Update

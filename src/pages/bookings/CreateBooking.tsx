@@ -98,16 +98,25 @@ const CreateBooking = () => {
       onClose={() => {
         dispatch(setCreateBookingModal(false));
       }}
-      heading="Create booking"
+      heading={booking?.type === 'booking' ? `Create booking` : `Complete registration`}
       headingClassName="text-xl"
     >
       <section className="flex flex-col gap-6 w-[60vw] max-[500px]:w-[80vw]">
-        <h3 className="text-primary font-medium text-md max-[600px]:text-[15px] max-[600px]:text-center ">
-          Add primary information that will help us accomodate for your booking.
-          The next steps will be to add activities and other details. Your
-          booking will be confirmed once you provide all the necessary
-          information.
-        </h3>
+        {booking?.type === 'booking' ? (
+          <h3 className="text-primary font-medium text-md max-[600px]:text-[15px] max-[600px]:text-center ">
+            Add primary information that will help us accomodate for your
+            booking. The next steps will be to add activities and other details.
+            Your booking will be confirmed once you provide all the necessary
+            information.
+          </h3>
+        ) : (
+          <h3>
+            Add primary information that will help us register you. The next
+            steps will be adding people and vehicles that will be part of your
+            registration. Your registration will be confirmed once you provide
+            all the necessary information.
+          </h3>
+        )}
         <article>
           <h1>Step 1 of {booking?.type === 'registration' ? '2' : '3'}</h1>
         </article>
