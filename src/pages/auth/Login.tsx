@@ -75,9 +75,9 @@ const Login = () => {
 
   return (
     <PublicLayout>
-      <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center">
+      <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center max-[900px]:w-[100vw]">
         <form
-          className="flex flex-col gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl"
+          className="flex flex-col gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl max-[1000px]:w-[45%] max-[900px]:w-[50%] max-[800px]:w-[60%] max-[700px]:w-[70%] max-[600px]:w-[80%] max-[500px]:w-[85%]"
           onSubmit={handleSubmit(onSubmit)}
         >
           <figure className="w-full flex flex-col gap-5 my-4">
@@ -99,7 +99,9 @@ const Login = () => {
                   if (value.includes('@')) {
                     return validateInputs(value, 'email') || 'Invalid email';
                   } else if (value.includes('07')) {
-                    return validateInputs(value, 'tel') || 'Invalid phone number';
+                    return (
+                      validateInputs(value, 'tel') || 'Invalid phone number'
+                    );
                   }
                   return 'Invalid username';
                 },
@@ -144,7 +146,7 @@ const Login = () => {
             />
             <menu className="w-full flex flex-col gap-4 my-2">
               <Input type="checkbox" label="Remember me" />
-              <ul className="w-full flex flex-col gap-2">
+              <ul className="w-full flex flex-col gap-4">
                 <Button submit primary>
                   {loginIsLoading ? <Loader /> : 'Login'}
                 </Button>
@@ -157,6 +159,14 @@ const Login = () => {
               </ul>
             </menu>
           </fieldset>
+          <article className="w-full flex items-center justify-center">
+            <Link
+              to="/"
+              className="text-center text-sm text-black hover:underline"
+            >
+              Go to homepage
+            </Link>
+          </article>
         </form>
       </main>
     </PublicLayout>

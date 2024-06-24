@@ -1,5 +1,6 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
+import PublicLayout from '@/containers/PublicLayout';
 import { useLazyGetBookingDetailsQuery } from '@/states/apiSlice';
 import { setBooking } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -59,32 +60,40 @@ const BookingSuccess = () => {
   ]);
 
   return (
-    <main className='w-full flex flex-col gap-5 min-h-[90vh] items-center justify-center'>
-      {bookingDetailsIsFetching ? (
-        <figure className="flex w-full min-h-[50vh] justify-center items-center">
-          <Loader className='text-primary' />
-        </figure>
-      ) : (
-        bookingDetailsIsSuccess && (
-          <section className="flex flex-col items-center h-full justify-center">
-            <h1 className="text-3xl font-bold text-center mt-6">
-              Booking Successful 🎉
-            </h1>
-            <p className="mt-4 max-w-[70%] text-center mx-auto">
-              Your booking has been successfully created. <br />
-              <br /> You will receive additional communication on{' '}
-              <span className="font-bold">{booking?.email}/{booking?.phone}</span> including
-              the booking details. <br /> <br/> Use the Booking Reference ID{' '}
-              <span className="font-bold">{booking?.referenceId}</span> to track
-              and manage your booking.
-            </p>
-          </section>
-        )
-      )}
-      <menu className="w-full flex items-center justify-center">
-        <Button route={'/'} primary>Continue</Button>
-      </menu>
-    </main>
+    <PublicLayout>
+      <main className="w-full flex flex-col gap-5 min-h-[90vh] items-center justify-center">
+        {bookingDetailsIsFetching ? (
+          <figure className="flex w-full min-h-[50vh] justify-center items-center">
+            <Loader className="text-primary" />
+          </figure>
+        ) : (
+          bookingDetailsIsSuccess && (
+            <section className="flex flex-col items-center h-full justify-center w-full">
+              <h1 className="text-3xl font-bold text-center mt-6">
+                Booking Successful 🎉
+              </h1>
+              <p className="mt-4 max-w-[70%] text-center mx-auto">
+                <p>Your booking has been successfully created.</p>
+                <p>
+                  You will receive additional communication on{' '}
+                  <span className="font-bold">{booking?.email}</span> or{' '}
+                  <span className="font-bold">{booking?.phone}</span>
+                </p>
+                including the booking details. <br /> <br /> Use the Booking
+                Reference ID{' '}
+                <span className="font-bold">{booking?.referenceId}</span> to
+                track and manage your booking.
+              </p>
+            </section>
+          )
+        )}
+        <menu className="w-full flex items-center justify-center">
+          <Button route={'/'} primary>
+            Continue
+          </Button>
+        </menu>
+      </main>
+    </PublicLayout>
   );
 };
 

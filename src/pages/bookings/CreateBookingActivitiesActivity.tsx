@@ -161,7 +161,7 @@ const CreateBookingActivitiesActivity = () => {
           <Loader className='text-primary' />
         </figure>
       ): (
-        <menu className='w-full grid grid-cols-2 gap-6'>
+        <menu className='w-full grid grid-cols-2 gap-6 max-[700px]:grid-cols-1'>
         {activitiesIsSuccess &&
           activitiesList?.length > 0 &&
           activitiesList.map((activity) => {

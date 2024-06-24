@@ -125,7 +125,6 @@ export function countryBelongsInAfrica(country: string | undefined) {
 }
 
 export function calculateAge(dateOfBirth: Date) {
-    console.log(moment().diff(dateOfBirth, 'years'));
     return moment().diff(dateOfBirth, 'years');
 }
 

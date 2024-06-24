@@ -4,14 +4,8 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import {
-  accommodationOptions,
-  bookingDaysOptions,
-} from '@/constants/bookings.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
-import { genderOptions } from '@/constants/inputs.constants';
 import { formatDate } from '@/helpers/strings';
-import validateInputs from '@/helpers/validations';
 import { useCreateBookingPersonMutation } from '@/states/apiSlice';
 import {
   addBookingPerson,
@@ -58,19 +52,10 @@ const CreateBookingPerson = () => {
   const onSubmit = (data: FieldValues) => {
     createBookingPerson({
       name: data.name,
-      dateOfBirth: data.dateOfBirth,
+      dateOfBirth: moment().subtract(data?.age, 'years').format('YYYY-MM-DD'),
       nationality: data?.nationality,
       residence: data?.residence,
       bookingId: booking?.id,
-      email: data?.email,
-      phone: data?.phone,
-      accomodation: data?.accomodation,
-      endDate:
-        Number(data?.numberOfDays) > 0
-          ? moment(booking?.startDate)
-              .add(Number(data?.numberOfDays), 'd')
-              .format()
-          : null,
     });
   };
 
@@ -146,21 +131,20 @@ const CreateBookingPerson = () => {
             }}
           />
           <Controller
-            name="dateOfBirth"
+            name="age"
             control={control}
             rules={{ required: 'Date of birth is required' }}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1">
                   <Input
-                    type="date"
-                    label="Date of birth"
+                    label="Age"
+                    placeholder='Enter age "e.g. 25"'
                     required
-                    toDate={new Date()}
                     {...field}
                   />
-                  {errors?.dateOfBirth && (
-                    <InputErrorMessage message={errors.dateOfBirth.message} />
+                  {errors?.age && (
+                    <InputErrorMessage message={errors.age.message} />
                   )}
                 </label>
               );
@@ -214,101 +198,6 @@ const CreateBookingPerson = () => {
               );
             }}
           />
-          <Controller
-            name="gender"
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1">
-                  <Select
-                    label="Gender (optional)"
-                    {...field}
-                    options={genderOptions}
-                  />
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1">
-                  <Input
-                    {...field}
-                    label="Phone (optional)"
-                    placeholder="Enter phone number"
-                  />
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="email"
-            rules={{
-              validate: (value) => {
-                if (!value) return true;
-                return (
-                  validateInputs(value, 'email') || 'Invalid email address'
-                );
-              },
-            }}
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1">
-                  <Input
-                    {...field}
-                    label="Email (optional)"
-                    placeholder="Enter email address"
-                  />
-                  {errors?.email && (
-                    <InputErrorMessage message={errors.email.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="numberOfDays"
-            rules={{ required: 'Enter your entrance date' }}
-            control={control}
-            defaultValue={'0'}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1 w-full">
-                  <Select
-                    placeholder="Select number of days"
-                    options={bookingDaysOptions}
-                    {...field}
-                    label="Number of days (if applicable)"
-                  />
-                  {errors.startDate && (
-                    <InputErrorMessage message={errors.startDate.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          {watch('numberOfDays') !== '0' && (
-            <Controller
-              name="accomodation"
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1">
-                    <Select
-                      {...field}
-                      label="Accomodation"
-                      placeholder="Select accomodation"
-                      options={accommodationOptions}
-                    />
-                  </label>
-                );
-              }}
-            />
-          )}
         </fieldset>
         <menu className="flex items-center gap-3 justify-between">
           <Button

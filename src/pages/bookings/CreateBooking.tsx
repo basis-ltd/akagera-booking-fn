@@ -26,6 +26,7 @@ const CreateBooking = () => {
   const { createBookingModal } = useSelector(
     (state: RootState) => state.booking
   );
+  const { booking } = useSelector((state: RootState) => state.booking);
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -57,12 +58,15 @@ const CreateBooking = () => {
       phone: data.phone,
       startDate: data.startDate,
       endDate:
-        Number(data?.numberOfDays) > 0 ?
-        moment(data.startDate).add(Number(data?.numberOfDays), 'd').format() : null,
+        Number(data?.numberOfDays) > 0
+          ? moment(data.startDate).add(Number(data?.numberOfDays), 'd').format()
+          : null,
       email: data.email,
       accomodation: data?.accomodation,
       exitGate: data?.exitGate,
-    })
+      entryGate: data?.entryGate,
+      type: booking?.type,
+    });
   };
 
   // HANDLE CREATE BOOKING RESPONSE
@@ -76,9 +80,8 @@ const CreateBooking = () => {
     } else if (createBookingIsSuccess) {
       toast.success('Booking created successfully');
       dispatch(setCreateBookingModal(false));
-      navigate(
-        `/bookings/create?referenceId=${createBookingData?.data?.referenceId}`
-      );
+      navigate(`/bookings/${createBookingData?.data?.id}/create`);
+      window.location.reload();
     }
   }, [
     createBookingData,
@@ -98,21 +101,21 @@ const CreateBooking = () => {
       heading="Create booking"
       headingClassName="text-xl"
     >
-      <section className="flex flex-col gap-6 w-[60vw]">
-        <h3 className="text-primary font-medium text-md">
+      <section className="flex flex-col gap-6 w-[60vw] max-[500px]:w-[80vw]">
+        <h3 className="text-primary font-medium text-md max-[600px]:text-[15px] max-[600px]:text-center ">
           Add primary information that will help us accomodate for your booking.
           The next steps will be to add activities and other details. Your
           booking will be confirmed once you provide all the necessary
           information.
         </h3>
         <article>
-          <h1>Step 1 of 3</h1>
+          <h1>Step 1 of {booking?.type === 'registration' ? '2' : '3'}</h1>
         </article>
         <form
           className="flex flex-col gap-4 relative w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <fieldset className="grid grid-cols-2 w-full gap-4">
+          <fieldset className="grid grid-cols-2 w-full gap-4 max-[700px]:grid-cols-1">
             <Controller
               name="name"
               rules={{ required: 'Name is required' }}
@@ -223,6 +226,30 @@ const CreateBooking = () => {
                     />
                     {errors.startDate && (
                       <InputErrorMessage message={errors.startDate.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="entryGate"
+              rules={{ required: 'Select entry gate' }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Select
+                      {...field}
+                      label="Select entry gate"
+                      placeholder="Select entry gate"
+                      required
+                      options={exitGateOptions}
+                      onChange={(e) => {
+                        field.onChange(e);
+                      }}
+                    />
+                    {errors?.entryGate && (
+                      <InputErrorMessage message={errors.entryGate.message} />
                     )}
                   </label>
                 );

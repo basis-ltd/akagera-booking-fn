@@ -7,7 +7,8 @@ export type Booking = {
     notes?: Text;
     status: string;
     endDate?: Date | string;
-    createdBy: string;
+    phone?: string;
+    email?: string;
     date: Date | string;
     totalAmountUsd?: number;
     totalAmountRwf?: number;
@@ -23,4 +24,5 @@ export type Booking = {
     approvedByUser?: string;
     referenceId?: string;
     name: string;
+    type: string;
 };

@@ -17,7 +17,10 @@ const Router = () => {
     <section className="w-[100vw] mx-auto absolute">
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/bookings/create" element={<CreateBookingActivities />} />
+        <Route
+          path="/bookings/:id/create"
+          element={<CreateBookingActivities />}
+        />
         <Route path="/bookings/:id/preview" element={<BookingPreview />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
