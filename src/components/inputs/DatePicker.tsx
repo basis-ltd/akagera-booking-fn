@@ -38,9 +38,10 @@ const DatePicker: FC<DatePickerProps> = ({
   const [defaultMonth, setDefaultMonth] = useState<Date | undefined>(
     moment().toDate()
   );
+  const [open, setOpen] = useState(false);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}
@@ -48,6 +49,7 @@ const DatePicker: FC<DatePickerProps> = ({
             'w-full justify-start text-left font-normal py-2 h-[38px]',
             !value && 'text-muted-foreground'
           )}
+          onClick={() => setOpen(!open)}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (
@@ -97,8 +99,8 @@ const DatePicker: FC<DatePickerProps> = ({
             />
           </ul>
           <Calendar
-          fromDate={fromDate}
-          toDate={toDate}
+            fromDate={fromDate}
+            toDate={toDate}
             mode="single"
             month={defaultMonth}
             onMonthChange={(e) => {
@@ -108,7 +110,10 @@ const DatePicker: FC<DatePickerProps> = ({
             }}
             selected={value}
             onSelect={(e) => {
-              e && onChange(moment(e).format());
+              if (e) {
+                onChange(moment(e).format());
+                setOpen(false);
+              }
             }}
             initialFocus
           />
