@@ -143,7 +143,7 @@ const Table = <T extends object>({
                         <TableCell
                           className={`${
                             preventAction ? '!cursor-auto' : ''
-                          } text-[13px] p-4`}
+                          } text-[13px] p-4 w-fit`}
                           key={cell.id}
                           onClick={(e) => {
                             if (preventAction) {

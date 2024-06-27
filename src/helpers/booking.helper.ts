@@ -156,13 +156,13 @@ export const calculateVehiclePrice = (vehicle: BookingVehicle) => {
     if (vehicle?.vehicleType === 'omnibus/bus/overlander') {
       return 20;
     } else {
-      return 100;
+      return 10;
     }
   } else {
     if (vehicle?.vehicleType === 'vehicle/minibus') {
-      return 10;
-    } else {
       return 40;
+    } else {
+      return 100;
     }
   }
 };

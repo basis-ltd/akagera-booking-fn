@@ -74,7 +74,7 @@ const ViewBookings = () => {
       startDate:
         watch('startDate') && moment(watch('startDate')).format('YYYY-MM-DD'),
       status: watch('status'),
-      createdBy,
+      type: 'booking',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchBookings, watch('startDate'), watch('status'), createdBy]);
@@ -120,40 +120,40 @@ const ViewBookings = () => {
     dispatch,
   ]);
 
-    // CUSTOMIZE EVENT PROPAGATION
-    const eventStyleGetter = (event: Booking) => {
-      let backgroundColor = '#036124'
-      switch (event?.status) {
-          case 'pending':
-              backgroundColor = '#F59E0B';
-              break;
-          case 'approved':
-              backgroundColor = '#036124';
-              break;
-          case 'cancelled':
-              backgroundColor = '#DC2626';
-              break;
-          case 'in_progress':
-              backgroundColor = '#808080';
-              break;
-          default:
-              break;
-      }
-      const luminance = getLuminance(backgroundColor);
-      const color = luminance > 0.5 ? 'black' : 'white';
-      const style = {
-        backgroundColor,
-        borderRadius: '5px',
-        padding: '5px',
-        shadow: '0px 0px 5px 0px rgba(0,0,0,0.75)',
-        color,
-        border: '0px',
-        display: 'block',
-      };
-      return {
-          style: style
-      };
-  }
+  // CUSTOMIZE EVENT PROPAGATION
+  const eventStyleGetter = (event: Booking) => {
+    let backgroundColor = '#036124';
+    switch (event?.status) {
+      case 'pending':
+        backgroundColor = '#F59E0B';
+        break;
+      case 'approved':
+        backgroundColor = '#036124';
+        break;
+      case 'cancelled':
+        backgroundColor = '#DC2626';
+        break;
+      case 'in_progress':
+        backgroundColor = '#808080';
+        break;
+      default:
+        break;
+    }
+    const luminance = getLuminance(backgroundColor);
+    const color = luminance > 0.5 ? 'black' : 'white';
+    const style = {
+      backgroundColor,
+      borderRadius: '5px',
+      padding: '5px',
+      shadow: '0px 0px 5px 0px rgba(0,0,0,0.75)',
+      color,
+      border: '0px',
+      display: 'block',
+    };
+    return {
+      style: style,
+    };
+  };
 
   return (
     <AdminLayout>

@@ -11,6 +11,7 @@ import CreateBookingVehicle from '@/pages/bookings/CreateBookingVehicle.tsx';
 import DeleteBookingPerson from '@/pages/bookings/DeleteBookingPerson.tsx';
 import DeleteBookingVehicle from '@/pages/bookings/DeleteBookingVehicle.tsx';
 import DeleteBookingActivity from '@/pages/bookings/DeleteBookingActivity.tsx';
+import ViewRegistrations from '@/pages/dashboard/ViewRegistrations.tsx';
 
 const Router = () => {
   return (
@@ -25,6 +26,7 @@ const Router = () => {
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/dashboard/bookings" element={<ViewBookings />} />
+        <Route path="/dashboard/registrations" element={<ViewRegistrations />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />

@@ -69,8 +69,8 @@ const BookingSuccess = () => {
         ) : (
           bookingDetailsIsSuccess && (
             <section className="flex flex-col items-center h-full justify-center w-full">
-              <h1 className="text-3xl font-bold text-center mt-6">
-                Booking Successful 🎉
+              <h1 className="text-3xl font-bold text-center mt-6 uppercase">
+                {booking?.type} Successful 🎉
               </h1>
               <p className="mt-4 max-w-[70%] text-center mx-auto">
                 <p>Your booking has been successfully created.</p>

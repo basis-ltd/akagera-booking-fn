@@ -7,6 +7,7 @@ import {
   faChartSimple,
   faChevronCircleLeft,
   faChevronCircleRight,
+  faList,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -22,8 +23,13 @@ const Sidebar = () => {
   const sidebarLinks = [
     {
       label: 'Bookings',
-      path: '/bookings',
+      path: '/dashboard/bookings',
       icon: faChartSimple,
+    },
+    {
+      label: 'Registrations',
+      path: '/dashboard/registrations',
+      icon: faList,
     },
   ];
 

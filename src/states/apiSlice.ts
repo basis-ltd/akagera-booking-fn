@@ -76,6 +76,7 @@ export const apiSlice = createApi({
           startDate,
           endDate,
           status,
+          type
         }) => {
           let url = `bookings?take=${take}&skip=${skip}`;
           if (status) {
@@ -101,6 +102,9 @@ export const apiSlice = createApi({
           }
           if (endDate) {
             url += `&endDate=${endDate}`;
+          }
+          if (type) {
+            url += `&type=${type}`;
           }
           return {
             url,

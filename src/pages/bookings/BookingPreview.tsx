@@ -468,7 +468,7 @@ const BookingPreview = () => {
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
         <h1 className="text-xl text-primary text-center font-bold uppercase">
-          Booking Preview for {booking?.name} scheduled on{' '}
+          {booking?.type} Preview for {booking?.name} scheduled on{' '}
           {formatDate(booking?.startDate)}
         </h1>
         {bookingDetailsIsFetching && (
