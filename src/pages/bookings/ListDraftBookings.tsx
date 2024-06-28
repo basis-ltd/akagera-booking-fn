@@ -5,7 +5,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
-import { formatDate } from '@/helpers/strings';
+import { capitalizeString, formatDate } from '@/helpers/strings';
 import validateInputs from '@/helpers/validations';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import {
@@ -60,6 +60,7 @@ const ListDraftBookings = () => {
       email: data?.email,
       phone: data?.phone,
       status: 'in_progress',
+      type: data?.type,
     });
   };
 
@@ -110,7 +111,11 @@ const ListDraftBookings = () => {
     },
     {
       header: 'Added by',
-      accessorKey: 'createdBy',
+      accessorKey: 'email',
+    },
+    {
+      header: 'Type',
+      accessorKey: 'type',
     },
     {
       header: 'Booking date',
@@ -130,9 +135,7 @@ const ListDraftBookings = () => {
               to={'#'}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(
-                  `/bookings/${row.original.id}/create`
-                );
+                navigate(`/bookings/${row.original.id}/create`);
                 dispatch(setDraftBookingsModal(false));
               }}
               className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
@@ -150,11 +153,12 @@ const ListDraftBookings = () => {
       isOpen={draftBookingsModal}
       onClose={() => {
         dispatch(setDraftBookingsModal(false));
+        dispatch(setDraftBookingsList([]));
       }}
       heading={
         draftBookingsList?.length > 0 && bookingsIsSuccess
-          ? ' List of unfinished bookings'
-          : 'Find bookings in progress to complete'
+          ? ' List of unfinished bookings/registrations'
+          : 'Find bookings/registrations in progress to complete'
       }
     >
       <form
@@ -195,6 +199,43 @@ const ListDraftBookings = () => {
               );
             }}
           />
+          {watch('selectOption') && (
+            <Controller
+              name="type"
+              rules={{
+                required: 'Choose the type of booking to find',
+              }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1">
+                    <Select
+                      placeholder="Select type"
+                      label="Select type"
+                      options={[
+                        {
+                          label: 'Booking',
+                          value: 'booking',
+                        },
+                        {
+                          label: 'Registration',
+                          value: 'registration',
+                        },
+                      ]}
+                      required
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                      }}
+                    />
+                    {errors?.type && (
+                      <InputErrorMessage message={errors.type.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
+          )}
           <menu className="flex flex-col gap-2 w-full">
             {watch('selectOption') === 'referenceId' && (
               <Controller
@@ -301,6 +342,7 @@ const ListDraftBookings = () => {
                   no: index + 1,
                   startDate: formatDate(booking.startDate),
                   createdAt: formatDate(booking.createdAt),
+                  type: capitalizeString(booking.type),
                 };
               })}
             />
@@ -310,6 +352,7 @@ const ListDraftBookings = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
+              dispatch(setDraftBookingsList([]));
               dispatch(setDraftBookingsModal(false));
             }}
           >

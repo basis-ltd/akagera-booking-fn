@@ -10,4 +10,5 @@ export type BookingVehicle = {
   createdAt: Date;
   updatedAt: Date;
   booking: Booking;
+  vehiclesCount: number;
 };

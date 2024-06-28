@@ -5,6 +5,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import { COUNTRIES } from '@/constants/countries.constants';
+import { genderOptions } from '@/constants/inputs.constants';
 import { formatDate } from '@/helpers/strings';
 import { useCreateBookingPersonMutation } from '@/states/apiSlice';
 import {
@@ -56,6 +57,7 @@ const CreateBookingPerson = () => {
       nationality: data?.nationality,
       residence: data?.residence,
       bookingId: booking?.id,
+      gender: data?.gender
     });
   };
 
@@ -130,27 +132,7 @@ const CreateBookingPerson = () => {
               );
             }}
           />
-          <Controller
-            name="age"
-            control={control}
-            rules={{ required: 'Age is required' }}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1">
-                  <Input
-                    label="Age"
-                    placeholder='Enter age "e.g. 25"'
-                    required
-                    {...field}
-                  />
-                  {errors?.age && (
-                    <InputErrorMessage message={errors.age.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          <Controller
+                    <Controller
             name="nationality"
             control={control}
             rules={{ required: `Select ${watch('name')}'s nationality` }}
@@ -193,6 +175,47 @@ const CreateBookingPerson = () => {
                   />
                   {errors?.residence && (
                     <InputErrorMessage message={errors.residence.message} />
+                  )}
+                </label>
+              );
+            }}
+          />
+          <Controller
+            name="age"
+            control={control}
+            rules={{ required: 'Age is required' }}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1">
+                  <Input
+                    label="Age"
+                    placeholder='Enter age "e.g. 25"'
+                    required
+                    {...field}
+                  />
+                  {errors?.age && (
+                    <InputErrorMessage message={errors.age.message} />
+                  )}
+                </label>
+              );
+            }}
+          />
+          <Controller
+            name="gender"
+            control={control}
+            rules={{ required: 'Select sex' }}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1">
+                  <Select
+                    label="Sex"
+                    placeholder='Select sex'
+                    options={genderOptions}
+                    required
+                    {...field}
+                  />
+                  {errors?.age && (
+                    <InputErrorMessage message={errors.age.message} />
                   )}
                 </label>
               );

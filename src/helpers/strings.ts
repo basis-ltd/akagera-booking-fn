@@ -57,3 +57,10 @@ export const generateRecurringEvents = (
 export const removeDuplicates = (array: never[]) => {
   return array.filter((value, index) => array.indexOf(value) === index);
 };
+
+export const formatMoney = (amount: number, currency = 'RWF') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}

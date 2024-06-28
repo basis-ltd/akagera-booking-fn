@@ -76,7 +76,7 @@ const LandingPage = () => {
                   dispatch(setDraftBookingsModal(true));
                 }}
               >
-                Complete existing booking
+                Complete existing booking/registration
               </Button>
             </menu>
           </section>

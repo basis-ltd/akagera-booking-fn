@@ -45,7 +45,7 @@ export const apiSlice = createApi({
           exitGate,
           endDate,
           entryGate,
-          type
+          type,
         }) => ({
           url: `bookings`,
           method: 'POST',
@@ -58,7 +58,7 @@ export const apiSlice = createApi({
             exitGate,
             endDate,
             entryGate,
-            type
+            type,
           },
         }),
       }),
@@ -76,7 +76,7 @@ export const apiSlice = createApi({
           startDate,
           endDate,
           status,
-          type
+          type,
         }) => {
           let url = `bookings?take=${take}&skip=${skip}`;
           if (status) {
@@ -130,6 +130,7 @@ export const apiSlice = createApi({
           bookingId,
           endDate,
           accomodation,
+          gender,
         }) => ({
           url: `booking-people`,
           method: 'POST',
@@ -143,6 +144,7 @@ export const apiSlice = createApi({
             bookingId,
             accomodation,
             endDate,
+            gender,
           },
         }),
       }),
@@ -162,13 +164,19 @@ export const apiSlice = createApi({
 
       // CREATE BOOKING VEHICLE
       createBookingVehicle: builder.mutation({
-        query: ({ bookingId, registrationCountry, vehicleType }) => ({
+        query: ({
+          bookingId,
+          registrationCountry,
+          vehicleType,
+          vehiclesCount,
+        }) => ({
           url: `booking-vehicles`,
           method: 'POST',
           body: {
             bookingId,
             registrationCountry,
             vehicleType,
+            vehiclesCount,
           },
         }),
       }),

@@ -10,7 +10,7 @@ import {
   calculateBookingPersonPrice,
   calculateVehiclePrice,
 } from '@/helpers/booking.helper';
-import { formatDate } from '@/helpers/strings';
+import { formatDate, formatMoney } from '@/helpers/strings';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
@@ -395,7 +395,10 @@ const BookingPreview = () => {
       header: 'Registration Country',
       accessorKey: 'registrationCountry',
     },
-
+    {
+      header: 'Number of vehicles',
+      accessorKey: 'vehiclesCount',
+    },
     {
       header: 'Price',
       accessorKey: 'vehiclePrice',
@@ -637,11 +640,16 @@ const BookingPreview = () => {
             </menu>
           )
         )}
-        <menu className="flex items-center gap-3 justify-between w-full my-4 px-2">
+        <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
           <h1 className="text-primary font-bold uppercase">Total</h1>
-          <p className="uppercase font-medium underline">
-            USD {booking?.totalAmountUsd}
-          </p>
+          <ul className="flex flex-col items-start gap-2">
+            <p className="uppercase font-medium underline">
+              {formatMoney(Number(booking?.totalAmountUsd))}
+            </p>
+            <p className="uppercase font-medium underline">
+              {formatMoney(Number(booking?.totalAmountUsd) * 1350, 'RWF')}
+            </p>
+          </ul>
         </menu>
         <menu className="flex items-center gap-3 justify-between mb-6">
           <Button

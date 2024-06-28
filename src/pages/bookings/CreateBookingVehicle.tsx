@@ -1,5 +1,6 @@
 import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
+import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
@@ -32,6 +33,7 @@ const CreateBookingVehicle = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    trigger
   } = useForm();
 
   // INITIALIZE CREATE BOOKING VEHICLE MUTATION
@@ -52,6 +54,7 @@ const CreateBookingVehicle = () => {
       bookingId: booking?.id,
       registrationCountry: data?.registrationCountry,
       vehicleType: data?.vehicleType,
+      vehiclesCount: data?.vehiclesCount,
     });
   };
 
@@ -143,6 +146,31 @@ const CreateBookingVehicle = () => {
                     <InputErrorMessage
                       message={errors.registrationCountry.message}
                     />
+                  )}
+                </label>
+              );
+            }}
+          />
+          <Controller
+            name="vehiclesCount"
+            control={control}
+            rules={{ required: 'Add number of vehicles' }}
+            defaultValue={1}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1 w-full">
+                  <Input
+                    label="Number of vehicles"
+                    type="number"
+                    placeholder="Number of vehicles"
+                    {...field}
+                    onChange={async (e) => {
+                      field.onChange(parseInt(e.target.value));
+                      await trigger('vehiclesCount');
+                    }}
+                  />
+                  {errors?.vehiclesCount && (
+                    <InputErrorMessage message={errors.vehiclesCount.message} />
                   )}
                 </label>
               );

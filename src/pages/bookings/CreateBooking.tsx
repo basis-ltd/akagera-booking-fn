@@ -17,6 +17,7 @@ import Select from '@/components/inputs/Select';
 import {
   accommodationOptions,
   bookingDaysOptions,
+  entryGateOptions,
   exitGateOptions,
 } from '@/constants/bookings.constants';
 
@@ -197,6 +198,30 @@ const CreateBooking = () => {
                 );
               }}
             />
+                        <Controller
+              name="entryGate"
+              rules={{ required: 'Select entry gate' }}
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 w-full">
+                    <Select
+                      {...field}
+                      label="Select entry gate"
+                      placeholder="Select entry gate"
+                      required
+                      options={entryGateOptions}
+                      onChange={(e) => {
+                        field.onChange(e);
+                      }}
+                    />
+                    {errors?.entryGate && (
+                      <InputErrorMessage message={errors.entryGate.message} />
+                    )}
+                  </label>
+                );
+              }}
+            />
             <Controller
               name="startDate"
               rules={{ required: 'Enter your entrance date' }}
@@ -209,7 +234,11 @@ const CreateBooking = () => {
                       {...field}
                       label="Entrance date"
                       required
-                      fromDate={moment().add(1, 'd').toDate()}
+                      fromDate={
+                        watch('entryGate') === 'mutumbaGate'
+                          ? moment().add(1, 'd').toDate()
+                          : moment().toDate()
+                      }
                     />
                     {errors.startDate && (
                       <InputErrorMessage message={errors.startDate.message} />
@@ -235,30 +264,6 @@ const CreateBooking = () => {
                     />
                     {errors.startDate && (
                       <InputErrorMessage message={errors.startDate.message} />
-                    )}
-                  </label>
-                );
-              }}
-            />
-            <Controller
-              name="entryGate"
-              rules={{ required: 'Select entry gate' }}
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1 w-full">
-                    <Select
-                      {...field}
-                      label="Select entry gate"
-                      placeholder="Select entry gate"
-                      required
-                      options={exitGateOptions}
-                      onChange={(e) => {
-                        field.onChange(e);
-                      }}
-                    />
-                    {errors?.entryGate && (
-                      <InputErrorMessage message={errors.entryGate.message} />
                     )}
                   </label>
                 );

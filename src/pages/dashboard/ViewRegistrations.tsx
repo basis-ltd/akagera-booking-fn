@@ -121,10 +121,6 @@ const ViewRegistrations = () => {
       accessorKey: 'exitGate',
     },
     {
-      header: 'Reference ID',
-      accessorKey: 'referenceId',
-    },
-    {
       header: 'Notes',
       accessorKey: 'notes',
     },

@@ -154,15 +154,15 @@ export function calculateAge(dateOfBirth: Date) {
 export const calculateVehiclePrice = (vehicle: BookingVehicle) => {
   if (countryBelongsToEAC(vehicle?.registrationCountry)) {
     if (vehicle?.vehicleType === 'omnibus/bus/overlander') {
-      return 20;
+      return 20 * vehicle.vehiclesCount;
     } else {
-      return 10;
+      return 10 * vehicle.vehiclesCount;
     }
   } else {
     if (vehicle?.vehicleType === 'vehicle/minibus') {
-      return 40;
+      return 40 * vehicle.vehiclesCount;
     } else {
-      return 100;
+      return 100 * vehicle.vehiclesCount;
     }
   }
 };

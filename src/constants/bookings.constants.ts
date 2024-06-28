@@ -4,6 +4,11 @@ export const exitGateOptions = [
   { label: 'Mutumba Gate', value: 'mutumbaGate' },
 ];
 
+export const entryGateOptions = [
+  { label: 'South Gate', value: 'southGate' },
+  { label: 'Mutumba Gate', value: 'mutumbaGate' },
+];
+
 export const accommodationOptions = [
   { label: 'Ruzizi Tented Lodge', value: 'ruziziTentedLodge' },
   { label: 'Karenge Bush Camp', value: 'karengeBushCamp' },

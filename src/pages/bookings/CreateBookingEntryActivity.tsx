@@ -139,6 +139,10 @@ const CreateBookingEntryActivity = () => {
       accessorKey: 'age',
     },
     {
+      header: 'Sex',
+      accessorKey: 'gender',
+    },
+    {
       header: 'Nationality',
       accessorKey: 'nationality',
     },
@@ -153,10 +157,6 @@ const CreateBookingEntryActivity = () => {
       cell: ({ row }: { row: Row<BookingPerson> }) => {
         return (
           <menu className="flex items-center gap-3">
-            {/* <FontAwesomeIcon
-              icon={faPenToSquare}
-              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
-            /> */}
             <FontAwesomeIcon
               icon={faTrash}
               onClick={(e) => {
@@ -186,17 +186,16 @@ const CreateBookingEntryActivity = () => {
       header: 'Registration Country',
       accessorKey: 'registrationCountry',
     },
-
+    {
+      header: 'Number of vehicles',
+      accessorKey: 'vehiclesCount',
+    },
     {
       header: 'Actions',
       accessorKey: 'actions',
       cell: ({ row }: { row: Row<BookingVehicle> }) => {
         return (
           <menu className="flex items-center gap-3">
-            {/* <FontAwesomeIcon
-              icon={faPenToSquare}
-              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
-            /> */}
             <FontAwesomeIcon
               icon={faTrash}
               onClick={(e) => {
@@ -366,6 +365,10 @@ const CreateBookingEntryActivity = () => {
             }
             onClick={(e) => {
               e.preventDefault();
+              if (bookingPeopleList?.length <= 0) {
+                toast.error('Please add at least one person to your booking');
+                return;
+              }
               if (booking?.type === 'registration') {
                 navigate(`/bookings/${booking?.id}/preview`);
               }
