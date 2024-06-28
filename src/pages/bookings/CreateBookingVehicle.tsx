@@ -97,7 +97,7 @@ const CreateBookingVehicle = () => {
       }}
       heading={`Add Vehicle to "${booking?.name} - ${formatDate(
         booking?.startDate
-      )}" Booking`}
+      )}"`}
     >
       <form
         className="flex flex-col gap-4 w-full min-w-[50vw]"

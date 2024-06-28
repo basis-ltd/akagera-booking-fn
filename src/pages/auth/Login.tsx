@@ -54,7 +54,7 @@ const Login = () => {
       dispatch(setUser(loginData?.data?.user));
       dispatch(setToken(loginData?.data?.token));
       toast.success('Login successful, redirecting...');
-      navigate('/dashboard/bookings');
+      navigate('/dashboard/registrations');
     }
     if (loginIsError) {
       if ((loginError as ErrorResponse)?.status === 500) {

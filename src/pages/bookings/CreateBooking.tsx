@@ -99,7 +99,9 @@ const CreateBooking = () => {
       onClose={() => {
         dispatch(setCreateBookingModal(false));
       }}
-      heading={booking?.type === 'booking' ? `Create booking` : `Complete registration`}
+      heading={
+        booking?.type === 'booking' ? `Create booking` : `Complete registration`
+      }
       headingClassName="text-xl"
     >
       <section className="flex flex-col gap-6 w-[60vw] max-[500px]:w-[80vw]">
@@ -198,7 +200,7 @@ const CreateBooking = () => {
                 );
               }}
             />
-                        <Controller
+            <Controller
               name="entryGate"
               rules={{ required: 'Select entry gate' }}
               control={control}
@@ -222,7 +224,7 @@ const CreateBooking = () => {
                 );
               }}
             />
-            <Controller
+            {watch('entryGate') && <Controller
               name="startDate"
               rules={{ required: 'Enter your entrance date' }}
               control={control}
@@ -246,7 +248,7 @@ const CreateBooking = () => {
                   </label>
                 );
               }}
-            />
+            />}
             <Controller
               name="numberOfDays"
               rules={{ required: 'Enter your entrance date' }}

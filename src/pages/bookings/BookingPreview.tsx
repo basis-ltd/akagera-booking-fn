@@ -492,7 +492,7 @@ const BookingPreview = () => {
             <p className="flex items-center gap-1 max-[700px]:flex-col">
               <strong>{booking?.referenceId} </strong>
               <span className="text-[12px]">
-                (Use this reference ID to track or update your booking)
+                (Use this reference ID to track or update your {booking?.type})
               </span>
             </p>
           </ul>
@@ -647,7 +647,7 @@ const BookingPreview = () => {
               {formatMoney(Number(booking?.totalAmountUsd))}
             </p>
             <p className="uppercase font-medium underline">
-              {formatMoney(Number(booking?.totalAmountUsd) * 1350, 'RWF')}
+              {formatMoney(Number(booking?.totalAmountUsd) * 1303, 'RWF')}
             </p>
           </ul>
         </menu>

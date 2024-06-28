@@ -15,7 +15,7 @@ import moment from 'moment';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, Link } from 'react-router-dom';
+import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ViewRegistrations = () => {
@@ -25,6 +25,9 @@ const ViewRegistrations = () => {
 
   // REACT HOOK FORM
   const { control, watch, setValue } = useForm();
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH BOOKINGS QUERY
   const [
@@ -231,6 +234,9 @@ const ViewRegistrations = () => {
         ) : bookingsIsSuccess && bookingsList?.length > 0 ? (
           <section className="w-full flex flex-col gap-3">
             <Table
+            rowClickHandler={(row) => {
+              navigate(`/bookings/${row?.id}/details`)
+            }}
               showFilter={false}
               showPagination={false}
               data={bookingsList?.map((registration: Booking) => {

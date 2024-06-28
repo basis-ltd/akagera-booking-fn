@@ -221,7 +221,7 @@ const CreateBookingEntryActivity = () => {
           <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
             <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
-                Booking people
+                {booking?.type} people
               </h3>
               <Button
                 primary
@@ -290,7 +290,7 @@ const CreateBookingEntryActivity = () => {
           <menu className="w-full flex flex-col gap-3 min-h-[10vh] mb-4">
             <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
-                Booking vehicles
+                {booking?.type} vehicles
               </h3>
               <Button
                 primary
