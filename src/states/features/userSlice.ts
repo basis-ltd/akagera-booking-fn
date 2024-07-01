@@ -4,14 +4,16 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState: {
   usersList: User[];
-  selectedUser: User;
+  selectedUser?: User;
   user: User;
   token: string;
+  createUserModal: boolean
 } = {
   usersList: [],
-  selectedUser: {} as User,
-  user: store.get('user') || ({} as User),
+  selectedUser: undefined,
+  user: store.get('user'),
   token: store.get('token') || '',
+  createUserModal: false
 };
 
 const userSlice = createSlice({
@@ -40,6 +42,9 @@ const userSlice = createSlice({
       state.token = action.payload;
       store.set('token', action.payload);
     },
+    setCreateUserModal: (state, action) => {
+      state.createUserModal = action.payload
+    }
   },
 });
 
@@ -50,6 +55,7 @@ export const {
   addUserToList,
   removeUserFromList,
   setToken,
+  setCreateUserModal
 } = userSlice.actions;
 
 export default userSlice.reducer;

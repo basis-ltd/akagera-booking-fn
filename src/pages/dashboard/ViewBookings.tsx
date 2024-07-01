@@ -18,7 +18,7 @@ import { useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, Link } from 'react-router-dom';
+import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getLuminance } from 'polished';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -27,6 +27,9 @@ const ViewBookings = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { bookingsList } = useSelector((state: RootState) => state.booking);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // REACT HOOK FORM
   const { control, watch } = useForm();
@@ -263,10 +266,10 @@ const ViewBookings = () => {
               className="bg-white rounded-lg shadow-md p-4 text-[12px]"
               events={bookingsList
                 ?.filter((booking) => booking?.status !== 'in_progress')
-                ?.map((booking: Booking, index: number) => {
+                ?.map((booking: Booking) => {
                   return {
                     ...booking,
-                    id: index,
+                    id: booking?.id,
                     title: `${booking?.name} (${capitalizeString(
                       booking?.status
                     )})`,
@@ -275,6 +278,9 @@ const ViewBookings = () => {
                   };
                 })}
               startAccessor="start"
+              onSelectEvent={(event) => {
+                navigate(`/bookings/${event?.id}/details`);
+              }}
               endAccessor="end"
               style={{ height: 500 }}
             />

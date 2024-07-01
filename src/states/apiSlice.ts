@@ -309,9 +309,41 @@ export const apiSlice = createApi({
           url: `bookings/${id}/submit`,
           method: 'PATCH',
           body: {
-            status
-          }
+            status,
+          },
         }),
+      }),
+
+      // FETCH USERS
+      fetchUsers: builder.query({
+        query: ({ role, take, skip, nationality }) => {
+          let url = `users?take=${take}&skip=${skip}`;
+          if (role) {
+            url += `&role=${role}`;
+          }
+          if (nationality) {
+            url += `&nationality=${nationality}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
+      // CREATE USER
+      createUser: builder.mutation({
+        query: ({ name, nationality = 'RW', email, role }) => {
+          return {
+            url: `users`,
+            method: 'POST',
+            body: {
+              name,
+              nationality,
+              email,
+              role,
+            },
+          };
+        },
       }),
     };
   },
@@ -336,6 +368,8 @@ export const {
   useDeleteBookingVehicleMutation,
   useDeleteBookingActivityMutation,
   useSubmitBookingMutation,
+  useLazyFetchUsersQuery,
+  useCreateUserMutation
 } = apiSlice;
 
 export default apiSlice;
