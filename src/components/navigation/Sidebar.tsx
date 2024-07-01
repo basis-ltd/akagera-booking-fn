@@ -7,7 +7,9 @@ import {
   faChartSimple,
   faChevronCircleLeft,
   faChevronCircleRight,
+  faDashboard,
   faList,
+  faUserGroup,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -15,6 +17,7 @@ const Sidebar = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { isOpen } = useSelector((state: RootState) => state.sidebar);
+  const { user } = useSelector((state: RootState) => state.user);
 
   // LOCATION
   const { pathname } = useLocation();
@@ -22,14 +25,28 @@ const Sidebar = () => {
   // SIDEBAR LINKS
   const sidebarLinks = [
     {
+      label: 'Dashboard',
+      path: '/dashboard/registrations',
+      icon: faDashboard,
+      role: 'admin'
+    },
+    {
       label: 'Bookings',
       path: '/dashboard/bookings',
       icon: faChartSimple,
+      role: 'receptionist'
     },
     {
       label: 'Registrations',
       path: '/dashboard/registrations',
       icon: faList,
+      role: 'receptionist'
+    },
+    {
+      label: 'Uses',
+      path: '/dashboard/users',
+      icon: faUserGroup,
+      role: 'admin'
     },
   ];
 
@@ -59,6 +76,7 @@ const Sidebar = () => {
       </figure>
       <menu className="flex flex-col gap-2">
         {sidebarLinks.map((link, index) => {
+          if (link?.role === 'admin' && user?.role !== 'admin') return null
           return (
             <Link
               key={index}

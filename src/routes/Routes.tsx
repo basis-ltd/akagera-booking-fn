@@ -13,6 +13,8 @@ import DeleteBookingVehicle from '@/pages/bookings/DeleteBookingVehicle.tsx';
 import DeleteBookingActivity from '@/pages/bookings/DeleteBookingActivity.tsx';
 import ViewRegistrations from '@/pages/dashboard/ViewRegistrations.tsx';
 import BookingDetails from '@/pages/bookings/BookingDetails.tsx';
+import ListUsers from '@/pages/users/ListUsers.tsx';
+import CreateUser from '@/pages/users/CreateUser.tsx';
 
 const Router = () => {
   return (
@@ -29,6 +31,7 @@ const Router = () => {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/dashboard/bookings" element={<ViewBookings />} />
         <Route path="/dashboard/registrations" element={<ViewRegistrations />} />
+        <Route path="/dashboard/users" element={<ListUsers />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
@@ -36,6 +39,7 @@ const Router = () => {
       <DeleteBookingPerson />
       <DeleteBookingVehicle />
       <DeleteBookingActivity />
+      <CreateUser />
     </section>
   );
 };
