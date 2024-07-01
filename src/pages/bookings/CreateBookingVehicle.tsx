@@ -6,7 +6,7 @@ import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
-import { formatDate } from '@/helpers/strings';
+import { formatDate } from '@/helpers/strings.helper';
 import { useCreateBookingVehicleMutation } from '@/states/apiSlice';
 import {
   addBookingVehicle,

@@ -24,7 +24,9 @@ const CreateBookingActivitiesActivity = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const { activitiesList, selectBookingActivityModal } = useSelector((state: RootState) => state.activity);
+  const { activitiesList, selectBookingActivityModal } = useSelector(
+    (state: RootState) => state.activity
+  );
   const { booking } = useSelector((state: RootState) => state.booking);
 
   // INITIALIZE FETCH BOOKING PEOPLE
@@ -41,10 +43,10 @@ const CreateBookingActivitiesActivity = () => {
 
   // FETCH BOOKING PEOPLE
   useEffect(() => {
-    if (booking && !selectBookingActivityModal) {
+    if (booking) {
       fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
     }
-  }, [booking, fetchBookingPeople, selectBookingActivityModal]);
+  }, [booking, fetchBookingPeople]);
 
   // HANDLE FETCH BOOKING PEOPLE RESPONSE
   useEffect(() => {
@@ -156,17 +158,19 @@ const CreateBookingActivitiesActivity = () => {
 
   return (
     <section className="w-full flex flex-col gap-5 py-6">
-      {activitiesIsFetching || bookingActivitiesIsFetching || bookingPeopleIsFetching ? (
+      {activitiesIsFetching ||
+      bookingActivitiesIsFetching ||
+      bookingPeopleIsFetching ? (
         <figure className="w-full min-h-[40vh] flex items-center justify-center">
-          <Loader className='text-primary' />
+          <Loader className="text-primary" />
         </figure>
-      ): (
-        <menu className='w-full grid grid-cols-2 gap-6 max-[700px]:grid-cols-1'>
-        {activitiesIsSuccess &&
-          activitiesList?.length > 0 &&
-          activitiesList.map((activity) => {
-            return <ActivityCard activity={activity} />;
-          })}
+      ) : (
+        <menu className="w-full grid grid-cols-2 gap-6 max-[700px]:grid-cols-1">
+          {activitiesIsSuccess &&
+            activitiesList?.length > 0 &&
+            activitiesList.map((activity) => {
+              return <ActivityCard activity={activity} />;
+            })}
         </menu>
       )}
       <menu className="flex items-center gap-3 justify-between w-full">
@@ -193,7 +197,8 @@ const CreateBookingActivitiesActivity = () => {
             e.preventDefault();
             dispatch(
               setSelectedService(
-                servicesList.indexOf(selectedService) + 1 < servicesList.length &&
+                servicesList.indexOf(selectedService) + 1 <
+                  servicesList.length &&
                   servicesList[servicesList.indexOf(selectedService) + 1]
               )
             );

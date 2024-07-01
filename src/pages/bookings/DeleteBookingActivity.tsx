@@ -4,6 +4,7 @@ import Modal from '@/components/modals/Modal';
 import { useDeleteBookingActivityMutation } from '@/states/apiSlice';
 import {
   removeBookingActivity,
+  removeExistingBookingActivitiesList,
   setDeleteBookingActivityModal,
   setSelectedBookingActivity,
 } from '@/states/features/bookingActivitySlice';
@@ -45,8 +46,9 @@ const DeleteBookingActivity = () => {
       toast.success(
         `${selectedBookingActivity?.activity?.name} has been removed from this booking.`
       );
-      dispatch(setSelectedBookingActivity({}));
+      dispatch(setSelectedBookingActivity(undefined));
       dispatch(removeBookingActivity(selectedBookingActivity));
+      dispatch(removeExistingBookingActivitiesList(selectedBookingActivity))
       window.location.reload();
       dispatch(setDeleteBookingActivityModal(false));
     }

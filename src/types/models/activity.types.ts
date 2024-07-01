@@ -14,6 +14,6 @@ export type Activity = {
   startTime: Date;
   endTime?: Date;
   service: Service;
-  activityRates?: ActivityRate[];
-  activitySchedules?: ActivitySchedule[];
+  activityRates: ActivityRate[];
+  activitySchedules: ActivitySchedule[];
 };

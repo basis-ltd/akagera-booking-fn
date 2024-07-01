@@ -1,6 +1,9 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
+import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
+import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
+import { bookingPaymentMethods } from '@/constants/bookings.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
@@ -10,7 +13,7 @@ import {
   calculateBookingPersonPrice,
   calculateVehiclePrice,
 } from '@/helpers/booking.helper';
-import { formatDate, formatMoney } from '@/helpers/strings';
+import { formatDate, formatCurrency } from '@/helpers/strings.helper';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
@@ -45,7 +48,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -63,6 +66,7 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
+  const [bookingStatus, setBookingStatus] = useState('pending');
 
   // NAVIGATION
   const { id } = useParams();
@@ -202,13 +206,9 @@ const BookingPreview = () => {
             no: index + 1,
             activity: bookingActivity?.activity,
             endTime: bookingActivity.endTime,
-            price: `USD ${calculateActivityPrice(
-              bookingActivity,
-              bookingActivity?.bookingActivityPeople
-            )}`,
+            price: `USD ${calculateActivityPrice(bookingActivity)}`,
             startTime: moment(bookingActivity.startTime).format('hh:mm A'),
-            numberOfPeople:
-              bookingActivity?.bookingActivityPeople?.length || 'N/A',
+            numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
           };
         }
       );
@@ -287,31 +287,8 @@ const BookingPreview = () => {
   ]);
 
   // BOOKING ACTIVITIES COLUMNS
-  const bookingActivitiesColumns = [
-    {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
-      header: 'Activity',
-      accessorKey: 'activity.name',
-    },
-    {
-      header: 'Start Time',
-      accessorKey: 'startTime',
-    },
-    {
-      header: 'End Time',
-      accessorKey: 'endTime',
-    },
-    {
-      header: 'Number of people',
-      accessorKey: 'numberOfPeople',
-    },
-    {
-      header: 'Price',
-      accessorKey: 'price',
-    },
+  const bookingActivitiesExtendedColumns = [
+    ...bookingActivitiesColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -526,7 +503,7 @@ const BookingPreview = () => {
                   <Table
                     showFilter={false}
                     showPagination={false}
-                    columns={bookingActivitiesColumns}
+                    columns={bookingActivitiesExtendedColumns}
                     data={bookingActivitiesList}
                   />
                 ) : (
@@ -644,12 +621,30 @@ const BookingPreview = () => {
           <h1 className="text-primary font-bold uppercase">Total</h1>
           <ul className="flex flex-col items-start gap-2">
             <p className="uppercase font-medium underline">
-              {formatMoney(Number(booking?.totalAmountUsd))}
+              {formatCurrency(Number(booking?.totalAmountUsd))}
             </p>
             <p className="uppercase font-medium underline">
-              {formatMoney(Number(booking?.totalAmountUsd) * 1303, 'RWF')}
+              {formatCurrency(Number(booking?.totalAmountUsd) * 1303, 'RWF')}
             </p>
           </ul>
+        </menu>
+        <menu className="w-full flex items-center gap-3 justify-end">
+          <Select
+            label="Payment method"
+            required
+            placeholder="Select payment method"
+            value={bookingStatus}
+            labelClassName="!w-[50%] self-end"
+            options={bookingPaymentMethods?.map((method) => {
+              return {
+                ...method,
+                disabled: method?.value !== 'pending_contact',
+              };
+            })}
+            onChange={(e) => {
+              if (e === 'pending_contact') setBookingStatus(e);
+            }}
+          />
         </menu>
         <menu className="flex items-center gap-3 justify-between mb-6">
           <Button
@@ -664,7 +659,7 @@ const BookingPreview = () => {
             primary
             onClick={(e) => {
               e.preventDefault();
-              updateBooking({ id: booking?.id, status: 'pending' });
+              updateBooking({ id: booking?.id, status: bookingStatus });
             }}
           >
             {updateBookingIsLoading ? <Loader /> : 'Submit'}

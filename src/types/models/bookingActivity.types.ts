@@ -13,7 +13,8 @@ export type BookingActivity = {
   updatedAt: Date;
   activity: Activity;
   booking: Booking;
-  numberOfPeople: number | string;
+  numberOfAdults: number;
+  numberOfChildren?: number;
   bookingActivityPeople?: BookingActivityPerson[];
   price: number | string;
 };

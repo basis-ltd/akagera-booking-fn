@@ -201,6 +201,9 @@ export const apiSlice = createApi({
           activityId,
           startTime,
           bookingActivityPeople,
+          endTime,
+          numberOfAdults = 0,
+          numberOfChildren = 0,
         }) => ({
           url: `booking-activities`,
           method: 'POST',
@@ -209,16 +212,22 @@ export const apiSlice = createApi({
             activityId,
             startTime,
             bookingActivityPeople,
+            endTime,
+            numberOfAdults,
+            numberOfChildren,
           },
         }),
       }),
 
       // FETCH BOOKING ACTIVITIES
       fetchBookingActivities: builder.query({
-        query: ({ take = 10, skip = 0, bookingId }) => {
+        query: ({ take = 10, skip = 0, bookingId, activityId }) => {
           let url = `booking-activities?take=${take}&skip=${skip}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
+          }
+          if (activityId) {
+            url += `&activityId=${activityId}`;
           }
           return {
             url,
@@ -296,9 +305,12 @@ export const apiSlice = createApi({
 
       // SUBMIT BOOKING
       submitBooking: builder.mutation({
-        query: ({ id }) => ({
+        query: ({ id, status }) => ({
           url: `bookings/${id}/submit`,
           method: 'PATCH',
+          body: {
+            status
+          }
         }),
       }),
     };

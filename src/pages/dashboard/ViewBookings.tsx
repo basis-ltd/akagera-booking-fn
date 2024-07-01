@@ -3,7 +3,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { capitalizeString, formatDate } from '@/helpers/strings';
+import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingsQuery,
@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getLuminance } from 'polished';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const ViewBookings = () => {
   // STATE VARIABLES

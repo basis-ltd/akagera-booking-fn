@@ -1,3 +1,6 @@
+import { BookingPerson } from '@/types/models/bookingPerson.types';
+import moment from 'moment';
+
 const isEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 const isPassword = (value: string) =>
   value.length >= 6 &&
@@ -43,6 +46,24 @@ export const validateInputs = (value: string, type: string) => {
     default:
       return true;
   }
+};
+
+export const validatePersonAgeRange = (
+  value: number,
+  bookingPeople: BookingPerson[] | [],
+  ageRange = 'adults'
+) => {
+  if (bookingPeople?.length <= 0) return false;
+  const ageRangePeople = bookingPeople?.map((person) => {
+    const age = moment().diff(person?.dateOfBirth, 'years');
+    const range = age >= 13 ? 'adults' : age >= 6 ? 'children' : undefined;
+    console.log(range)
+    return range;
+  });
+
+  console.log(ageRangePeople?.filter((range) => range === ageRange)?.length <= value)
+
+  return ageRangePeople?.filter((range) => range === ageRange)?.length >= value;
 };
 
 export default validateInputs;

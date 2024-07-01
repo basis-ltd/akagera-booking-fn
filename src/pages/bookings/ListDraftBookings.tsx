@@ -5,8 +5,8 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
-import { capitalizeString, formatDate } from '@/helpers/strings';
-import validateInputs from '@/helpers/validations';
+import { capitalizeString, formatDate } from '@/helpers/strings.helper';
+import validateInputs from '@/helpers/validations.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import {
   setDraftBookingsList,

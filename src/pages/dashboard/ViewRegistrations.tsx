@@ -4,7 +4,7 @@ import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { capitalizeString, formatDate } from '@/helpers/strings';
+import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';

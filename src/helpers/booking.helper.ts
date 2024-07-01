@@ -1,11 +1,13 @@
+import { ActivityRate } from '@/types/models/activityRate.types';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
-import { BookingActivityPerson } from '@/types/models/bookingActivityPerson.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import moment from 'moment';
 
 // ENTRY FEES PRICING STRUCTURE
-const pricingStructure: { [key: string]: { adults: number[]; children: number[] } } = {
+const pricingStructure: {
+  [key: string]: { adults: number[]; children: number[] };
+} = {
   'Rwandan/EAC Citizen': {
     adults: [16, 24, 32],
     children: [11, 16, 21],
@@ -28,35 +30,28 @@ const pricingStructure: { [key: string]: { adults: number[]; children: number[] 
   },
 };
 
-export const calculateActivityPrice = (
-  bookingActivity: BookingActivity,
-  bookingActivityPeople: BookingActivityPerson[] | undefined
-) => {
-  if (bookingActivityPeople?.length === 0) {
-    return bookingActivity?.activity?.activityRates?.find(
-      (rate) => rate?.ageRange === 'adults'
-    )?.amountUsd;
-  }
-  const prices = bookingActivityPeople?.map((person) => {
-    if (calculateAge(person?.bookingPerson?.dateOfBirth) >= 13) {
-      return Number(
+export const calculateActivityPrice = (bookingActivity: BookingActivity) => {
+  if (
+    bookingActivity?.numberOfAdults === 0 &&
+    bookingActivity?.numberOfChildren === 0
+  )
+    return 0;
+  const prices = [
+    Number(bookingActivity?.numberOfAdults) *
+      Number(
         bookingActivity?.activity?.activityRates?.find(
-          (rate) => rate?.ageRange === 'adults'
+          (rate: ActivityRate) => rate?.ageRange === 'adults'
         )?.amountUsd
-      );
-    } else if (calculateAge(person?.bookingPerson?.dateOfBirth) >= 6) {
-      return Number(
+      ),
+    Number(bookingActivity?.numberOfChildren) *
+      Number(
         bookingActivity?.activity?.activityRates?.find(
-          (rate) => rate?.ageRange === 'children'
+          (rate: ActivityRate) => rate?.ageRange === 'children'
         )?.amountUsd
-      );
-    } else if (calculateAge(person?.bookingPerson?.dateOfBirth) < 6) {
-      return 0;
-    }
-  });
-  return prices
-    ?.filter((price) => price !== undefined)
-    .reduce((acc, curr) => Number(acc) + Number(curr), 0);
+      ),
+  ];
+
+  return prices?.reduce((acc, curr) => acc + Number(curr), 0);
 };
 
 export const calculateEntryPrice = (bookingPerson: BookingPerson) => {
