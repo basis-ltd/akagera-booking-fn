@@ -1,25 +1,30 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
-import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
-import { bookingPaymentMethods } from '@/constants/bookings.constants';
+import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
+import { bookingVehicleColumns } from '@/constants/bookingVehicle.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
-import PublicLayout from '@/containers/PublicLayout';
+import AdminLayout from '@/containers/AdminLayout';
 import {
   calculateActivityPrice,
   calculateBookingPersonPrice,
   calculateVehiclePrice,
+  getBookingStatusColor,
 } from '@/helpers/booking.helper';
-import { formatDate, formatCurrency } from '@/helpers/strings.helper';
+import {
+  formatDate,
+  formatCurrency,
+  capitalizeString,
+} from '@/helpers/strings.helper';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
   useLazyFetchBookingVehiclesQuery,
   useLazyGetBookingDetailsQuery,
-  useSubmitBookingMutation,
+  useUpdateBookingMutation,
 } from '@/states/apiSlice';
 import {
   setBookingActivitiesList,
@@ -48,12 +53,12 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const BookingPreview = () => {
+const BookingDetails = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { booking } = useSelector((state: RootState) => state.booking);
@@ -66,7 +71,6 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-  const [bookingStatus, setBookingStatus] = useState('pending');
 
   // NAVIGATION
   const { id } = useParams();
@@ -134,7 +138,7 @@ const BookingPreview = () => {
       isSuccess: updateBookingIsSuccess,
       isError: updateBookingIsError,
     },
-  ] = useSubmitBookingMutation();
+  ] = useUpdateBookingMutation();
 
   // FETCH BOOKING VEHICLES
   useEffect(() => {
@@ -275,15 +279,15 @@ const BookingPreview = () => {
         toast.error((updateBookingError as ErrorResponse).data.message);
       }
     } else if (updateBookingIsSuccess) {
-      toast.success('Booking submitted successfully');
-      navigate(`/bookings/${booking?.id}/success`);
+      toast.success('Booking updated successfully');
+      navigate(`/dashboard/${booking?.type}s`);
     }
   }, [
     updateBookingIsError,
     updateBookingIsSuccess,
     updateBookingError,
     navigate,
-    booking?.id,
+    booking,
   ]);
 
   // BOOKING ACTIVITIES COLUMNS
@@ -311,38 +315,14 @@ const BookingPreview = () => {
   ];
 
   // BOOKING PEOPLE COLUMNS
-  const bookingPeopleColumns = [
-    {
-      header: 'Full Names',
-      accessorKey: 'name',
-    },
-    {
-      header: 'Age',
-      accessorKey: 'age',
-    },
-    {
-      header: 'Nationality',
-      accessorKey: 'nationality',
-    },
-    {
-      header: 'Residence',
-      accessorKey: 'residence',
-    },
-
-    {
-      header: 'Entry fee',
-      accessorKey: 'price',
-    },
+  const bookingPeopleExtendedColumns = [
+    ...bookingPeopleColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
       cell: ({ row }: { row: Row<BookingPerson> }) => {
         return (
           <menu className="flex items-center gap-3">
-            {/* <FontAwesomeIcon
-              icon={faPenToSquare}
-              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
-            /> */}
             <FontAwesomeIcon
               icon={faTrash}
               onClick={(e) => {
@@ -359,27 +339,8 @@ const BookingPreview = () => {
   ];
 
   // BOOKING VEHICLES COLUMNS
-  const bookingVehiclesColumns = [
-    {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
-      header: 'Vehicle Type',
-      accessorKey: 'vehicleType',
-    },
-    {
-      header: 'Registration Country',
-      accessorKey: 'registrationCountry',
-    },
-    {
-      header: 'Number of vehicles',
-      accessorKey: 'vehiclesCount',
-    },
-    {
-      header: 'Price',
-      accessorKey: 'vehiclePrice',
-    },
+  const bookingVehiclesExtendedColumns = [
+    ...bookingVehicleColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -439,16 +400,16 @@ const BookingPreview = () => {
 
   // SET DOCUMENT TITLE
   useEffect(() => {
-    document.title = `Booking Preview for ${
+    document.title = `Booking Details for ${
       booking?.name
     } scheduled on ${formatDate(booking?.startDate)}`;
   }, [booking]);
 
   return (
-    <PublicLayout>
+    <AdminLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
         <h1 className="text-xl text-primary text-center font-bold uppercase">
-          {booking?.type} Preview for {booking?.name} scheduled on{' '}
+          {booking?.type} Details for {booking?.name} scheduled on{' '}
           {formatDate(booking?.startDate)}
         </h1>
         {bookingDetailsIsFetching && (
@@ -468,14 +429,21 @@ const BookingPreview = () => {
             <p>Reference ID:</p>
             <p className="flex items-center gap-1 max-[700px]:flex-col">
               <strong>{booking?.referenceId} </strong>
-              <span className="text-[12px]">
-                (Use this reference ID to track or update your {booking?.type})
-              </span>
             </p>
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Date:</p>
             <p className="font-bold">{formatDate(booking?.startDate)}</p>
+          </ul>
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
+            <p>Status:</p>
+            <p
+              className={`font-medium p-1 rounded-md text-[14px] ${getBookingStatusColor(
+                booking?.status
+              )}`}
+            >
+              {capitalizeString(booking?.status)}
+            </p>
           </ul>
         </menu>
         {booking?.type !== 'registration' &&
@@ -543,7 +511,9 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
+                columns={
+                  bookingPeopleExtendedColumns as ColumnDef<BookingPerson>[]
+                }
                 data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                   return {
                     ...bookingPerson,
@@ -595,7 +565,9 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingVehiclesColumns as ColumnDef<BookingVehicle>[]}
+                columns={
+                  bookingVehiclesExtendedColumns as ColumnDef<BookingVehicle>[]
+                }
                 data={bookingVehiclesList?.map((bookingVehicle, index) => {
                   return {
                     ...bookingVehicle,
@@ -628,46 +600,29 @@ const BookingPreview = () => {
             </p>
           </ul>
         </menu>
-        <menu className="w-full flex items-center gap-3 justify-end">
-          <Select
-            label="Payment method"
-            required
-            placeholder="Select payment method"
-            value={bookingStatus}
-            labelClassName="!w-[50%] self-end"
-            options={bookingPaymentMethods?.map((method) => {
-              return {
-                ...method,
-                disabled: method?.value !== 'pending_contact',
-              };
-            })}
-            onChange={(e) => {
-              if (e === 'pending_contact') setBookingStatus(e);
-            }}
-          />
-        </menu>
-        <menu className="flex items-center gap-3 justify-between mb-6">
+        <menu className="w-full flex items-center gap-3 justify-between my-4">
           <Button
+            danger
             onClick={(e) => {
               e.preventDefault();
-              navigate(`/bookings/${booking?.id}/create`);
+              updateBooking({ id: booking?.id, status: 'declined' });
             }}
           >
-            Back
+            {updateBookingIsLoading ? <Loader /> : 'Decline'}
           </Button>
           <Button
             primary
             onClick={(e) => {
               e.preventDefault();
-              updateBooking({ id: booking?.id, status: bookingStatus });
+              updateBooking({ id: booking?.id, status: 'confirmed' });
             }}
           >
-            {updateBookingIsLoading ? <Loader /> : 'Submit'}
+            {updateBookingIsLoading ? <Loader /> : 'Confirm'}
           </Button>
         </menu>
       </main>
-    </PublicLayout>
+    </AdminLayout>
   );
 };
 
-export default BookingPreview;
+export default BookingDetails;

@@ -17,7 +17,7 @@ import { Service } from '@/types/models/service.types';
 import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
 import { setBooking } from '@/states/features/bookingSlice';
-import { formatDate } from '@/helpers/strings';
+import { formatDate } from '@/helpers/strings.helper';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
 import SelectBookingActivity from './SelectBookingActivity';
 import PublicLayout from '@/containers/PublicLayout';

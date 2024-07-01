@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { User } from '@/types/models/user.types';
-import { capitalizeString } from '@/helpers/strings';
+import { capitalizeString } from '@/helpers/strings.helper';
 
 type NavbarProps = {
   className?: string;

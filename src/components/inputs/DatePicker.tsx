@@ -46,7 +46,7 @@ const DatePicker: FC<DatePickerProps> = ({
         <Button
           variant={'outline'}
           className={cn(
-            'w-full justify-start text-left font-normal py-2 h-[38px]',
+            'w-full justify-start text-left font-normal py-2 h-[40px]',
             !value && 'text-muted-foreground'
           )}
           onClick={() => setOpen(!open)}

@@ -4,7 +4,8 @@ import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { capitalizeString, formatDate } from '@/helpers/strings';
+import { getBookingStatusColor } from '@/helpers/booking.helper';
+import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -24,7 +25,7 @@ const ViewRegistrations = () => {
   const { bookingsList } = useSelector((state: RootState) => state.booking);
 
   // REACT HOOK FORM
-  const { control, watch, setValue } = useForm();
+  const { control, watch } = useForm();
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const ViewRegistrations = () => {
       type: 'registration',
       startDate:
         watch('startDate') && moment(watch('startDate')).format('YYYY-MM-DD'),
-      status: watch('status') || 'pending',
+      status: watch('status'),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchBookings, watch('status'), watch, watch('startDate')]);
@@ -90,13 +91,9 @@ const ViewRegistrations = () => {
       cell: ({ row }: { row: Row<Booking> }) => {
         return (
           <p
-            className={`px-2 py-1 text-[12px] w-fit rounded-md ${
-              row.original.status === 'pending'
-                ? 'bg-yellow-600 text-white'
-                : row.original.status === 'approved'
-                ? 'bg-green-400 text-white'
-                : 'bg-red-400 text-white'
-            }`}
+            className={`px-2 py-1 text-[12px] w-fit rounded-md ${getBookingStatusColor(
+              row?.original?.status
+            )}`}
           >
             {capitalizeString(row.original.status)}
           </p>
@@ -129,11 +126,6 @@ const ViewRegistrations = () => {
     },
   ];
 
-  useEffect(() => {
-    setValue('status', 'pending');
-    setValue('startDate', moment().format('YYYY-MM-DD'));
-  }, [setValue]);
-
   return (
     <AdminLayout>
       <main className="p-4 w-[95%] mx-auto flex flex-col gap-6">
@@ -143,7 +135,6 @@ const ViewRegistrations = () => {
         <section className="grid grid-cols-3 items-start gap-4 w-full">
           <Controller
             name="startDate"
-            defaultValue={moment().format('YYYY-MM-DD')}
             control={control}
             render={({ field }) => {
               return (
@@ -234,9 +225,9 @@ const ViewRegistrations = () => {
         ) : bookingsIsSuccess && bookingsList?.length > 0 ? (
           <section className="w-full flex flex-col gap-3">
             <Table
-            rowClickHandler={(row) => {
-              navigate(`/bookings/${row?.id}/details`)
-            }}
+              rowClickHandler={(row) => {
+                navigate(`/bookings/${row?.id}/details`);
+              }}
               showFilter={false}
               showPagination={false}
               data={bookingsList?.map((registration: Booking) => {

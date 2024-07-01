@@ -3,12 +3,14 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState: {
   bookingActivitiesList: BookingActivity[];
-  selectedBookingActivity: BookingActivity;
+  selectedBookingActivity?: BookingActivity;
   deleteBookingActivityModal: boolean;
+  existingBookingActivitiesList: BookingActivity[];
 } = {
   bookingActivitiesList: [],
-  selectedBookingActivity: {} as BookingActivity,
+  selectedBookingActivity: undefined,
   deleteBookingActivityModal: false,
+  existingBookingActivitiesList: [],
 };
 
 const bookingActivitySlice = createSlice({
@@ -32,6 +34,15 @@ const bookingActivitySlice = createSlice({
     setDeleteBookingActivityModal: (state, action) => {
       state.deleteBookingActivityModal = action.payload;
     },
+    setExistingBookingActivitiesList: (state, action) => {
+      state.existingBookingActivitiesList = action.payload;
+    },
+    removeExistingBookingActivitiesList: (state, action) => {
+      state.existingBookingActivitiesList =
+        state.existingBookingActivitiesList.filter(
+          (bookingActivity) => bookingActivity.id !== action.payload
+        );
+    },
   },
 });
 
@@ -41,6 +52,8 @@ export const {
   addBookingActivity,
   removeBookingActivity,
   setDeleteBookingActivityModal,
+  setExistingBookingActivitiesList,
+  removeExistingBookingActivitiesList,
 } = bookingActivitySlice.actions;
 
 export default bookingActivitySlice.reducer;

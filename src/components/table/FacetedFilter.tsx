@@ -25,7 +25,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import { capitalizeString } from '@/helpers/strings';
+import { capitalizeString } from '@/helpers/strings.helper';
 import { useNavigate } from 'react-router-dom';
 import { ComponentType, useMemo } from 'react';
 

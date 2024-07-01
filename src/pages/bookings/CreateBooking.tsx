@@ -6,7 +6,7 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import Input from '../../components/inputs/Input';
 import { InputErrorMessage } from '../../components/feedback/ErrorLabels';
 import Button from '../../components/inputs/Button';
-import validateInputs from '@/helpers/validations';
+import validateInputs from '@/helpers/validations.helper';
 import { useCreateBookingMutation } from '@/states/apiSlice';
 import { useEffect } from 'react';
 import { ErrorResponse, useNavigate } from 'react-router-dom';

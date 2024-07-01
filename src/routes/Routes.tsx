@@ -12,6 +12,7 @@ import DeleteBookingPerson from '@/pages/bookings/DeleteBookingPerson.tsx';
 import DeleteBookingVehicle from '@/pages/bookings/DeleteBookingVehicle.tsx';
 import DeleteBookingActivity from '@/pages/bookings/DeleteBookingActivity.tsx';
 import ViewRegistrations from '@/pages/dashboard/ViewRegistrations.tsx';
+import BookingDetails from '@/pages/bookings/BookingDetails.tsx';
 
 const Router = () => {
   return (
@@ -23,7 +24,7 @@ const Router = () => {
           element={<CreateBookingActivities />}
         />
         <Route path="/bookings/:id/preview" element={<BookingPreview />} />
-        <Route path="/bookings/:id/details" element={<BookingPreview />} />
+        <Route path="/bookings/:id/details" element={<BookingDetails />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/dashboard/bookings" element={<ViewBookings />} />

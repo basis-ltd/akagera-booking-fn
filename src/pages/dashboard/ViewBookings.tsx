@@ -3,7 +3,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { capitalizeString, formatDate } from '@/helpers/strings';
+import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingsQuery,
@@ -14,19 +14,19 @@ import { AppDispatch, RootState } from '@/states/store';
 import { Booking } from '@/types/models/booking.types';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getLuminance } from 'polished';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const ViewBookings = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { bookingsList } = useSelector((state: RootState) => state.booking);
-  const [createdBy, setCreatedBy] = useState<string | null>(null);
 
   // REACT HOOK FORM
   const { control, watch } = useForm();
@@ -77,7 +77,7 @@ const ViewBookings = () => {
       type: 'booking',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchBookings, watch('startDate'), watch('status'), createdBy]);
+  }, [fetchBookings, watch('startDate'), watch('status')]);
 
   // HANDLE FETCH BOOKINGS RESPONSE
   useEffect(() => {
@@ -226,36 +226,22 @@ const ViewBookings = () => {
             />
             <Controller
               control={control}
-              name="createdBy"
+              name="referenceId"
               render={({ field }) => {
                 return (
                   <label className="flex flex-col gap-1 w-full">
                     <Input
-                      placeholder="Email or phone"
+                      placeholder="Reference ID"
                       suffixIcon={faSearch}
                       suffixIconPrimary
                       suffixIconHandler={(e) => {
                         e.preventDefault();
-                        setCreatedBy(field.value);
+                        fetchBookings({
+                          referenceId: field.value,
+                        });
                       }}
                       {...field}
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
-                        if (!e.target.value) {
-                          setCreatedBy(null);
-                        }
-                      }}
                     />
-                    <Link
-                      onClick={(e) => {
-                        e.preventDefault();
-                        field.value = null;
-                      }}
-                      className="px-1 text-[12px] text-primary"
-                      to={'#'}
-                    >
-                      Clear
-                    </Link>
                   </label>
                 );
               }}

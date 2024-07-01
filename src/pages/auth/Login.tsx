@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import { setToken, setUser } from '@/states/features/userSlice';
 import Loader from '@/components/inputs/Loader';
 import PublicLayout from '@/containers/PublicLayout';
-import validateInputs from '@/helpers/validations';
+import validateInputs from '@/helpers/validations.helper';
 
 const Login = () => {
   // STATE VARIABLES

@@ -22,7 +22,7 @@ interface InputProps {
   className?: string;
   required?: boolean;
   onChange?: ((e: ChangeEvent<HTMLInputElement>) => void) | undefined;
-  defaultValue?: string | number;
+  defaultValue?: string | number | Date;
   submit?: boolean;
   type?: string;
   value?: string | number;
@@ -86,7 +86,15 @@ const Input: FC<InputProps> = ({
     if (type === 'checkbox') {
       return (
         <label className="flex w-fit items-center gap-2 text-[13px]">
-          <Checkbox onChange={onChange as FormEventHandler<HTMLButtonElement> | undefined} name={name} value={value} checked={checked} defaultChecked={defaultChecked} />
+          <Checkbox
+            onChange={
+              onChange as FormEventHandler<HTMLButtonElement> | undefined
+            }
+            name={name}
+            value={value}
+            checked={checked}
+            defaultChecked={defaultChecked}
+          />
           <p className={`${label ? 'flex' : 'hidden'} text-[13px]`}>{label}</p>
         </label>
       );
@@ -145,16 +153,16 @@ const Input: FC<InputProps> = ({
           </span>
         </p>
         <DatePicker
-        placeholder={placeholder}
-        fromDate={fromDate}
-        toDate={toDate}
+          placeholder={placeholder}
+          fromDate={fromDate}
+          toDate={toDate}
           onChange={
             onChange as
               | SelectSingleEventHandler
               | ((e: Date | ChangeEvent<HTMLInputElement>) => void)
               | undefined
           }
-          value={value as Date | undefined}
+          value={(value || defaultValue) as Date | undefined}
         />
       </label>
     );
@@ -174,7 +182,7 @@ const Input: FC<InputProps> = ({
       </p>
       {!prefixIcon && !prefixText && !suffixIcon && (
         <input
-          defaultValue={defaultValue}
+          defaultValue={defaultValue as string}
           min={min}
           value={value}
           type={type || 'text'}
@@ -205,7 +213,7 @@ const Input: FC<InputProps> = ({
               </Link>
             </label>
             <input
-              defaultValue={defaultValue}
+              defaultValue={defaultValue as string}
               value={value}
               type={type || 'text'}
               readOnly={readOnly}
@@ -236,7 +244,7 @@ const Input: FC<InputProps> = ({
               <FontAwesomeIcon icon={suffixIcon || faSearch} />
             </Link>
             <input
-              defaultValue={defaultValue}
+              defaultValue={defaultValue as string}
               value={value}
               type={type || 'text'}
               onChange={onChange}

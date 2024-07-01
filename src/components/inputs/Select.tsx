@@ -10,7 +10,7 @@ import { FC } from 'react';
 
 interface SelectProps {
   label?: string | undefined;
-  options?: Array<{ label: string; value: string }>;
+  options?: Array<{ label: string; value: string; disabled?: boolean }>;
   defaultValue?: string | undefined;
   placeholder?: string;
   className?: string;
@@ -61,6 +61,7 @@ const Select: FC<SelectProps> = ({
                 <SelectItem
                   key={index}
                   value={option.value}
+                  disabled={option?.disabled}
                   className="cursor-pointer text-[13px] py-1"
                 >
                   <p className="text-[13px] py-[3px]">{option.label}</p>

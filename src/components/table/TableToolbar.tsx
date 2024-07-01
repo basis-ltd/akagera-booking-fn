@@ -3,7 +3,7 @@ import { Table, ColumnDef } from '@tanstack/react-table';
 import { DataTableViewOptions } from './TableViewOptions';
 import { DataTableFacetedFilter } from './FacetedFilter';
 import Select from '../inputs/SingleSelect';
-import { capitalizeString } from '@/helpers/strings';
+import { capitalizeString } from '@/helpers/strings.helper';
 import { Button } from '../ui/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
