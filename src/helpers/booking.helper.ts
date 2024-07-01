@@ -202,3 +202,11 @@ export function getPriceCategory(nationality: string, residence: string) {
 export function calculateNights(startDate: Date, endDate: Date) {
   return moment(endDate).diff(moment(startDate), 'days');
 }
+
+export const getBookingStatusColor = (status: string) => {
+  return ['pending', 'pending_contact'].includes(status)
+    ? 'bg-yellow-600 text-white'
+    : status === 'confirmed'
+    ? 'bg-green-600 text-white'
+    : 'bg-red-400 text-white';
+};

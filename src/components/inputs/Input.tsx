@@ -182,7 +182,7 @@ const Input: FC<InputProps> = ({
       </p>
       {!prefixIcon && !prefixText && !suffixIcon && (
         <input
-          defaultValue={String(defaultValue)}
+          defaultValue={defaultValue as string}
           min={min}
           value={value}
           type={type || 'text'}
@@ -213,7 +213,7 @@ const Input: FC<InputProps> = ({
               </Link>
             </label>
             <input
-              defaultValue={String(defaultValue)}
+              defaultValue={defaultValue as string}
               value={value}
               type={type || 'text'}
               readOnly={readOnly}
@@ -244,7 +244,7 @@ const Input: FC<InputProps> = ({
               <FontAwesomeIcon icon={suffixIcon || faSearch} />
             </Link>
             <input
-              defaultValue={String(defaultValue)}
+              defaultValue={defaultValue as string}
               value={value}
               type={type || 'text'}
               onChange={onChange}
