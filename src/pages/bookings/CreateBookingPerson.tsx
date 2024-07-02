@@ -214,8 +214,8 @@ const CreateBookingPerson = () => {
                     required
                     {...field}
                   />
-                  {errors?.age && (
-                    <InputErrorMessage message={errors.age.message} />
+                  {errors?.gender && (
+                    <InputErrorMessage message={errors.gender.message} />
                   )}
                 </label>
               );

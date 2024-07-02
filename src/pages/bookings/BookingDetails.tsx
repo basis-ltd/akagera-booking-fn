@@ -610,15 +610,19 @@ const BookingDetails = () => {
           >
             {updateBookingIsLoading ? <Loader /> : 'Decline'}
           </Button>
-          <Button
-            primary
-            onClick={(e) => {
-              e.preventDefault();
-              updateBooking({ id: booking?.id, status: 'confirmed' });
-            }}
-          >
-            {updateBookingIsLoading ? <Loader /> : 'Confirm'}
-          </Button>
+          {!['pending', 'pending_contact'].includes(booking?.status) ? (
+            <Button route={`/dashboard/${booking?.type}s`}>Return</Button>
+          ) : (
+            <Button
+              primary
+              onClick={(e) => {
+                e.preventDefault();
+                updateBooking({ id: booking?.id, status: 'confirmed' });
+              }}
+            >
+              {updateBookingIsLoading ? <Loader /> : 'Confirm'}
+            </Button>
+          )}
         </menu>
       </main>
     </AdminLayout>

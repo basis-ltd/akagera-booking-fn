@@ -4,10 +4,10 @@ import { BookingPerson } from "./bookingPerson.types";
 
 export type Booking = {
     id: UUID;
-    startDate: Date | string;
+    startDate: Date;
     notes?: Text;
     status: string;
-    endDate?: Date | string;
+    endDate: Date;
     phone?: string;
     email?: string;
     date: Date | string;

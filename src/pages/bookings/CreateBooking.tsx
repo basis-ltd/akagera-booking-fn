@@ -38,6 +38,7 @@ const CreateBooking = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm();
 
   // INITIALIZE CREATE BOOKING MUTATION
@@ -215,6 +216,8 @@ const CreateBooking = () => {
                       options={entryGateOptions}
                       onChange={(e) => {
                         field.onChange(e);
+                        if (e === 'mutumbaGate')
+                          setValue('startDate', undefined);
                       }}
                     />
                     {errors?.entryGate && (
@@ -224,34 +227,36 @@ const CreateBooking = () => {
                 );
               }}
             />
-            {watch('entryGate') && <Controller
-              name="startDate"
-              rules={{ required: 'Enter your entrance date' }}
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1 w-full">
-                    <Input
-                      type="date"
-                      {...field}
-                      label="Entrance date"
-                      required
-                      fromDate={
-                        watch('entryGate') === 'mutumbaGate'
-                          ? moment().add(1, 'd').toDate()
-                          : moment().toDate()
-                      }
-                    />
-                    {errors.startDate && (
-                      <InputErrorMessage message={errors.startDate.message} />
-                    )}
-                  </label>
-                );
-              }}
-            />}
+            {watch('entryGate') && (
+              <Controller
+                name="startDate"
+                rules={{ required: 'Enter your entrance date' }}
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-1 w-full">
+                      <Input
+                        type="date"
+                        {...field}
+                        label="Entrance date"
+                        required
+                        fromDate={
+                          watch('entryGate') === 'mutumbaGate'
+                            ? moment().add(1, 'd').toDate()
+                            : moment().toDate()
+                        }
+                      />
+                      {errors.startDate && (
+                        <InputErrorMessage message={errors.startDate.message} />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            )}
             <Controller
               name="numberOfDays"
-              rules={{ required: 'Enter your entrance date' }}
+              rules={{ required: 'Select number of days of your stay' }}
               control={control}
               defaultValue={'0'}
               render={({ field }) => {
@@ -264,8 +269,10 @@ const CreateBooking = () => {
                       label="Number of days"
                       required
                     />
-                    {errors.startDate && (
-                      <InputErrorMessage message={errors.startDate.message} />
+                    {errors?.numberOfDays && (
+                      <InputErrorMessage
+                        message={errors?.numberOfDays?.message}
+                      />
                     )}
                   </label>
                 );

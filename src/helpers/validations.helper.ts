@@ -57,11 +57,8 @@ export const validatePersonAgeRange = (
   const ageRangePeople = bookingPeople?.map((person) => {
     const age = moment().diff(person?.dateOfBirth, 'years');
     const range = age >= 13 ? 'adults' : age >= 6 ? 'children' : undefined;
-    console.log(range)
     return range;
   });
-
-  console.log(ageRangePeople?.filter((range) => range === ageRange)?.length <= value)
 
   return ageRangePeople?.filter((range) => range === ageRange)?.length >= value;
 };

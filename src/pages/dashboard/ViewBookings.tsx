@@ -32,7 +32,7 @@ const ViewBookings = () => {
   const navigate = useNavigate();
 
   // REACT HOOK FORM
-  const { control, watch } = useForm();
+  const { control, watch, setValue } = useForm();
 
   // INITIALIZE LOCALIZER
   const localizer = momentLocalizer(moment);
@@ -152,11 +152,17 @@ const ViewBookings = () => {
       color,
       border: '0px',
       display: 'block',
+      size: '13px',
+      fontSize: '13px'
     };
     return {
       style: style,
     };
   };
+
+  useEffect(() => {
+    setValue('startDate', moment().format());
+  }, [setValue])
 
   return (
     <AdminLayout>
@@ -167,7 +173,6 @@ const ViewBookings = () => {
             ? formatDate(watch('startDate'))
             : moment().format('dddd, MMMM Do YYYY')}
         </h1>
-        {bookingsIsSuccess && (
           <section className="grid grid-cols-4 items-start gap-4">
             <Controller
               name="startDate"
@@ -250,7 +255,6 @@ const ViewBookings = () => {
               }}
             />
           </section>
-        )}
         {bookingActivitiesIsFetching || bookingsIsFetching ? (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">
             <Loader className="text-primary" />
@@ -262,7 +266,7 @@ const ViewBookings = () => {
               eventPropGetter={(event) =>
                 eventStyleGetter(event as unknown as Booking)
               }
-              defaultView="month"
+              defaultView="week"
               className="bg-white rounded-lg shadow-md p-4 text-[12px]"
               events={bookingsList
                 ?.filter((booking) => booking?.status !== 'in_progress')
