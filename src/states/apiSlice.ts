@@ -345,6 +345,16 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // DELETE USER
+      deleteUser: builder.mutation({
+        query: ({id}) => {
+          return {
+            url: `users/${id}`,
+            method: 'DELETE'
+          }
+        }
+      })
     };
   },
 });
@@ -369,7 +379,8 @@ export const {
   useDeleteBookingActivityMutation,
   useSubmitBookingMutation,
   useLazyFetchUsersQuery,
-  useCreateUserMutation
+  useCreateUserMutation,
+  useDeleteUserMutation
 } = apiSlice;
 
 export default apiSlice;

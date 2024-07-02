@@ -7,13 +7,15 @@ const initialState: {
   selectedUser?: User;
   user: User;
   token: string;
-  createUserModal: boolean
+  createUserModal: boolean;
+  deleteUserModal: boolean
 } = {
   usersList: [],
   selectedUser: undefined,
   user: store.get('user'),
   token: store.get('token') || '',
-  createUserModal: false
+  createUserModal: false,
+  deleteUserModal: false
 };
 
 const userSlice = createSlice({
@@ -44,6 +46,9 @@ const userSlice = createSlice({
     },
     setCreateUserModal: (state, action) => {
       state.createUserModal = action.payload
+    },
+    setDeleteUserModal: (state, action) => {
+      state.deleteUserModal = action.payload
     }
   },
 });
@@ -55,7 +60,8 @@ export const {
   addUserToList,
   removeUserFromList,
   setToken,
-  setCreateUserModal
+  setCreateUserModal,
+  setDeleteUserModal
 } = userSlice.actions;
 
 export default userSlice.reducer;
