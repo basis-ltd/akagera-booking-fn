@@ -50,7 +50,7 @@ const LandingPage = () => {
                     dispatch(setCreateBookingModal(true));
                   }}
                 >
-                  Book a tour
+                  Book activities
                 </Link>
                 <Link
                   to={'/bookings/create'}

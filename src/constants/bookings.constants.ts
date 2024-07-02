@@ -43,12 +43,8 @@ export const bookingStatus = {
 
 export const bookingPaymentMethods= [
   {
-    label: 'DPO',
+    label: 'Mobile Money or Debit/Credit Card',
     value: 'dpo'
-  },
-  {
-    label: 'Mobile Money',
-    value: 'mobile_money'
   },
   {
     label: 'Receptionist will contact me',

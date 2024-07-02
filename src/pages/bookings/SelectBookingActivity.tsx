@@ -249,6 +249,8 @@ const SelectBookingActivity = () => {
                 return (
                   <label className="w-full flex flex-col gap-1">
                     <Input
+                      fromDate={booking?.startDate}
+                      toDate={booking?.endDate}
                       type="date"
                       label="Date for this activity"
                       required
@@ -313,7 +315,7 @@ const SelectBookingActivity = () => {
               )}
 
             {selectedActivity?.name?.toLowerCase() ===
-              'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() ? (
+            'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() ? (
               <Controller
                 name="period"
                 control={control}
@@ -335,81 +337,82 @@ const SelectBookingActivity = () => {
               />
             ) : (
               <>
-                          <Controller
-              name="numberOfAdults"
-              control={control}
-              rules={{
-                required: 'Enter number of adult participants',
-                validate: (value) => {
-                  return (
-                    validatePersonAgeRange(
-                      Number(value),
-                      booking?.bookingPeople || [],
-                      'adults'
-                    ) || 'Add people who have 13 years or more.'
-                  );
-                },
-              }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of adult participants"
-                      required
-                      onChange={async (e) => {
-                        field.onChange(e.target.value);
-                        await trigger('numberOfAdults');
-                      }}
-                    />
-                    {errors?.numberOfAdults && (
-                      <InputErrorMessage
-                        message={errors?.numberOfAdults?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
-            />
+                <Controller
+                  name="numberOfAdults"
+                  control={control}
+                  rules={{
+                    required: 'Enter number of adult participants',
+                    validate: (value) => {
+                      return (
+                        validatePersonAgeRange(
+                          Number(value),
+                          booking?.bookingPeople || [],
+                          'adults'
+                        ) || 'Add people who have 13 years or more.'
+                      );
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <label className="w-full flex flex-col gap-1">
+                        <Input
+                          {...field}
+                          type="number"
+                          label="Number of adult participants"
+                          required
+                          onChange={async (e) => {
+                            field.onChange(e.target.value);
+                            await trigger('numberOfAdults');
+                          }}
+                        />
+                        {errors?.numberOfAdults && (
+                          <InputErrorMessage
+                            message={errors?.numberOfAdults?.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
 
-            <Controller
-              name="numberOfChildren"
-              control={control}
-              rules={{
-                required: 'Enter number of children participants',
-                validate: (value) => {
-                  return (
-                    validatePersonAgeRange(
-                      Number(value),
-                      booking?.bookingPeople || [],
-                      'children'
-                    ) || 'Add people who have 6 - 12 years old only.'
-                  );
-                },
-              }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of children participants"
-                      required
-                      onChange={async (e) => {
-                        field.onChange(e.target.value);
-                        await trigger('numberOfChildren');
-                      }}
-                    />
-                    {errors?.numberOfChildren && (
-                      <InputErrorMessage
-                        message={errors?.numberOfChildren?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
-            /></>
+                <Controller
+                  name="numberOfChildren"
+                  control={control}
+                  rules={{
+                    required: 'Enter number of children participants',
+                    validate: (value) => {
+                      return (
+                        validatePersonAgeRange(
+                          Number(value),
+                          booking?.bookingPeople || [],
+                          'children'
+                        ) || 'Add people who have 6 - 12 years old only.'
+                      );
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <label className="w-full flex flex-col gap-1">
+                        <Input
+                          {...field}
+                          type="number"
+                          label="Number of children participants"
+                          required
+                          onChange={async (e) => {
+                            field.onChange(e.target.value);
+                            await trigger('numberOfChildren');
+                          }}
+                        />
+                        {errors?.numberOfChildren && (
+                          <InputErrorMessage
+                            message={errors?.numberOfChildren?.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
+              </>
             )}
           </fieldset>
 

@@ -51,7 +51,7 @@ const CreateBookingActivities = () => {
     if (id) {
       getBookingDetails({ id });
     }
-  }, [id, getBookingDetails]);
+  }, [id, getBookingDetails, selectedService]);
 
   // HANDLE GET BOOKING DETAILS RESPONSE
   useEffect(() => {
@@ -122,6 +122,16 @@ const CreateBookingActivities = () => {
     dispatch,
   ]);
 
+  if (servicesIsFetching || bookingDetailsIsFetching) {
+    return (
+      <PublicLayout>
+        <figure className="flex flex-col items-center justify-center gap-4 w-full min-h-[80vh]">
+        <Loader className="text-primary" />
+      </figure>
+      </PublicLayout>
+    );
+  }
+
   return (
     <PublicLayout>
       <main className="w-[100vw] flex flex-col gap-6 p-4 max-h-[90vh]">
@@ -130,11 +140,6 @@ const CreateBookingActivities = () => {
           {bookingDetailsIsSuccess ? booking?.name : '...'} scheduled on{' '}
           {bookingDetailsIsSuccess ? formatDate(booking?.startDate) : '...'}
         </h1>
-        {(servicesIsFetching || bookingDetailsIsFetching) && (
-          <figure className="flex flex-col items-center gap-4 w-full min-h-[40vh]">
-            <Loader className="text-primary" />
-          </figure>
-        )}
         {bookingDetailsIsSuccess && servicesIsSuccess && (
           <form className="flex flex-col gap-4 w-[80%] mx-auto">
             <fieldset className="flex flex-col gap-3 w-full">

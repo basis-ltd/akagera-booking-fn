@@ -339,10 +339,6 @@ const BookingPreview = () => {
       cell: ({ row }: { row: Row<BookingPerson> }) => {
         return (
           <menu className="flex items-center gap-3">
-            {/* <FontAwesomeIcon
-              icon={faPenToSquare}
-              className="p-2 transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full bg-primary text-white"
-            /> */}
             <FontAwesomeIcon
               icon={faTrash}
               onClick={(e) => {
@@ -444,6 +440,16 @@ const BookingPreview = () => {
     } scheduled on ${formatDate(booking?.startDate)}`;
   }, [booking]);
 
+  if (bookingDetailsIsFetching) {
+    return (
+      <PublicLayout>
+        <figure className="w-full flex items-center justify-center min-h-[80vh]">
+          <Loader className="text-primary" />
+        </figure>
+      </PublicLayout>
+    );
+  }
+
   return (
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
@@ -451,11 +457,6 @@ const BookingPreview = () => {
           {booking?.type} Preview for {booking?.name} scheduled on{' '}
           {formatDate(booking?.startDate)}
         </h1>
-        {bookingDetailsIsFetching && (
-          <figure className="w-full flex items-center justify-center min-h-[50vh]">
-            <Loader className="text-primary" />
-          </figure>
-        )}
         <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
           <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>

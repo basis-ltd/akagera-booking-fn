@@ -4,16 +4,17 @@ import Table from '@/components/table/Table';
 import { userColumns } from '@/constants/user.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { useLazyFetchUsersQuery } from '@/states/apiSlice';
-import { setCreateUserModal, setUsersList } from '@/states/features/userSlice';
+import { setCreateUserModal, setDeleteUserModal, setSelectedUser, setUsersList } from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { User } from '@/types/models/user.types';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import DeleteUser from './DeleteUser';
 
 const ListUsers = () => {
   // STATE VARIABLES
@@ -53,7 +54,28 @@ const ListUsers = () => {
   }, [dispatch, usersData, usersError, usersIsError, usersIsSuccess]);
 
   // USER COLUMNS
-  const userExtendedColumns = [...userColumns];
+  const userExtendedColumns = [
+    ...userColumns,
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<User> }) => {
+        return (
+          <menu className="flex items-center gap-3">
+            <FontAwesomeIcon
+              icon={faTrash}
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setSelectedUser(row?.original))
+                dispatch(setDeleteUserModal(true))
+              }}
+              className="text-white p-2 cursor-pointer px-[8.2px] bg-red-600 rounded-full text-[13px] transition-all duration-300 hover:scale-[1.01]"
+            />
+          </menu>
+        );
+      },
+    },
+  ];
 
   return (
     <AdminLayout>
@@ -65,7 +87,7 @@ const ListUsers = () => {
             className="!py-[5px]"
             onClick={(e) => {
               e.preventDefault();
-            dispatch(setCreateUserModal(true));
+              dispatch(setCreateUserModal(true));
             }}
           >
             <menu className="flex items-center gap-2">
@@ -92,6 +114,7 @@ const ListUsers = () => {
           )
         )}
       </main>
+      <DeleteUser />
     </AdminLayout>
   );
 };

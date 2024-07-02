@@ -173,63 +173,64 @@ const ListDraftBookings = () => {
           } w-full flex flex-col gap-4`}
         >
           <Controller
-            name="selectOption"
+            name="type"
             rules={{
-              required:
-                'Select the option you will use to find bookings in progress',
+              required: 'Choose the type of booking to find',
             }}
             control={control}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1">
                   <Select
-                    placeholder="Select option"
-                    label="Select booking retrieval option"
-                    options={bookingSelectOptions}
+                    placeholder="Select type"
+                    label="Select type"
+                    options={[
+                      {
+                        label: 'Booking',
+                        value: 'booking',
+                      },
+                      {
+                        label: 'Registration',
+                        value: 'registration',
+                      },
+                    ]}
+                    required
                     {...field}
                     onChange={(e) => {
-                      reset({ selectOption: e });
                       field.onChange(e);
                     }}
                   />
-                  {errors?.selectOption && (
-                    <InputErrorMessage message={errors.selectOption.message} />
+                  {errors?.type && (
+                    <InputErrorMessage message={errors.type.message} />
                   )}
                 </label>
               );
             }}
           />
-          {watch('selectOption') && (
+          {watch('type') && (
             <Controller
-              name="type"
+              name="selectOption"
               rules={{
-                required: 'Choose the type of booking to find',
+                required:
+                  'Select the option you will use to find bookings in progress',
               }}
               control={control}
               render={({ field }) => {
                 return (
                   <label className="flex flex-col gap-1">
                     <Select
-                      placeholder="Select type"
-                      label="Select type"
-                      options={[
-                        {
-                          label: 'Booking',
-                          value: 'booking',
-                        },
-                        {
-                          label: 'Registration',
-                          value: 'registration',
-                        },
-                      ]}
-                      required
+                      placeholder="Select option"
+                      label="Select booking retrieval option"
+                      options={bookingSelectOptions}
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
                       }}
                     />
-                    {errors?.type && (
-                      <InputErrorMessage message={errors.type.message} />
+                    {errors?.selectOption && (
+                      <InputErrorMessage
+                        message={errors.selectOption.message}
+                      />
                     )}
                   </label>
                 );

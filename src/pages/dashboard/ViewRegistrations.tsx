@@ -25,7 +25,7 @@ const ViewRegistrations = () => {
   const { bookingsList } = useSelector((state: RootState) => state.booking);
 
   // REACT HOOK FORM
-  const { control, watch } = useForm();
+  const { control, watch, setValue } = useForm();
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -125,6 +125,10 @@ const ViewRegistrations = () => {
       accessorKey: 'notes',
     },
   ];
+
+  useEffect(() => {
+    setValue('startDate', moment().format());
+  }, [setValue]);
 
   return (
     <AdminLayout>
@@ -233,7 +237,7 @@ const ViewRegistrations = () => {
               data={bookingsList?.map((registration: Booking) => {
                 return {
                   ...registration,
-                  startDate: formatDate(registration?.startDate),
+                  startDate: formatDate(registration?.startDate) as unknown as Date,
                   entryGate: capitalizeString(registration?.entryGate),
                   exitGate: capitalizeString(registration?.exitGate),
                 };
