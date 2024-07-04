@@ -15,6 +15,9 @@ import ViewRegistrations from '@/pages/dashboard/ViewRegistrations.tsx';
 import BookingDetails from '@/pages/bookings/BookingDetails.tsx';
 import ListUsers from '@/pages/users/ListUsers.tsx';
 import CreateUser from '@/pages/users/CreateUser.tsx';
+import ListActivities from '@/pages/activities/ListActivities.tsx';
+import ActivityDetails from '@/pages/activities/ActivityDetails.tsx';
+import UpdateActivity from '@/pages/activities/UpdateActivity.tsx';
 
 const Router = () => {
   return (
@@ -30,8 +33,13 @@ const Router = () => {
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/dashboard/bookings" element={<ViewBookings />} />
-        <Route path="/dashboard/registrations" element={<ViewRegistrations />} />
+        <Route
+          path="/dashboard/registrations"
+          element={<ViewRegistrations />}
+        />
         <Route path="/dashboard/users" element={<ListUsers />} />
+        <Route path="/dashboard/activities" element={<ListActivities />} />
+        <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
@@ -40,6 +48,7 @@ const Router = () => {
       <DeleteBookingVehicle />
       <DeleteBookingActivity />
       <CreateUser />
+      <UpdateActivity />
     </section>
   );
 };

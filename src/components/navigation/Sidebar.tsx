@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import akageraLogo from '/akagera_logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faChartLine,
   faChartSimple,
   faChevronCircleLeft,
   faChevronCircleRight,
@@ -27,7 +28,7 @@ const Sidebar = () => {
     {
       label: 'Dashboard',
       path: '/dashboard/registrations',
-      icon: faDashboard,
+      icon: faChartLine,
       role: 'admin'
     },
     {
@@ -46,6 +47,12 @@ const Sidebar = () => {
       label: 'Uses',
       path: '/dashboard/users',
       icon: faUserGroup,
+      role: 'admin'
+    },
+    {
+      label: 'Activities',
+      path: '/dashboard/activities',
+      icon: faDashboard,
       role: 'admin'
     },
   ];
