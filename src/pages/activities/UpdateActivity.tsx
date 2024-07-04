@@ -5,7 +5,10 @@ import Loader from '@/components/inputs/Loader';
 import TextArea from '@/components/inputs/TextArea';
 import Modal from '@/components/modals/Modal';
 import { useUpdateActivityMutation } from '@/states/apiSlice';
-import { setUpdateActivityModal } from '@/states/features/activitySlice';
+import {
+  setSelectedActivity,
+  setUpdateActivityModal,
+} from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { useEffect } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -66,6 +69,7 @@ const UpdateActivity = () => {
       toast.error(errorResponse);
     } else if (updateActivityIsSuccess) {
       toast.success('Activity updated successfully');
+      dispatch(setSelectedActivity(undefined));
       dispatch(setUpdateActivityModal(false));
     }
   }, [
@@ -80,9 +84,10 @@ const UpdateActivity = () => {
     <Modal
       isOpen={updateActivityModal}
       onClose={() => {
+        dispatch(setSelectedActivity(undefined));
         dispatch(setUpdateActivityModal(false));
       }}
-      heading={`Update ${selectedActivity.name}`}
+      heading={`Update ${selectedActivity?.name}`}
     >
       <form
         className="w-full flex flex-col gap-5 min-w-[50vw]"
@@ -145,6 +150,7 @@ const UpdateActivity = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
+              dispatch(setSelectedActivity(undefined));
               dispatch(setUpdateActivityModal(false));
             }}
           >

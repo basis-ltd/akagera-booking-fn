@@ -8,6 +8,7 @@ const initialState: {
   activity?: Activity;
   activityDetailsModal: boolean;
   updateActivityModal: boolean;
+  deleteActivityModal: boolean;
 } = {
   activitiesList: [],
   selectedActivity: {} as Activity,
@@ -15,6 +16,7 @@ const initialState: {
   activity: undefined,
   activityDetailsModal: false,
   updateActivityModal: false,
+  deleteActivityModal: false,
 };
 
 export const activitySlice = createSlice({
@@ -38,6 +40,17 @@ export const activitySlice = createSlice({
     },
     setUpdateActivityModal: (state, action) => {
       state.updateActivityModal = action.payload;
+    },
+    setDeleteActivityModal: (state, action) => {
+      state.deleteActivityModal = action.payload;
+    },
+    addActivityToList: (state, action) => {
+      state.activitiesList.unshift(action.payload);
+    },
+    removeActivityFromList: (state, action) => {
+      state.activitiesList = state.activitiesList.filter(
+        (activity) => activity.id !== action.payload
+      );
     }
   },
 });
@@ -49,6 +62,9 @@ export const {
   setActivity,
   setActivityDetailsModal,
   setUpdateActivityModal,
+  setDeleteActivityModal,
+  removeActivityFromList,
+  addActivityToList,
 } = activitySlice.actions;
 
 export default activitySlice.reducer;

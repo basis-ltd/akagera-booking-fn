@@ -10,6 +10,7 @@ import {
 import { useLazyGetActivityDetailsQuery } from '@/states/apiSlice';
 import {
   setActivity,
+  setDeleteActivityModal,
   setSelectedActivity,
   setUpdateActivityModal,
 } from '@/states/features/activitySlice';
@@ -192,6 +193,19 @@ const ActivityDetails = () => {
             </section>
           )
         )}
+        <menu className="w-[95%] flex items-center gap-3 justify-between absolute bottom-12">
+          <Button
+            danger
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setSelectedActivity(activity));
+              dispatch(setDeleteActivityModal(true));
+            }}
+          >
+            Delete
+          </Button>
+          <Button primary>Archive</Button>
+        </menu>
       </main>
     </AdminLayout>
   );

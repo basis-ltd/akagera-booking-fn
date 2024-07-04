@@ -375,6 +375,16 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // DELETE ACTIVITY
+      deleteActivity: builder.mutation({
+        query: ({ id }) => {
+          return {
+            url: `activities/${id}`,
+            method: 'DELETE',
+          };
+        },
+      }),
     };
   },
 });
@@ -403,6 +413,7 @@ export const {
   useDeleteUserMutation,
   useLazyGetActivityDetailsQuery,
   useUpdateActivityMutation,
+  useDeleteActivityMutation,
 } = apiSlice;
 
 export default apiSlice;
