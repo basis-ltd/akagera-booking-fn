@@ -1,5 +1,6 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
+import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import AdminLayout from '@/containers/AdminLayout';
 import {
   capitalizeString,
@@ -81,9 +82,26 @@ const ActivityDetails = () => {
     dispatch,
   ]);
 
+  // BREADCRUMB LINKS
+  const breadcrumbLinks = [
+    {
+      label: 'Dashboard',
+      route: '/dashboard',
+    },
+    {
+      label: 'Activities',
+      route: '/dashboard/activities',
+    },
+    {
+      label: `${activity?.name}`,
+      route: `/dashboard/activities/${id}`,
+    },
+  ];
+
   return (
     <AdminLayout>
       <main className="w-[90%] mx-auto flex flex-col gap-4 p-6 relative h-[90vh]">
+        <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
         {activityIsFetching ? (
           <figure className="w-full flex items-center justify-center min-h-[60vh]">
             <Loader className="text-primary" />
@@ -193,7 +211,7 @@ const ActivityDetails = () => {
             </section>
           )
         )}
-        <menu className="w-[95%] flex items-center gap-3 justify-between absolute bottom-12">
+        <menu className="w-[95%] flex items-center gap-3 justify-center absolute bottom-12">
           <Button
             danger
             onClick={(e) => {
@@ -204,7 +222,6 @@ const ActivityDetails = () => {
           >
             Delete
           </Button>
-          <Button primary>Archive</Button>
         </menu>
       </main>
     </AdminLayout>
