@@ -18,6 +18,7 @@ import CreateUser from '@/pages/users/CreateUser.tsx';
 import ListActivities from '@/pages/activities/ListActivities.tsx';
 import ActivityDetails from '@/pages/activities/ActivityDetails.tsx';
 import UpdateActivity from '@/pages/activities/UpdateActivity.tsx';
+import DeleteActivity from '@/pages/activities/DeleteActivity.tsx';
 
 const Router = () => {
   return (
@@ -49,6 +50,7 @@ const Router = () => {
       <DeleteBookingActivity />
       <CreateUser />
       <UpdateActivity />
+      <DeleteActivity />
     </section>
   );
 };
