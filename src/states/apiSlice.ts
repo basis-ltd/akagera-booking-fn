@@ -348,13 +348,33 @@ export const apiSlice = createApi({
 
       // DELETE USER
       deleteUser: builder.mutation({
-        query: ({id}) => {
+        query: ({ id }) => {
           return {
             url: `users/${id}`,
-            method: 'DELETE'
-          }
-        }
-      })
+            method: 'DELETE',
+          };
+        },
+      }),
+
+      // GET ACTIVITY DETAILS
+      getActivityDetails: builder.query({
+        query: ({ id }) => `activities/${id}`,
+      }),
+
+      // UPDATE ACTIVITY
+      updateActivity: builder.mutation({
+        query: ({ id, name, description, disclaimer }) => {
+          return {
+            url: `activities/${id}`,
+            method: 'PATCH',
+            body: {
+              name,
+              description,
+              disclaimer,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -380,7 +400,9 @@ export const {
   useSubmitBookingMutation,
   useLazyFetchUsersQuery,
   useCreateUserMutation,
-  useDeleteUserMutation
+  useDeleteUserMutation,
+  useLazyGetActivityDetailsQuery,
+  useUpdateActivityMutation,
 } = apiSlice;
 
 export default apiSlice;
