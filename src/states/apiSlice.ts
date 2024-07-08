@@ -204,6 +204,8 @@ export const apiSlice = createApi({
           endTime,
           numberOfAdults = 0,
           numberOfChildren = 0,
+          numberOfSeats,
+          defaultRate
         }) => ({
           url: `booking-activities`,
           method: 'POST',
@@ -215,6 +217,8 @@ export const apiSlice = createApi({
             endTime,
             numberOfAdults,
             numberOfChildren,
+            numberOfSeats,
+            defaultRate
           },
         }),
       }),
@@ -305,11 +309,13 @@ export const apiSlice = createApi({
 
       // SUBMIT BOOKING
       submitBooking: builder.mutation({
-        query: ({ id, status }) => ({
+        query: ({ id, status, totalAmountRwf, totalAmountUsd }) => ({
           url: `bookings/${id}/submit`,
           method: 'PATCH',
           body: {
             status,
+            totalAmountRwf,
+            totalAmountUsd,
           },
         }),
       }),

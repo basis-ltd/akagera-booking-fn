@@ -32,7 +32,8 @@ export const removeDuplicates = (array: never[]) => {
   return array.filter((value, index) => array.indexOf(value) === index);
 };
 
-export const formatCurrency = (amount: number, currency = 'USD') => {
+export const formatCurrency = (amount: number | undefined, currency = 'USD') => {
+  if (!amount) return '';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
