@@ -17,4 +17,6 @@ export type BookingActivity = {
   numberOfChildren?: number;
   bookingActivityPeople?: BookingActivityPerson[];
   price: number | string;
+  defaultRate?: number;
+  numberOfSeats?: number;
 };

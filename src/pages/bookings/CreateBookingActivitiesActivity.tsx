@@ -169,7 +169,7 @@ const CreateBookingActivitiesActivity = () => {
           {activitiesIsSuccess &&
             activitiesList?.length > 0 &&
             activitiesList.map((activity) => {
-              return <ActivityCard activity={activity} />;
+              return <ActivityCard key={activity?.id} activity={activity} />;
             })}
         </menu>
       )}

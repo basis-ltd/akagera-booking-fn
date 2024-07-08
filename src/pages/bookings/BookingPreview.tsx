@@ -3,7 +3,9 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
+import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
 import { bookingPaymentMethods } from '@/constants/bookings.constants';
+import { bookingVehicleColumns } from '@/constants/bookingVehicle.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
@@ -66,7 +68,7 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-  const [bookingStatus, setBookingStatus] = useState('pending');
+  const [bookingStatus, setBookingStatus] = useState('pending_contact');
 
   // NAVIGATION
   const { id } = useParams();
@@ -205,10 +207,15 @@ const BookingPreview = () => {
             ...bookingActivity,
             no: index + 1,
             activity: bookingActivity?.activity,
-            endTime: bookingActivity.endTime,
-            price: `USD ${calculateActivityPrice(bookingActivity)}`,
-            startTime: moment(bookingActivity.startTime).format('hh:mm A'),
+            price: bookingActivity?.defaultRate
+              ? formatCurrency(
+                  bookingActivity?.defaultRate *
+                    Number(bookingActivity?.numberOfSeats)
+                )
+              : `${formatCurrency(calculateActivityPrice(bookingActivity))}`,
             numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
+            numberOfAdults: bookingActivity?.numberOfAdults || '',
+            numberOfChildren: bookingActivity?.numberOfChildren || '',
           };
         }
       );
@@ -311,28 +318,8 @@ const BookingPreview = () => {
   ];
 
   // BOOKING PEOPLE COLUMNS
-  const bookingPeopleColumns = [
-    {
-      header: 'Full Names',
-      accessorKey: 'name',
-    },
-    {
-      header: 'Age',
-      accessorKey: 'age',
-    },
-    {
-      header: 'Nationality',
-      accessorKey: 'nationality',
-    },
-    {
-      header: 'Residence',
-      accessorKey: 'residence',
-    },
-
-    {
-      header: 'Entry fee',
-      accessorKey: 'price',
-    },
+  const bookingPeopleExtendedColumns = [
+    ...bookingPeopleColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -355,27 +342,8 @@ const BookingPreview = () => {
   ];
 
   // BOOKING VEHICLES COLUMNS
-  const bookingVehiclesColumns = [
-    {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
-      header: 'Vehicle Type',
-      accessorKey: 'vehicleType',
-    },
-    {
-      header: 'Registration Country',
-      accessorKey: 'registrationCountry',
-    },
-    {
-      header: 'Number of vehicles',
-      accessorKey: 'vehiclesCount',
-    },
-    {
-      header: 'Price',
-      accessorKey: 'vehiclePrice',
-    },
+  const bookingVehicleExtendedColumns = [
+    ...bookingVehicleColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -402,7 +370,7 @@ const BookingPreview = () => {
     dispatch(
       addBookingTotalAmountUsd(
         bookingActivitiesList?.reduce(
-          (acc, curr) => acc + Number(String(curr?.price)?.split(' ')[1]),
+          (acc, curr) => acc + Number(String(curr?.price)?.split('$')[1]),
           0
         )
       )
@@ -544,7 +512,7 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
+                columns={bookingPeopleExtendedColumns as ColumnDef<BookingPerson>[]}
                 data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                   return {
                     ...bookingPerson,
@@ -566,7 +534,9 @@ const BookingPreview = () => {
                         'days'
                       )
                     ),
-                    price: `USD ${calculateBookingPersonPrice(bookingPerson)}`,
+                    price: `${formatCurrency(
+                      calculateBookingPersonPrice(bookingPerson)
+                    )}`,
                   };
                 })}
               />
@@ -596,7 +566,7 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingVehiclesColumns as ColumnDef<BookingVehicle>[]}
+                columns={bookingVehicleExtendedColumns as ColumnDef<BookingVehicle>[]}
                 data={bookingVehiclesList?.map((bookingVehicle, index) => {
                   return {
                     ...bookingVehicle,
@@ -609,8 +579,8 @@ const BookingPreview = () => {
                       (country) =>
                         country?.code === bookingVehicle?.registrationCountry
                     )?.name,
-                    vehiclePrice: `USD ${calculateVehiclePrice(
-                      bookingVehicle
+                    vehiclePrice: `${formatCurrency(
+                      calculateVehiclePrice(bookingVehicle)
                     )}`,
                   };
                 })}
@@ -660,8 +630,14 @@ const BookingPreview = () => {
             primary
             onClick={(e) => {
               e.preventDefault();
-              updateBooking({ id: booking?.id, status: bookingStatus });
+              updateBooking({
+                id: booking?.id,
+                status: bookingStatus,
+                totalAmountRwf: Number(booking?.totalAmountUsd) * 1303,
+                totalAmountUsd: Number(booking?.totalAmountUsd),
+              });
             }}
+            disabled={!bookingStatus}
           >
             {updateBookingIsLoading ? <Loader /> : 'Submit'}
           </Button>

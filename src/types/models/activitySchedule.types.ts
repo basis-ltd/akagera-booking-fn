@@ -10,5 +10,6 @@ export type ActivitySchedule = {
   startTime: Date;
   endTime?: Date;
   createdAt: Date;
+  numberOfSeats: number;
   updatedAt: Date;
 };

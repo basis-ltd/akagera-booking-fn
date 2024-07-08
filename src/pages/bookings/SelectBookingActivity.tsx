@@ -33,6 +33,7 @@ import { validatePersonAgeRange } from '@/helpers/validations.helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ActivityRate } from '@/types/models/activityRate.types';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -55,6 +56,9 @@ const SelectBookingActivity = () => {
     activityId: selectedActivity?.id,
     endTime: booking?.endDate,
   });
+  const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
+    ActivitySchedule | undefined
+  >(undefined);
 
   // REACT HOOK FORM
   const {
@@ -147,6 +151,7 @@ const SelectBookingActivity = () => {
         selectedBookingPeople: null,
       });
       dispatch(setSelectBookingActivityModal(false));
+      setSelectedActivitySchedule(undefined);
       reset({
         activitySchedule: '',
         numberOfAdults: '',
@@ -168,8 +173,11 @@ const SelectBookingActivity = () => {
       activityId: selectedActivity?.id,
       startTime: bookingActivity?.startTime || booking?.startDate,
       endTime: bookingActivity?.endTime || booking?.endDate,
-      numberOfAdults: data?.numberOfAdults,
-      numberOfChildren: data?.numberOfChildren,
+      numberOfAdults: data?.numberOfAdults && Number(data?.numberOfAdults),
+      numberOfChildren:
+        data?.numberOfChildren && Number(data?.numberOfChildren),
+      numberOfSeats: data?.numberOfSeats && Number(data?.numberOfSeats),
+      defaultRate: data?.defaultRate ? Number(data?.defaultRate) : null,
     });
   };
 
@@ -221,6 +229,7 @@ const SelectBookingActivity = () => {
       isOpen={selectBookingActivityModal}
       onClose={() => {
         dispatch(setSelectBookingActivityModal(false));
+        setSelectedActivitySchedule(undefined);
         reset({
           activitySchedule: '',
           numberOfAdults: '',
@@ -276,6 +285,13 @@ const SelectBookingActivity = () => {
                           required
                           onChange={(e) => {
                             field.onChange(e);
+                            setSelectedActivitySchedule(
+                              selectedActivity?.activitySchedules?.find(
+                                (activitySchedule: ActivitySchedule) =>
+                                  `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
+                                  e
+                              )
+                            );
                             setBookingActivity({
                               ...bookingActivity,
                               startTime: moment(
@@ -292,12 +308,15 @@ const SelectBookingActivity = () => {
                           }}
                           options={selectedActivity?.activitySchedules?.map(
                             (activitySchedule: ActivitySchedule) => {
+                              const label = `${formatTime(
+                                activitySchedule.startTime
+                              )} - ${formatTime(
+                                String(activitySchedule.endTime)
+                              )}`;
                               return {
-                                label: `${formatTime(
-                                  activitySchedule.startTime
-                                )} - ${formatTime(
-                                  String(activitySchedule.endTime)
-                                )}`,
+                                label: activitySchedule?.description
+                                  ? `${activitySchedule?.description} (${label})`
+                                  : label,
                                 value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
                               };
                             }
@@ -314,28 +333,9 @@ const SelectBookingActivity = () => {
                 />
               )}
 
-            {selectedActivity?.name?.toLowerCase() ===
-            'GUIDE FOR SELF-DRIVE GAME DRIVE'?.toLowerCase() ? (
-              <Controller
-                name="period"
-                control={control}
-                rules={{ required: 'Select time period' }}
-                render={({ field }) => {
-                  return (
-                    <label className="flex flex-col gap-2">
-                      <Select
-                        {...field}
-                        label="Time Period"
-                        options={[
-                          { label: 'Full day', value: 'fullDay' },
-                          { label: '1/2 Day', value: 'halfDaye' },
-                        ]}
-                      />
-                    </label>
-                  );
-                }}
-              />
-            ) : (
+            {selectedActivity?.activityRates?.find(
+              (rate: ActivityRate) => rate?.ageRange === 'children'
+            ) !== undefined ? (
               <>
                 <Controller
                   name="numberOfAdults"
@@ -413,8 +413,82 @@ const SelectBookingActivity = () => {
                   }}
                 />
               </>
+            ) : (
+              <>
+                <Controller
+                  name="numberOfSeats"
+                  defaultValue={1}
+                  control={control}
+                  rules={{
+                    required: 'Specify the number of transportations',
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <label className="flex flex-col gap-2">
+                        <Input
+                          {...field}
+                          type="number"
+                          label="Number of transportations"
+                          required
+                        />
+                        {errors?.numberOfSeats && (
+                          <InputErrorMessage
+                            message={errors?.numberOfSeats?.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
+                <Controller
+                  name="defaultRate"
+                  control={control}
+                  rules={{
+                    required: 'Select your preferred pricing option',
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <label className="flex flex-col gap-2">
+                        <Select
+                          {...field}
+                          label="Select pricing option"
+                          required
+                          options={selectedActivity?.activityRates?.map(
+                            (rate: ActivityRate) => {
+                              return {
+                                label: rate?.name,
+                                value: String(rate?.amountUsd),
+                              };
+                            }
+                          )}
+                        />
+                        {errors?.defaultRate && (
+                          <InputErrorMessage
+                            message={errors?.defaultRate?.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
+              </>
             )}
           </fieldset>
+          <menu className="flex flex-col gap-2 w-[90%]">
+            {selectedActivitySchedule &&
+              selectedActivitySchedule?.numberOfSeats !== 1000 && (
+                <p className="text-slate-900 text-[15px]">
+                  Number of transportations available for this period:{' '}
+                  {selectedActivitySchedule?.numberOfSeats}
+                </p>
+              )}
+            {selectedActivitySchedule &&
+              selectedActivitySchedule?.disclaimer && (
+                <p className="text-slate-900 text-[15px]">
+                  Disclaimer: {selectedActivitySchedule?.disclaimer}
+                </p>
+              )}
+          </menu>
 
           <menu className="flex items-center gap-3 justify-between mt-3">
             <Button
@@ -422,6 +496,7 @@ const SelectBookingActivity = () => {
               onClick={(e) => {
                 e.preventDefault();
                 dispatch(setSelectBookingActivityModal(false));
+                setSelectedActivitySchedule(undefined);
               }}
               danger
             >
@@ -449,8 +524,10 @@ const SelectBookingActivity = () => {
                   ...bookingActivity,
                   no: index + 1,
                   date: formatDate(bookingActivity?.startTime),
-                  time: `${formatTime(bookingActivity?.startTime)} - 
-                      ${formatTime(String(bookingActivity?.endTime))}`,
+                  time: `${moment(bookingActivity?.startTime).format(
+                    'HH:mm A'
+                  )} - 
+                      ${moment(bookingActivity?.endTime).format('HH:mm A')}`,
                 };
               }
             )}
@@ -461,6 +538,7 @@ const SelectBookingActivity = () => {
               onClick={(e) => {
                 e.preventDefault();
                 dispatch(setSelectBookingActivityModal(false));
+                setSelectedActivitySchedule(undefined);
                 reset({
                   activitySchedule: '',
                   numberOfAdults: '',

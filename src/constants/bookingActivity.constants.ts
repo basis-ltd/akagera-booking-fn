@@ -1,6 +1,6 @@
-import { formatTime } from '@/helpers/strings.helper';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { Row } from '@tanstack/react-table';
+import moment from 'moment';
 
 export const bookingActivitiesColumns = [
   {
@@ -15,13 +15,13 @@ export const bookingActivitiesColumns = [
     header: 'Start Time',
     accessorKey: 'startTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      formatTime(row?.original?.startTime),
+      moment(row?.original?.startTime).format('hh:mm A'),
   },
   {
     header: 'End Time',
     accessorKey: 'endTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      formatTime(String(row?.original?.endTime)),
+      moment(row?.original?.endTime).format('hh:mm A'),
   },
   {
     header: 'Number of adults',
@@ -30,6 +30,14 @@ export const bookingActivitiesColumns = [
   {
     header: 'Number of children',
     accessorKey: 'numberOfChildren',
+  },
+  {
+    header: 'Number of transportations',
+    accessorKey: 'numberOfSeats',
+    cell: ({ row }: { row: Row<BookingActivity> }) =>
+      Number(row?.original?.numberOfSeats) > 1
+        ? `${row?.original?.numberOfSeats}`
+        : ``,
   },
   {
     header: 'Price',

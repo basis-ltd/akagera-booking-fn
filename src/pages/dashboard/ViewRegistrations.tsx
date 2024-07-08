@@ -5,7 +5,11 @@ import Table from '@/components/table/Table';
 import { bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { getBookingStatusColor } from '@/helpers/booking.helper';
-import { capitalizeString, formatDate } from '@/helpers/strings.helper';
+import {
+  capitalizeString,
+  formatCurrency,
+  formatDate,
+} from '@/helpers/strings.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -53,7 +57,7 @@ const ViewRegistrations = () => {
       status: watch('status'),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchBookings, watch('status'), watch, watch('startDate')]);
+  }, [fetchBookings, watch('status'), watch('startDate')]);
 
   // HANDLE FETCH BOOKINGS RESPONSE
   useEffect(() => {
@@ -119,6 +123,16 @@ const ViewRegistrations = () => {
     {
       header: 'Exit Gate',
       accessorKey: 'exitGate',
+    },
+    {
+      header: 'Amount',
+      accessorKey: 'amount',
+      cell: ({ row }: { row: Row<Booking> }) => (
+        <p className="text-[14px] font-semibold">
+          {formatCurrency(row?.original?.totalAmountUsd)} |{' '}
+          {formatCurrency(row.original.totalAmountRwf, 'RWF')}
+        </p>
+      ),
     },
     {
       header: 'Notes',
@@ -237,7 +251,9 @@ const ViewRegistrations = () => {
               data={bookingsList?.map((registration: Booking) => {
                 return {
                   ...registration,
-                  startDate: formatDate(registration?.startDate) as unknown as Date,
+                  startDate: formatDate(
+                    registration?.startDate
+                  ) as unknown as Date,
                   entryGate: capitalizeString(registration?.entryGate),
                   exitGate: capitalizeString(registration?.exitGate),
                 };

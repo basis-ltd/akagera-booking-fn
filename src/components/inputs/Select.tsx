@@ -6,11 +6,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 interface SelectProps {
   label?: string | undefined;
-  options?: Array<{ label: string; value: string; disabled?: boolean }>;
+  options?: Array<{ label: string | ReactNode; value: string; disabled?: boolean }>;
   defaultValue?: string | undefined;
   placeholder?: string;
   className?: string;
@@ -54,7 +54,7 @@ const Select: FC<SelectProps> = ({
             }
           />
         </SelectTrigger>
-        <SelectContent className="z-[1000]">
+        <SelectContent className="z-[1000] w-full">
           <SelectGroup>
             {options.map((option, index: number) => {
               return (
@@ -62,9 +62,9 @@ const Select: FC<SelectProps> = ({
                   key={index}
                   value={option.value}
                   disabled={option?.disabled}
-                  className="cursor-pointer text-[13px] py-1"
+                  className="cursor-pointer text-[13px] py-1 w-full"
                 >
-                  <p className="text-[13px] py-[3px]">{option.label}</p>
+                  <p className="text-[13px] py-[3px] w-full">{option.label}</p>
                 </SelectItem>
               );
             })}

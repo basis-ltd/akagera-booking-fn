@@ -128,6 +128,7 @@ const ViewBookings = () => {
     let backgroundColor = '#036124';
     switch (event?.status) {
       case 'pending':
+      case 'pending_contact':
         backgroundColor = '#F59E0B';
         break;
       case 'approved':
@@ -173,88 +174,88 @@ const ViewBookings = () => {
             ? formatDate(watch('startDate'))
             : moment().format('dddd, MMMM Do YYYY')}
         </h1>
-          <section className="grid grid-cols-4 items-start gap-4">
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1 w-full">
-                    <Input
-                      className="w-fit"
-                      type="date"
-                      placeholder="Select day"
-                      {...field}
-                    />
-                    <Link
-                      onClick={(e) => {
-                        e.preventDefault();
-                        field.onChange(null);
-                      }}
-                      className="px-1 text-[12px] text-primary"
-                      to={'#'}
-                    >
-                      Reset date
-                    </Link>
-                  </label>
-                );
-              }}
-            />
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1 w-full">
-                    <Select
-                      {...field}
-                      placeholder="Status"
-                      options={Object.values(bookingStatus).map((status) => ({
-                        label: capitalizeString(status),
-                        value: status,
-                      }))}
-                    />
-                    <Link
-                      onClick={(e) => {
-                        e.preventDefault();
-                        field.onChange({
-                          target: {
-                            value: null,
-                          },
-                        });
-                      }}
-                      className="px-1 text-[12px] text-primary"
-                      to={'#'}
-                    >
-                      Reset status
-                    </Link>
-                  </label>
-                );
-              }}
-            />
-            <Controller
-              control={control}
-              name="referenceId"
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1 w-full">
-                    <Input
-                      placeholder="Reference ID"
-                      suffixIcon={faSearch}
-                      suffixIconPrimary
-                      suffixIconHandler={(e) => {
-                        e.preventDefault();
-                        fetchBookings({
-                          referenceId: field.value,
-                        });
-                      }}
-                      {...field}
-                    />
-                  </label>
-                );
-              }}
-            />
-          </section>
+        <section className="grid grid-cols-4 items-start gap-4">
+          <Controller
+            name="startDate"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1 w-full">
+                  <Input
+                    className="w-fit"
+                    type="date"
+                    placeholder="Select day"
+                    {...field}
+                  />
+                  <Link
+                    onClick={(e) => {
+                      e.preventDefault();
+                      field.onChange(null);
+                    }}
+                    className="px-1 text-[12px] text-primary"
+                    to={'#'}
+                  >
+                    Reset date
+                  </Link>
+                </label>
+              );
+            }}
+          />
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1 w-full">
+                  <Select
+                    {...field}
+                    placeholder="Status"
+                    options={Object.values(bookingStatus).map((status) => ({
+                      label: capitalizeString(status),
+                      value: status,
+                    }))}
+                  />
+                  <Link
+                    onClick={(e) => {
+                      e.preventDefault();
+                      field.onChange({
+                        target: {
+                          value: null,
+                        },
+                      });
+                    }}
+                    className="px-1 text-[12px] text-primary"
+                    to={'#'}
+                  >
+                    Reset status
+                  </Link>
+                </label>
+              );
+            }}
+          />
+          <Controller
+            control={control}
+            name="referenceId"
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1 w-full">
+                  <Input
+                    placeholder="Reference ID"
+                    suffixIcon={faSearch}
+                    suffixIconPrimary
+                    suffixIconHandler={(e) => {
+                      e.preventDefault();
+                      fetchBookings({
+                        referenceId: field.value,
+                      });
+                    }}
+                    {...field}
+                  />
+                </label>
+              );
+            }}
+          />
+        </section>
         {bookingActivitiesIsFetching || bookingsIsFetching ? (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">
             <Loader className="text-primary" />
