@@ -89,7 +89,7 @@ const Table = <T extends object>({
   });
 
   return (
-    <div className="space-y-4 w-full my-4">
+    <div className="space-y-4 w-full mb-4">
       {showFilter && (
         <TableToolbar table={table} columns={columns} showExport={showExport} />
       )}
