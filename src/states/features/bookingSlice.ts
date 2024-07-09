@@ -7,14 +7,19 @@ const initialState: {
   createBookingModal: boolean;
   draftBookingsModal: boolean;
   draftBookingsList: Booking[];
-  booking: Booking;
+  booking: Booking & { totalAmountUsd: number };
+  timeSeriesBookings: {
+    date: string;
+    value: number;
+  }[];
 } = {
   bookingsList: [],
   selectedBooking: {} as Booking,
   createBookingModal: false,
   draftBookingsModal: false,
   draftBookingsList: [],
-  booking: {} as Booking,
+  booking: { totalAmountUsd: 0 } as Booking & { totalAmountUsd: number },
+  timeSeriesBookings: [],
 };
 
 export const bookingSlice = createSlice({
@@ -44,7 +49,10 @@ export const bookingSlice = createSlice({
     },
     addBookingTotalAmountUsd: (state, action) => {
       state.booking.totalAmountUsd += Number(action.payload);
-    }
+    },
+    setTimeSeriesBookings: (state, action) => {
+      state.timeSeriesBookings = action.payload;
+    },
   },
 });
 
@@ -56,7 +64,8 @@ export const {
   setDraftBookingsList,
   setBooking,
   setBookingTotalAmountUsd,
-  addBookingTotalAmountUsd
+  addBookingTotalAmountUsd,
+  setTimeSeriesBookings,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

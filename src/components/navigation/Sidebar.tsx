@@ -27,7 +27,7 @@ const Sidebar = () => {
   const sidebarLinks = [
     {
       label: 'Dashboard',
-      path: '/dashboard/registrations',
+      path: '/dashboard',
       icon: faChartLine,
       role: 'admin'
     },

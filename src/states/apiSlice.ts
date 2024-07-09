@@ -391,6 +391,44 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // FETCH TIME SERIES BOOKINGS
+      fetchTimeSeriesBookings: builder.query({
+        query: ({ granularity, month, year, type }) => {
+          let url = `bookings/time-series?granularity=${granularity}`;
+          if (month) {
+            url += `&month=${month}`;
+          }
+          if (year) {
+            url += `&year=${year}`;
+          }
+          if (type) {
+            url += `&type=${type}`;
+          }
+          return {
+            url,
+          };
+        }
+      }),
+
+      // FETCH POPULAR ACTIVITIES
+      fetchPopularActivities: builder.query({
+        query: ({ take = 10, skip = 0 }) =>
+          `booking-activities/popular?take=${take}&skip=${skip}`,
+      }),
+
+      // FETCH POPULAR BOOKING PEOPLE
+      fetchPopularBookingPeople: builder.query({
+        query: ({ take = 10, skip = 0, criteria }) => {
+          let url = `booking-people/popular?take=${take}&skip=${skip}`;
+          if (criteria) {
+            url += `&criteria=${criteria}`;
+          }
+          return {
+            url,
+          };
+        }
+      }),
     };
   },
 });
@@ -420,6 +458,9 @@ export const {
   useLazyGetActivityDetailsQuery,
   useUpdateActivityMutation,
   useDeleteActivityMutation,
+  useLazyFetchTimeSeriesBookingsQuery,
+  useLazyFetchPopularActivitiesQuery,
+  useLazyFetchPopularBookingPeopleQuery,
 } = apiSlice;
 
 export default apiSlice;
