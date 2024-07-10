@@ -18,7 +18,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, Link } from 'react-router-dom';
+import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import PopularActivites from '@/containers/PopularActivites';
 import PopularBookingPeople from '@/containers/PopularBookingPeople';
@@ -34,10 +34,14 @@ const Dashboard = () => {
   const [month, setMonth] = useState(moment().format('M'));
   const [year, setYear] = useState(moment().format('YYYY'));
   const [type, setType] = useState(``);
+  const [metric, setMetric] = useState(`registrations`);
   const [showFilter, setShowFilter] = useState(false);
 
   // REACT HOOK FORM
-  const { control, setValue, reset } = useForm();
+  const { control, setValue, reset, watch } = useForm();
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH TIME SERIES BOOKINGS
   const [
@@ -136,56 +140,60 @@ const Dashboard = () => {
                 );
               }}
             />
-            <Controller
-              name="month"
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="w-full">
-                    <Select
-                      label="Month"
-                      placeholder="Select month"
-                      options={moment.months()?.map((month, index) => {
-                        return {
-                          value: String(index + 1),
-                          label: capitalizeString(month),
-                        };
-                      })}
-                      {...field}
-                      onChange={(e) => {
-                        setValue('month', e);
-                        setMonth(e);
-                      }}
-                    />
-                  </label>
-                );
-              }}
-            />
-            <Controller
-              name="year"
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="w-full">
-                    <Select
-                      label="Year"
-                      placeholder="Select year"
-                      options={[...Array(10).keys()].map((_, index) => {
-                        return {
-                          value: String(moment().year() - index),
-                          label: String(moment().year() - index),
-                        };
-                      })}
-                      {...field}
-                      onChange={(e) => {
-                        setValue('year', e);
-                        setYear(e);
-                      }}
-                    />
-                  </label>
-                );
-              }}
-            />
+            {watch('granularity') === 'day' && (
+              <Controller
+                name="month"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full">
+                      <Select
+                        label="Month"
+                        placeholder="Select month"
+                        options={moment.months()?.map((month, index) => {
+                          return {
+                            value: String(index + 1),
+                            label: capitalizeString(month),
+                          };
+                        })}
+                        {...field}
+                        onChange={(e) => {
+                          setValue('month', e);
+                          setMonth(e);
+                        }}
+                      />
+                    </label>
+                  );
+                }}
+              />
+            )}
+            {watch('granularity') === 'month' && (
+              <Controller
+                name="year"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full">
+                      <Select
+                        label="Year"
+                        placeholder="Select year"
+                        options={[...Array(10).keys()].map((_, index) => {
+                          return {
+                            value: String(moment().year() - index),
+                            label: String(moment().year() - index),
+                          };
+                        })}
+                        {...field}
+                        onChange={(e) => {
+                          setValue('year', e);
+                          setYear(e);
+                        }}
+                      />
+                    </label>
+                  );
+                }}
+              />
+            )}
             <Controller
               name="type"
               control={control}
@@ -205,6 +213,32 @@ const Dashboard = () => {
                       onChange={(e) => {
                         setValue('type', e);
                         setType(e);
+                      }}
+                    />
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="metric"
+              control={control}
+              defaultValue={metric}
+              render={({ field }) => {
+                return (
+                  <label className="w-full">
+                    <Select
+                      label="Metric"
+                      placeholder="Select metric"
+                      options={['registrations', 'revenue']?.map((type) => {
+                        return {
+                          value: type,
+                          label: capitalizeString(type),
+                        };
+                      })}
+                      {...field}
+                      onChange={(e) => {
+                        setValue('metric', e);
+                        setMetric(e);
                       }}
                     />
                   </label>
@@ -237,9 +271,17 @@ const Dashboard = () => {
               <DashboardGraph
                 dataKey="date"
                 data={timeSeriesBookings?.map(
-                  (booking: { date: string; value: number }) => {
+                  (booking: {
+                    date: string;
+                    value: number;
+                    totalAmountUsd: number;
+                  }) => {
                     return {
                       ...booking,
+                      value:
+                        metric === `registrations`
+                          ? booking.value
+                          : booking.totalAmountUsd,
                     };
                   }
                 )}
@@ -252,14 +294,19 @@ const Dashboard = () => {
                     0
                   )}
                   callToAction={() => {
-                    console.log('Yoo');
+                    navigate(`/dashboard/registrations`);
                   }}
                 />
                 <DashboardCard
                   label={`Revenue`}
-                  value={`${formatCurrency(0)}`}
+                  value={`${formatCurrency(
+                    timeSeriesBookings?.reduce(
+                      (acc, curr) => acc + curr.totalAmountUsd,
+                      0
+                    )
+                  )}`}
                   callToAction={() => {
-                    console.log('Yoo');
+                    navigate(`/dashboard/registrations`);
                   }}
                 />
               </menu>

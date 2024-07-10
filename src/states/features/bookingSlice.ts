@@ -11,6 +11,7 @@ const initialState: {
   timeSeriesBookings: {
     date: string;
     value: number;
+    totalAmountUsd: number;
   }[];
 } = {
   bookingsList: [],
