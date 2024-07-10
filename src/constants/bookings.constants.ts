@@ -82,3 +82,39 @@ export const bookingDaysOptions = [
     label: '7 days',
   },
 ];
+
+export const bookingColumns = [
+  {
+    header: 'Reference ID',
+    accessorKey: 'referenceId',
+  },
+  {
+    header: 'Name',
+    accessorKey: 'name',
+  },
+
+  {
+    header: 'Date',
+    accessorKey: 'startDate',
+  },
+  {
+    header: 'Email',
+    accessorKey: 'email',
+  },
+  {
+    header: 'Phone',
+    accessorKey: 'phone',
+  },
+  {
+    header: 'Entry Gate',
+    accessorKey: 'entryGate',
+  },
+  {
+    header: 'Exit Gate',
+    accessorKey: 'exitGate',
+  },
+  {
+    header: 'Notes',
+    accessorKey: 'notes',
+  },
+];

@@ -1,27 +1,26 @@
 import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
-import { bookingStatus } from '@/constants/bookings.constants';
+import { bookingColumns, bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { capitalizeString, formatDate } from '@/helpers/strings.helper';
+import { capitalizeString, formatCurrency, formatDate } from '@/helpers/strings.helper';
 import {
-  useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingsQuery,
 } from '@/states/apiSlice';
-import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { Booking } from '@/types/models/booking.types';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { useEffect } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getLuminance } from 'polished';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Row } from '@tanstack/react-table';
+import { getBookingStatusColor } from '@/helpers/booking.helper';
+import Table from '@/components/table/Table';
 
 const ViewBookings = () => {
   // STATE VARIABLES
@@ -33,29 +32,6 @@ const ViewBookings = () => {
 
   // REACT HOOK FORM
   const { control, watch, setValue } = useForm();
-
-  // INITIALIZE LOCALIZER
-  const localizer = momentLocalizer(moment);
-
-  // INITIALIZE FETCH BOOKING ACTIVITIES
-  const [
-    fetchBookingActivities,
-    {
-      data: bookingActivitiesData,
-      error: bookingActivitiesError,
-      isFetching: bookingActivitiesIsFetching,
-      isError: bookingActivitiesIsError,
-      isSuccess: bookingActivitiesIsSuccess,
-    },
-  ] = useLazyFetchBookingActivitiesQuery();
-
-  // FETCH BOOKING ACTIVITIES
-  useEffect(() => {
-    fetchBookingActivities({
-      take: 100,
-      skip: 0,
-    });
-  }, [fetchBookingActivities]);
 
   // INITIALIZE FETCH BOOKINGS QUERY
   const [
@@ -102,68 +78,39 @@ const ViewBookings = () => {
     dispatch,
   ]);
 
-  // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
-  useEffect(() => {
-    if (bookingActivitiesIsError) {
-      if ((bookingActivitiesError as ErrorResponse)?.status === 500) {
-        toast.error(
-          'Failed to fetch booking activities. Please try again later.'
-        );
-      } else {
-        toast.error((bookingActivitiesError as ErrorResponse)?.data?.message);
-      }
-    } else if (bookingActivitiesIsSuccess) {
-      dispatch(setBookingActivitiesList(bookingActivitiesData?.data?.rows));
-    }
-  }, [
-    bookingActivitiesData,
-    bookingActivitiesError,
-    bookingActivitiesIsError,
-    bookingActivitiesIsSuccess,
-    dispatch,
-  ]);
-
-  // CUSTOMIZE EVENT PROPAGATION
-  const eventStyleGetter = (event: Booking) => {
-    let backgroundColor = '#036124';
-    switch (event?.status) {
-      case 'pending':
-      case 'pending_contact':
-        backgroundColor = '#F59E0B';
-        break;
-      case 'approved':
-        backgroundColor = '#036124';
-        break;
-      case 'cancelled':
-        backgroundColor = '#DC2626';
-        break;
-      case 'in_progress':
-        backgroundColor = '#808080';
-        break;
-      default:
-        break;
-    }
-    const luminance = getLuminance(backgroundColor);
-    const color = luminance > 0.5 ? 'black' : 'white';
-    const style = {
-      backgroundColor,
-      borderRadius: '5px',
-      padding: '5px',
-      shadow: '0px 0px 5px 0px rgba(0,0,0,0.75)',
-      color,
-      border: '0px',
-      display: 'block',
-      size: '13px',
-      fontSize: '13px'
-    };
-    return {
-      style: style,
-    };
-  };
-
   useEffect(() => {
     setValue('startDate', moment().format());
   }, [setValue])
+
+  // BOOKING COLUMNS
+  const bookingExtendedColumns = [
+    {
+      header: 'Amount',
+      accessorKey: 'amount',
+      cell: ({ row }: { row: Row<Booking> }) => (
+        <p className="text-[14px] font-semibold">
+          {formatCurrency(row?.original?.totalAmountUsd)} |{' '}
+          {formatCurrency(row.original.totalAmountRwf, 'RWF')}
+        </p>
+      ),
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row }: { row: Row<Booking> }) => {
+        return (
+          <p
+            className={`px-2 py-1 text-[12px] w-fit rounded-md ${getBookingStatusColor(
+              row?.original?.status
+            )}`}
+          >
+            {capitalizeString(row.original.status)}
+          </p>
+        );
+      },
+    },
+    ...bookingColumns,
+  ]
 
   return (
     <AdminLayout>
@@ -256,38 +203,20 @@ const ViewBookings = () => {
             }}
           />
         </section>
-        {bookingActivitiesIsFetching || bookingsIsFetching ? (
+        {bookingsIsFetching ? (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">
             <Loader className="text-primary" />
           </figure>
         ) : (
           <section className="w-full flex flex-col gap-4">
-            <Calendar
-              localizer={localizer}
-              eventPropGetter={(event) =>
-                eventStyleGetter(event as unknown as Booking)
-              }
-              defaultView="week"
-              className="bg-white rounded-lg shadow-md p-4 text-[12px]"
-              events={bookingsList
-                ?.filter((booking) => booking?.status !== 'in_progress')
-                ?.map((booking: Booking) => {
-                  return {
-                    ...booking,
-                    id: booking?.id,
-                    title: `${booking?.name} (${capitalizeString(
-                      booking?.status
-                    )})`,
-                    start: new Date(booking?.startDate),
-                    end: booking?.endDate ? new Date(booking?.endDate) : null,
-                  };
-                })}
-              startAccessor="start"
-              onSelectEvent={(event) => {
-                navigate(`/bookings/${event?.id}/details`);
+            <Table
+              rowClickHandler={(row) => {
+                navigate(`/bookings/${row?.id}/details`);
               }}
-              endAccessor="end"
-              style={{ height: 500 }}
+              showFilter={false}
+              showPagination={false}
+              data={bookingsList}
+              columns={bookingExtendedColumns}
             />
           </section>
         )}

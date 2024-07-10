@@ -59,6 +59,7 @@ const SelectBookingActivity = () => {
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
   >(undefined);
+  const [transportationsLabel, setTransportationsLabel] = useState<string>('transportations');
 
   // REACT HOOK FORM
   const {
@@ -66,6 +67,8 @@ const SelectBookingActivity = () => {
     reset,
     handleSubmit,
     trigger,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -173,9 +176,9 @@ const SelectBookingActivity = () => {
       activityId: selectedActivity?.id,
       startTime: bookingActivity?.startTime || booking?.startDate,
       endTime: bookingActivity?.endTime || booking?.endDate,
-      numberOfAdults: data?.numberOfAdults && Number(data?.numberOfAdults),
+      numberOfAdults: data?.numberOfAdults ? Number(data?.numberOfAdults) : 0,
       numberOfChildren:
-        data?.numberOfChildren && Number(data?.numberOfChildren),
+        data?.numberOfChildren ? Number(data?.numberOfChildren) : 0,
       numberOfSeats: data?.numberOfSeats && Number(data?.numberOfSeats),
       defaultRate: data?.defaultRate ? Number(data?.defaultRate) : null,
     });
@@ -223,6 +226,20 @@ const SelectBookingActivity = () => {
       },
     },
   ];
+
+  useEffect(() => {
+    switch (selectedActivity?.name?.toUpperCase()) {
+      case 'BOAT TRIP – PRIVATE, NON-SCHEDULED':
+        setTransportationsLabel('participants');
+        break;
+      case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
+        setTransportationsLabel('guides');
+        break;
+      default:
+        setTransportationsLabel('transportations');
+        break;
+    }
+  }, [selectedActivity?.name, selectedActivitySchedule]);
 
   return (
     <Modal
@@ -413,6 +430,54 @@ const SelectBookingActivity = () => {
                   }}
                 />
               </>
+            ) : selectedActivity?.name?.toUpperCase() ===
+              'BOAT TRIP – PRIVATE, NON-SCHEDULED' ? (
+              <>
+                <Controller
+                  name="numberOfParticipants"
+                  control={control}
+                  rules={{
+                    required:
+                      'Enter the number of participants for this boat trip',
+                    validate: (value) => {
+                      if (Number(value) < 1) {
+                        return 'Number of participants must be greater than 0';
+                      }
+                      if (Number(value) > 29) {
+                        return 'Number of participants cannot exceed 29 for one booking. Please create another booking for the remaining participants.';
+                      }
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <label className="w-full flex flex-col gap-1">
+                        <Input
+                          type="number"
+                          {...field}
+                          label="Number of participants"
+                          required
+                          onChange={async (e) => {
+                            field.onChange(e.target.value);
+                            if (Number(e.target.value) <= 11) {
+                              setValue('defaultRate', 200);
+                            } else if (Number(e.target.value) <= 18) {
+                              setValue('defaultRate', 360);
+                            } else if (Number(e.target.value) <= 29) {
+                              setValue('defaultRate', 560);
+                            }
+                            await trigger('numberOfParticipants');
+                          }}
+                        />
+                        {errors?.numberOfParticipants && (
+                          <InputErrorMessage
+                            message={errors?.numberOfParticipants?.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
+              </>
             ) : (
               <>
                 <Controller
@@ -428,7 +493,7 @@ const SelectBookingActivity = () => {
                         <Input
                           {...field}
                           type="number"
-                          label="Number of transportations"
+                          label={`Number of ${transportationsLabel}`}
                           required
                         />
                         {errors?.numberOfSeats && (
@@ -486,6 +551,13 @@ const SelectBookingActivity = () => {
               selectedActivitySchedule?.disclaimer && (
                 <p className="text-slate-900 text-[15px]">
                   Disclaimer: {selectedActivitySchedule?.disclaimer}
+                </p>
+              )}
+            {watch('numberOfParticipants') &&
+              Number(watch('numberOfParticipants')) >= 1 &&
+              Number(watch('numberOfParticipants')) <= 29 && (
+                <p className="text-slate-900 text-[15px]">
+                  Price: ${watch('defaultRate')} USD
                 </p>
               )}
           </menu>
