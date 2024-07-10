@@ -15,13 +15,15 @@ export const bookingActivitiesColumns = [
     header: 'Start Time',
     accessorKey: 'startTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      moment(row?.original?.startTime).format('hh:mm A'),
+      row?.original?.activity?.activitySchedules?.length > 0 ?
+      moment(row?.original?.startTime).format('hh:mm A'): '',
   },
   {
     header: 'End Time',
     accessorKey: 'endTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      moment(row?.original?.endTime).format('hh:mm A'),
+      row?.original?.activity?.activitySchedules?.length > 0 ?
+      moment(row?.original?.endTime).format('hh:mm A'): '',
   },
   {
     header: 'Number of adults',

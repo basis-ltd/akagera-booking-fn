@@ -20,6 +20,7 @@ import ActivityDetails from '@/pages/activities/ActivityDetails.tsx';
 import UpdateActivity from '@/pages/activities/UpdateActivity.tsx';
 import DeleteActivity from '@/pages/activities/DeleteActivity.tsx';
 import Dashboard from '@/pages/dashboard/Dashboard.tsx';
+import ViewBookingActivites from '@/pages/dashboard/ViewBookingActivites.tsx';
 
 const Router = () => {
   return (
@@ -30,7 +31,11 @@ const Router = () => {
           path="/bookings/:id/create"
           element={<CreateBookingActivities />}
         />
-        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard/bookings/activities"
+          element={<ViewBookingActivites />}
+        />
         <Route path="/bookings/:id/preview" element={<BookingPreview />} />
         <Route path="/bookings/:id/details" element={<BookingDetails />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />

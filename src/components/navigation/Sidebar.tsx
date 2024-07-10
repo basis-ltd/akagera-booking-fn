@@ -32,6 +32,11 @@ const Sidebar = () => {
       role: 'admin'
     },
     {
+      label: 'Booking activities',
+      path: '/dashboard/bookings/activities',
+      icon: faChartLine,
+    },
+    {
       label: 'Bookings',
       path: '/dashboard/bookings',
       icon: faChartSimple,
@@ -44,7 +49,7 @@ const Sidebar = () => {
       role: 'receptionist'
     },
     {
-      label: 'Uses',
+      label: 'Users',
       path: '/dashboard/users',
       icon: faUserGroup,
       role: 'admin'
@@ -89,7 +94,7 @@ const Sidebar = () => {
               key={index}
               to={link.path}
               className={`${isOpen ? 'justify-start' : 'justify-center'} ${
-                pathname.includes(link?.path) && 'bg-primary text-white'
+                pathname === link?.path && 'bg-primary text-white'
               } flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full`}
             >
               <FontAwesomeIcon icon={link?.icon} />

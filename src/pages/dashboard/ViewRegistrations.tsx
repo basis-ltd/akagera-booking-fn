@@ -2,13 +2,12 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
-import { bookingStatus } from '@/constants/bookings.constants';
+import { bookingColumns, bookingStatus } from '@/constants/bookings.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { getBookingStatusColor } from '@/helpers/booking.helper';
 import {
   capitalizeString,
   formatCurrency,
-  formatDate,
 } from '@/helpers/strings.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
 import { setBookingsList } from '@/states/features/bookingSlice';
@@ -81,13 +80,16 @@ const ViewRegistrations = () => {
 
   // REGISTRATION COLUMNS
   const registrationColumns = [
+    ...bookingColumns,
     {
-      header: 'Reference ID',
-      accessorKey: 'referenceId',
-    },
-    {
-      header: 'Name',
-      accessorKey: 'name',
+      header: 'Amount',
+      accessorKey: 'amount',
+      cell: ({ row }: { row: Row<Booking> }) => (
+        <p className="text-[14px] font-semibold">
+          {formatCurrency(row?.original?.totalAmountUsd)} |{' '}
+          {formatCurrency(row.original.totalAmountRwf, 'RWF')}
+        </p>
+      ),
     },
     {
       header: 'Status',
@@ -103,40 +105,6 @@ const ViewRegistrations = () => {
           </p>
         );
       },
-    },
-    {
-      header: 'Date',
-      accessorKey: 'startDate',
-    },
-    {
-      header: 'Email',
-      accessorKey: 'email',
-    },
-    {
-      header: 'Phone',
-      accessorKey: 'phone',
-    },
-    {
-      header: 'Entry Gate',
-      accessorKey: 'entryGate',
-    },
-    {
-      header: 'Exit Gate',
-      accessorKey: 'exitGate',
-    },
-    {
-      header: 'Amount',
-      accessorKey: 'amount',
-      cell: ({ row }: { row: Row<Booking> }) => (
-        <p className="text-[14px] font-semibold">
-          {formatCurrency(row?.original?.totalAmountUsd)} |{' '}
-          {formatCurrency(row.original.totalAmountRwf, 'RWF')}
-        </p>
-      ),
-    },
-    {
-      header: 'Notes',
-      accessorKey: 'notes',
     },
   ];
 
@@ -251,9 +219,6 @@ const ViewRegistrations = () => {
               data={bookingsList?.map((registration: Booking) => {
                 return {
                   ...registration,
-                  startDate: formatDate(
-                    registration?.startDate
-                  ) as unknown as Date,
                   entryGate: capitalizeString(registration?.entryGate),
                   exitGate: capitalizeString(registration?.exitGate),
                 };
