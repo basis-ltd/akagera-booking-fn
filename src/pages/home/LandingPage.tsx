@@ -6,7 +6,6 @@ import {
   setCreateBookingModal,
   setDraftBookingsModal,
 } from '../../states/features/bookingSlice';
-import Button from '@/components/inputs/Button';
 import ListDraftBookings from '../bookings/ListDraftBookings';
 import PublicLayout from '@/containers/PublicLayout';
 import { useEffect } from 'react';
@@ -36,7 +35,7 @@ const LandingPage = () => {
               </p>
             </article>
             <menu className="w-full flex flex-col gap-2 items-center my-4">
-              <ul className="flex gap-3 flex-col items-center">
+              <ul className="flex gap-3 items-center">
                 <Link
                   to={'/bookings/create'}
                   className="bg-white text-black p-2 px-4 w-fit rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
@@ -67,17 +66,17 @@ const LandingPage = () => {
                 >
                   Complete the registration form
                 </Link>
-              </ul>
-              <Button
-                styled={false}
-                className="text-white hover:!text-white hover:underline hover:!scale-[1]"
+                <Link
+                to={'#'}
+                className="bg-white text-black p-2 px-4 w-fit rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
                 onClick={(e) => {
                   e.preventDefault();
                   dispatch(setDraftBookingsModal(true));
                 }}
               >
-                Complete existing booking/registration
-              </Button>
+                Find bookings/registrations
+              </Link>
+              </ul>
             </menu>
           </section>
         </figure>

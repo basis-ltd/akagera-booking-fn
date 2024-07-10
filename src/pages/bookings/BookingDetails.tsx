@@ -1,5 +1,6 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
+import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
@@ -405,6 +406,22 @@ const BookingDetails = () => {
     } scheduled on ${formatDate(booking?.startDate)}`;
   }, [booking]);
 
+  // BREADCRUMB LINKS
+  const breadcrumbLinks = [
+    {
+      label: 'Dashboard',
+      route: '/dashboard',
+    },
+    {
+      label: `${capitalizeString(booking?.type)}s`,
+      route: `/dashboard/${booking?.type}s`,
+    },
+    {
+      label: `${booking?.name}`,
+      route: `/dashboard/bookings/${id}/details`,
+    },
+  ];
+
   return (
     <AdminLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
@@ -418,6 +435,7 @@ const BookingDetails = () => {
           </figure>
         )}
         <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
+        <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
           <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>
           </ul>

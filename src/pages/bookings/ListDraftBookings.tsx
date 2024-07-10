@@ -5,6 +5,8 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
+import { bookingStatus } from '@/constants/bookings.constants';
+import { getBookingStatusColor } from '@/helpers/booking.helper';
 import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import validateInputs from '@/helpers/validations.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
@@ -59,7 +61,6 @@ const ListDraftBookings = () => {
       referenceId: data?.referenceId,
       email: data?.email,
       phone: data?.phone,
-      status: 'in_progress',
       type: data?.type,
     });
   };
@@ -70,7 +71,7 @@ const ListDraftBookings = () => {
       if ((bookingsError as ErrorResponse).status === 500) {
         toast.error('An error occurred while fetching bookings');
       } else {
-        toast.error((bookingsError as ErrorResponse).data.message);
+        toast.error((bookingsError as ErrorResponse)?.data?.message);
       }
     }
     if (bookingsIsSuccess) {
@@ -118,12 +119,29 @@ const ListDraftBookings = () => {
       accessorKey: 'type',
     },
     {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row }: { row: Row<Booking> }) => (
+        <p
+          className={`${getBookingStatusColor(
+            row?.original?.status
+          )} text-[14px] p-1 rounded-md`}
+        >
+          {capitalizeString(row?.original?.status)}
+        </p>
+      ),
+    },
+    {
       header: 'Booking date',
       accessorKey: 'startDate',
+      cell: ({ row }: { row: Row<Booking> }) =>
+        formatDate(row.original.startDate),
     },
     {
       header: 'Date added',
       accessorKey: 'createdAt',
+      cell: ({ row }: { row: Row<Booking> }) =>
+        formatDate(row.original.createdAt),
     },
     {
       header: 'Action',
@@ -131,17 +149,23 @@ const ListDraftBookings = () => {
       cell: ({ row }: { row: Row<Booking> }) => {
         return (
           <menu className="flex items-center gap-2">
-            <Link
-              to={'#'}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(`/bookings/${row.original.id}/create`);
-                dispatch(setDraftBookingsModal(false));
-              }}
-              className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
-            >
-              Complete
-            </Link>
+            {Object.values(bookingStatus)
+              ?.filter(
+                (status) => !['approved', 'cash_received'].includes(status)
+              )
+              ?.includes(row?.original?.status) && (
+              <Link
+                to={'#'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/bookings/${row.original.id}/create`);
+                  dispatch(setDraftBookingsModal(false));
+                }}
+                className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
+              >
+                Update
+              </Link>
+            )}
           </menu>
         );
       },
@@ -152,6 +176,13 @@ const ListDraftBookings = () => {
     <Modal
       isOpen={draftBookingsModal}
       onClose={() => {
+        reset({
+          type: '',
+          selectOption: '',
+          referenceId: '',
+          email: '',
+          phone: '',
+        });
         dispatch(setDraftBookingsModal(false));
         dispatch(setDraftBookingsList([]));
       }}
@@ -341,8 +372,6 @@ const ListDraftBookings = () => {
                 return {
                   ...booking,
                   no: index + 1,
-                  startDate: formatDate(booking.startDate),
-                  createdAt: formatDate(booking.createdAt),
                   type: capitalizeString(booking.type),
                 };
               })}
@@ -364,7 +393,13 @@ const ListDraftBookings = () => {
               primary
               onClick={(e) => {
                 e.preventDefault();
-                reset();
+                reset({
+                  type: '',
+                  selectOption: '',
+                  referenceId: '',
+                  email: '',
+                  phone: '',
+                });
                 dispatch(setDraftBookingsList([]));
               }}
             >
