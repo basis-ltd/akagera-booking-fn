@@ -23,6 +23,8 @@ import { toast } from 'react-toastify';
 import PopularActivites from '@/containers/PopularActivites';
 import PopularBookingPeople from '@/containers/PopularBookingPeople';
 import DashboardCard from '@/components/modals/DashboardCard';
+import CustomTooltip from '@/components/inputs/CustomTooltip';
+import { setGenerateReportModal } from '@/states/features/dashboardSlice';
 
 const Dashboard = () => {
   // STATE VARIABLES
@@ -104,12 +106,20 @@ const Dashboard = () => {
               />
               Filter
             </CustomButton>
-            <Button className="!py-[6px]" primary>
-              <menu className="flex items-center gap-2 text-[14px]">
-                <FontAwesomeIcon icon={faFileExport} />
-                Generate report
-              </menu>
-            </Button>
+            <CustomTooltip label="Click to select month">
+              <Button
+                primary
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(setGenerateReportModal(true));
+                }}
+              >
+                <menu className="flex items-center gap-2 text-[14px]">
+                  <FontAwesomeIcon icon={faFileExport} />
+                  Generate report
+                </menu>
+              </Button>
+            </CustomTooltip>
           </ul>
         </menu>
         {showFilter && (

@@ -21,6 +21,7 @@ import UpdateActivity from '@/pages/activities/UpdateActivity.tsx';
 import DeleteActivity from '@/pages/activities/DeleteActivity.tsx';
 import Dashboard from '@/pages/dashboard/Dashboard.tsx';
 import ViewBookingActivites from '@/pages/dashboard/ViewBookingActivites.tsx';
+import GenerateReport from '@/pages/dashboard/GenerateReport.tsx';
 
 const Router = () => {
   return (
@@ -58,6 +59,7 @@ const Router = () => {
       <CreateUser />
       <UpdateActivity />
       <DeleteActivity />
+      <GenerateReport />
     </section>
   );
 };

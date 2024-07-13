@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import akageraLogo from '/akagera_logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faBookmark,
   faChartLine,
   faChartSimple,
   faChevronCircleLeft,
@@ -34,7 +35,7 @@ const Sidebar = () => {
     {
       label: 'Booking activities',
       path: '/dashboard/bookings/activities',
-      icon: faChartLine,
+      icon: faBookmark,
     },
     {
       label: 'Bookings',

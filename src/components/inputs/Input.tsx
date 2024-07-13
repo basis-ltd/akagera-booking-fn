@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import DatePicker from './DatePicker';
 import { SelectSingleEventHandler } from 'react-day-picker';
 import { Checkbox } from '../ui/checkbox';
+import MonthPicker from './MonthPicker';
 
 interface InputProps {
   label?: string;
@@ -44,6 +45,8 @@ interface InputProps {
   fromDate?: Date;
   toDate?: Date;
   checked?: boolean;
+  selectionType?: "date" | "month" | "year" | "recurringDate" | undefined,
+  currentMonth?: Date;
 }
 
 const Input: FC<InputProps> = ({
@@ -71,6 +74,8 @@ const Input: FC<InputProps> = ({
   fromDate,
   toDate,
   checked,
+  selectionType,
+  currentMonth = new Date(),
 }) => {
   const hiddenFileInput = useRef<HTMLButtonElement>(null);
 
@@ -153,6 +158,7 @@ const Input: FC<InputProps> = ({
           </span>
         </p>
         <DatePicker
+        selectionType={selectionType}
           placeholder={placeholder}
           fromDate={fromDate}
           toDate={toDate}
@@ -163,6 +169,27 @@ const Input: FC<InputProps> = ({
               | undefined
           }
           value={(value || defaultValue) as Date | undefined}
+        />
+      </label>
+    );
+  }
+  
+  if (['month'].includes(type)) {
+    return (
+      <label className={`flex flex-col gap-[5px] w-full ${labelClassName}`}>
+        <p
+          className={`${
+            label ? 'flex items-center gap-[5px] text-[14px]' : 'hidden'
+          }`}
+        >
+          {label}{' '}
+          <span className={required ? 'text-[14px] text-red-600' : 'hidden'}>
+            *
+          </span>
+        </p>
+        <MonthPicker
+          currentMonth={currentMonth}
+          onMonthChange={onChange as unknown as (newMonth: Date) => void}
         />
       </label>
     );

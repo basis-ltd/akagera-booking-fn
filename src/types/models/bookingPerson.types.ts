@@ -11,7 +11,7 @@ export type BookingPerson = {
     createdAt: Date;
     updatedAt: Date;
     bookingId: UUID;
-    booking?: Booking;
+    booking: Booking;
     gender?: string;
     dateOfBirth: Date;
     startDate: Date;
