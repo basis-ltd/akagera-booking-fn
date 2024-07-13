@@ -429,6 +429,25 @@ export const apiSlice = createApi({
           };
         }
       }),
+
+      // FETCH BOOKING PEOPLE STATS
+      fetchBookingPeopleStats: builder.query({
+        query: ({ startDate, endDate, month, take = 5000, skip = 0 }) => {
+          let url = `booking-people/stats?take=${take}&skip=${skip}`;
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
+          }
+          if (month) {
+            url += `&month=${month}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -461,6 +480,7 @@ export const {
   useLazyFetchTimeSeriesBookingsQuery,
   useLazyFetchPopularActivitiesQuery,
   useLazyFetchPopularBookingPeopleQuery,
+  useLazyFetchBookingPeopleStatsQuery,
 } = apiSlice;
 
 export default apiSlice;

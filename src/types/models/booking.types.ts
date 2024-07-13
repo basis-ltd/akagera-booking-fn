@@ -1,6 +1,7 @@
 import { UUID } from "crypto";
 import { Activity } from "./activity.types";
 import { BookingPerson } from "./bookingPerson.types";
+import { BookingActivity } from "./bookingActivity.types";
 
 export type Booking = {
     id: UUID;
@@ -28,5 +29,6 @@ export type Booking = {
     exitGate?: string;
     name: string;
     type: string;
-    bookingPeople?: BookingPerson[]
+    bookingPeople?: BookingPerson[];
+    bookingActivities?: BookingActivity[];
 };
