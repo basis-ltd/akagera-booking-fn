@@ -205,7 +205,7 @@ export const apiSlice = createApi({
           numberOfAdults = 0,
           numberOfChildren = 0,
           numberOfSeats,
-          defaultRate
+          defaultRate,
         }) => ({
           url: `booking-activities`,
           method: 'POST',
@@ -218,7 +218,7 @@ export const apiSlice = createApi({
             numberOfAdults,
             numberOfChildren,
             numberOfSeats,
-            defaultRate
+            defaultRate,
           },
         }),
       }),
@@ -408,7 +408,7 @@ export const apiSlice = createApi({
           return {
             url,
           };
-        }
+        },
       }),
 
       // FETCH POPULAR ACTIVITIES
@@ -427,7 +427,7 @@ export const apiSlice = createApi({
           return {
             url,
           };
-        }
+        },
       }),
 
       // FETCH BOOKING PEOPLE STATS
@@ -445,6 +445,57 @@ export const apiSlice = createApi({
           }
           return {
             url,
+          };
+        },
+      }),
+
+      // UPDATE ACTIVITY SCHEDULE
+      updateActivitySchedule: builder.mutation({
+        query: ({
+          id,
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          numberOfSeats,
+          activityId,
+        }) => {
+          return {
+            url: `activity-schedules/${id}`,
+            method: 'PATCH',
+            body: {
+              startTime,
+              endTime,
+              description,
+              disclaimer,
+              numberOfSeats,
+              activityId,
+            },
+          };
+        },
+      }),
+
+      // CREATE ACTIVITY SCHEDULE
+      createActivitySchedule: builder.mutation({
+        query: ({
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          numberOfSeats,
+          activityId,
+        }) => {
+          return {
+            url: `activity-schedules`,
+            method: 'POST',
+            body: {
+              startTime,
+              endTime,
+              description,
+              disclaimer,
+              numberOfSeats,
+              activityId,
+            },
           };
         },
       }),
@@ -481,6 +532,8 @@ export const {
   useLazyFetchPopularActivitiesQuery,
   useLazyFetchPopularBookingPeopleQuery,
   useLazyFetchBookingPeopleStatsQuery,
+  useUpdateActivityScheduleMutation,
+  useCreateActivityScheduleMutation,
 } = apiSlice;
 
 export default apiSlice;

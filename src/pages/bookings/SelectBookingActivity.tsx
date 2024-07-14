@@ -485,7 +485,7 @@ const SelectBookingActivity = () => {
                   defaultValue={1}
                   control={control}
                   rules={{
-                    required: 'Specify the number of transportations',
+                    required: `Specify the number of ${transportationsLabel} available for this activity`,
                   }}
                   render={({ field }) => {
                     return (

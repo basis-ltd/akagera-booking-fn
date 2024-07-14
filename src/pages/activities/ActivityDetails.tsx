@@ -1,4 +1,5 @@
 import Button from '@/components/inputs/Button';
+import CustomTooltip from '@/components/inputs/CustomTooltip';
 import Loader from '@/components/inputs/Loader';
 import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import AdminLayout from '@/containers/AdminLayout';
@@ -11,16 +12,19 @@ import {
 import { useLazyGetActivityDetailsQuery } from '@/states/apiSlice';
 import {
   setActivity,
+  setActivityScheduleDetailsModal,
+  setCreateActivityScheduleModal,
   setDeleteActivityModal,
   setSelectedActivity,
+  setSelectedActivitySchedule,
   setUpdateActivityModal,
 } from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, useParams } from 'react-router-dom';
+import { ErrorResponse, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ActivityDetails = () => {
@@ -185,15 +189,24 @@ const ActivityDetails = () => {
                 <h1 className="text-primary uppercase font-medium text-lg">
                   Schedules
                 </h1>
-                {(activity?.activitySchedules?.length ?? 0) > 0 && (
-                  <menu className="grid grid-cols-3 gap-5">
-                    {activity?.activitySchedules?.map((schedule) => {
-                      return (
-                        <article
-                          className="w-full flex flex-col gap-2"
-                          key={schedule.id}
-                        >
-                          <ul className="flex items-center justify-center gap-2 text-white bg-primary p-1 px-5 rounded-md cursor-pointer transition-all hover:scale-[1.02]">
+                <menu className="grid grid-cols-3 gap-5">
+                  {activity?.activitySchedules?.map((schedule) => {
+                    return (
+                      <article
+                        className="w-full flex flex-col gap-2"
+                        key={schedule.id}
+                      >
+                        <CustomTooltip label="Click to manage">
+                          <Link
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              dispatch(setSelectedActivitySchedule(schedule));
+                              dispatch(setSelectedActivity(activity));
+                              dispatch(setActivityScheduleDetailsModal(true));
+                            }}
+                            className="flex items-center justify-center gap-2 text-white bg-primary p-1 px-5 rounded-md cursor-pointer transition-all hover:scale-[1.02]"
+                          >
                             <p className="text-[14px]">
                               {formatTime(String(schedule?.startTime))}
                             </p>{' '}
@@ -201,12 +214,26 @@ const ActivityDetails = () => {
                             <p className="text-[14px]">
                               {formatTime(String(schedule?.endTime))}
                             </p>
-                          </ul>
-                        </article>
-                      );
-                    })}
-                  </menu>
-                )}
+                          </Link>
+                        </CustomTooltip>
+                      </article>
+                    );
+                  })}
+                  <CustomTooltip label="Click to add schedule">
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        dispatch(setSelectedActivity(activity));
+                        dispatch(setCreateActivityScheduleModal(true));
+                      }}
+                    >
+                      <menu className="flex items-center gap-2 text-[13px]">
+                        <FontAwesomeIcon icon={faCirclePlus} />
+                        Add schedule
+                      </menu>
+                    </Button>
+                  </CustomTooltip>
+                </menu>
               </section>
             </section>
           )
