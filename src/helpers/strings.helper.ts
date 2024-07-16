@@ -33,11 +33,12 @@ export const removeDuplicates = (array: never[]) => {
 };
 
 export const formatCurrency = (
-  amount: number | undefined = 0,
+  amount: string | number | undefined,
   currency = 'USD'
 ) => {
+  if (!amount) return '';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
-  }).format(amount);
+  }).format(Number(amount));
 };

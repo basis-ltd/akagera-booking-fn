@@ -1,31 +1,25 @@
 import Button from '@/components/inputs/Button';
-import CustomTooltip from '@/components/inputs/CustomTooltip';
 import Loader from '@/components/inputs/Loader';
 import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import AdminLayout from '@/containers/AdminLayout';
-import {
-  capitalizeString,
-  formatCurrency,
-  formatDate,
-  formatTime,
-} from '@/helpers/strings.helper';
+import { formatDate } from '@/helpers/strings.helper';
 import { useLazyGetActivityDetailsQuery } from '@/states/apiSlice';
 import {
   setActivity,
-  setActivityScheduleDetailsModal,
-  setCreateActivityScheduleModal,
   setDeleteActivityModal,
   setSelectedActivity,
-  setSelectedActivitySchedule,
   setUpdateActivityModal,
 } from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { faCirclePlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, Link, useParams } from 'react-router-dom';
+import { ErrorResponse, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ListActivitySchedules from '../activitySchedules/ListActivitySchedules';
+import { UUID } from 'crypto';
+import ListActivityRates from '../activityRates/ListActivityRates';
 
 const ActivityDetails = () => {
   // STATE VARIABLES
@@ -97,14 +91,14 @@ const ActivityDetails = () => {
       route: '/dashboard/activities',
     },
     {
-      label: `${activity?.name}`,
+      label: `${activity?.name || '...'}`,
       route: `/dashboard/activities/${id}`,
     },
   ];
 
   return (
     <AdminLayout>
-      <main className="w-[90%] mx-auto flex flex-col gap-4 p-6 relative h-[90vh]">
+      <main className="w-[90%] mx-auto flex flex-col gap-4 p-6 relative">
         <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
         {activityIsFetching ? (
           <figure className="w-full flex items-center justify-center min-h-[60vh]">
@@ -147,98 +141,12 @@ const ActivityDetails = () => {
                   </p>
                 </menu>
               </article>
-              <section className="w-full flex flex-col gap-4">
-                <menu className="flex items-center gap-3 justify-between">
-                  <h1 className="text-primary uppercase font-medium text-lg">
-                    Rates
-                  </h1>
-                  <Button primary className="!py-1">
-                    <menu className="flex items-center gap-2 text-[13px]">
-                      <FontAwesomeIcon icon={faPenToSquare} />
-                      Manage rates
-                    </menu>
-                  </Button>
-                </menu>
-                {(activity?.activityRates?.length ?? 0) > 0 && (
-                  <menu className="grid grid-cols-2 gap-5">
-                    {activity?.activityRates?.map((rate) => {
-                      return (
-                        <article
-                          className="w-full flex flex-col gap-2"
-                          key={rate.id}
-                        >
-                          <h1>
-                            {capitalizeString(rate?.ageRange)} -{' '}
-                            {capitalizeString(rate?.name)}
-                          </h1>
-                          <ul className="flex items-center gap-3">
-                            <p>{formatCurrency(Number(rate?.amountUsd))}</p>{' '}
-                            {rate?.amountRwf && (
-                              <p>
-                                {formatCurrency(Number(rate?.amountRwf), 'RWF')}
-                              </p>
-                            )}
-                          </ul>
-                        </article>
-                      );
-                    })}
-                  </menu>
-                )}
-              </section>
-              <section className="w-full flex flex-col gap-4">
-                <h1 className="text-primary uppercase font-medium text-lg">
-                  Schedules
-                </h1>
-                <menu className="grid grid-cols-3 gap-5">
-                  {activity?.activitySchedules?.map((schedule) => {
-                    return (
-                      <article
-                        className="w-full flex flex-col gap-2"
-                        key={schedule.id}
-                      >
-                        <CustomTooltip label="Click to manage">
-                          <Link
-                            to={'#'}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              dispatch(setSelectedActivitySchedule(schedule));
-                              dispatch(setSelectedActivity(activity));
-                              dispatch(setActivityScheduleDetailsModal(true));
-                            }}
-                            className="flex items-center justify-center gap-2 text-white bg-primary p-1 px-5 rounded-md cursor-pointer transition-all hover:scale-[1.02]"
-                          >
-                            <p className="text-[14px]">
-                              {formatTime(String(schedule?.startTime))}
-                            </p>{' '}
-                            -
-                            <p className="text-[14px]">
-                              {formatTime(String(schedule?.endTime))}
-                            </p>
-                          </Link>
-                        </CustomTooltip>
-                      </article>
-                    );
-                  })}
-                  <CustomTooltip label="Click to add schedule">
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatch(setSelectedActivity(activity));
-                        dispatch(setCreateActivityScheduleModal(true));
-                      }}
-                    >
-                      <menu className="flex items-center gap-2 text-[13px]">
-                        <FontAwesomeIcon icon={faCirclePlus} />
-                        Add schedule
-                      </menu>
-                    </Button>
-                  </CustomTooltip>
-                </menu>
-              </section>
+              <ListActivityRates activityId={id as UUID} />
+              <ListActivitySchedules activityId={id as UUID} />
             </section>
           )
         )}
-        <menu className="w-[95%] flex items-center gap-3 justify-center absolute bottom-12">
+        <menu className="w-full flex items-center gap-3 justify-center mt-12">
           <Button
             danger
             onClick={(e) => {
@@ -247,7 +155,7 @@ const ActivityDetails = () => {
               dispatch(setDeleteActivityModal(true));
             }}
           >
-            Delete
+            Delete activity
           </Button>
         </menu>
       </main>

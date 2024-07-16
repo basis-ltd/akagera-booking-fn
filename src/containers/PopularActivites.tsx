@@ -33,8 +33,8 @@ const PopularActivites = () => {
   // FETCH POPULAR ACTIVITIES
   useEffect(() => {
     fetchPopularActivities({
-      take: 5,
-      skip: 0,
+      size: 5,
+      page: 0,
     });
   }, [fetchPopularActivities]);
 

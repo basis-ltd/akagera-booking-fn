@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Link } from 'react-router-dom';
 
 type CustomBreadcrumbProps = {
   navigationLinks: { route: string; label: string }[];
@@ -48,8 +49,8 @@ const CustomBreadcrumb = ({ navigationLinks }: CustomBreadcrumbProps) => {
           <menu key={index} className="flex items-center gap-2">
             {index > 0 && <BreadcrumbSeparator />}
             <BreadcrumbItem>
-              <BreadcrumbLink href={link.route} className="text-[14px]">
-                {link.label}
+              <BreadcrumbLink className="text-[14px]">
+               <Link to={link.route}>{link.label}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
           </menu>

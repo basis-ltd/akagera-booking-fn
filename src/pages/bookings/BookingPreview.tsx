@@ -141,14 +141,14 @@ const BookingPreview = () => {
   // FETCH BOOKING VEHICLES
   useEffect(() => {
     if (booking?.id) {
-      fetchBookingVehicles({ bookingId: booking?.id, take: 100 });
+      fetchBookingVehicles({ bookingId: booking?.id, size: 100 });
     }
   }, [fetchBookingVehicles, booking]);
 
   // FETCH BOOKING PEOPLE
   useEffect(() => {
     if (booking?.id) {
-      fetchBookingPeople({ bookingId: booking?.id, take: 100 });
+      fetchBookingPeople({ bookingId: booking?.id, size: 100 });
     }
   }, [fetchBookingPeople, booking]);
 
@@ -162,7 +162,7 @@ const BookingPreview = () => {
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
     if (booking?.id) {
-      fetchBookingActivities({ bookingId: booking?.id, take: 100 });
+      fetchBookingActivities({ bookingId: booking?.id, size: 100 });
     }
   }, [fetchBookingActivities, booking]);
 

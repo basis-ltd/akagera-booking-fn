@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Activity } from '../../types/models/activity.types';
-import { ActivitySchedule } from '@/types/models/activitySchedule.types';
 
 const initialState: {
   activitiesList: Activity[];
@@ -10,9 +9,6 @@ const initialState: {
   activityDetailsModal: boolean;
   updateActivityModal: boolean;
   deleteActivityModal: boolean;
-  activityScheduleDetailsModal: boolean;
-  selectedActivitySchedule?: ActivitySchedule;
-  createActivityScheduleModal: boolean;
 } = {
   activitiesList: [],
   selectedActivity: {} as Activity,
@@ -21,9 +17,6 @@ const initialState: {
   activityDetailsModal: false,
   updateActivityModal: false,
   deleteActivityModal: false,
-  activityScheduleDetailsModal: false,
-  selectedActivitySchedule: undefined,
-  createActivityScheduleModal: false,
 };
 
 export const activitySlice = createSlice({
@@ -59,15 +52,6 @@ export const activitySlice = createSlice({
         (activity) => activity.id !== action.payload
       );
     },
-    setActivityScheduleDetailsModal: (state, action) => {
-      state.activityScheduleDetailsModal = action.payload;
-    },
-    setSelectedActivitySchedule: (state, action) => {
-      state.selectedActivitySchedule = action.payload;
-    },
-    setCreateActivityScheduleModal: (state, action) => {
-      state.createActivityScheduleModal = action.payload;
-    }
   },
 });
 
@@ -81,9 +65,6 @@ export const {
   setDeleteActivityModal,
   removeActivityFromList,
   addActivityToList,
-  setActivityScheduleDetailsModal,
-  setSelectedActivitySchedule,
-  setCreateActivityScheduleModal,
 } = activitySlice.actions;
 
 export default activitySlice.reducer;

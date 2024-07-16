@@ -51,8 +51,8 @@ const ViewBookingActivites = () => {
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
     fetchBookingActivities({
-      take: 100,
-      skip: 0,
+      size: 100,
+      page: 0,
       activityId
     });
   }, [activityId, fetchBookingActivities]);
@@ -92,7 +92,7 @@ const ViewBookingActivites = () => {
   
     // FETCH ACTIVITIES
     useEffect(() => {
-      fetchActivities({ take: 100, skip: 0 });
+      fetchActivities({ size: 100, page: 0 });
     }, [fetchActivities]);
   
     // HANDLE FETCH ACTIVITIES RESPONSE

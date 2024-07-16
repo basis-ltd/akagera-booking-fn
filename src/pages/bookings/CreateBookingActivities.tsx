@@ -97,7 +97,7 @@ const CreateBookingActivities = () => {
 
   // FETCH SERVICES
   useEffect(() => {
-    fetchServices({ take: 100, skip: 0 });
+    fetchServices({ size: 100, page: 0 });
   }, [fetchServices]);
 
   // HANDLE FETCH SERVICES RESPONSE

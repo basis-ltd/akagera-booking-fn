@@ -48,8 +48,8 @@ const ViewRegistrations = () => {
   // FETCH BOOKINGS
   useEffect(() => {
     fetchBookings({
-      take: 100,
-      skip: 0,
+      size: 100,
+      page: 0,
       type: 'registration',
       startDate:
         watch('startDate') && moment(watch('startDate')).format('YYYY-MM-DD'),

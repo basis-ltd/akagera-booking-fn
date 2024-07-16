@@ -39,8 +39,8 @@ const PopularBookingPeople = () => {
   // FETCH POPULAR BOOKING PEOPLE
   useEffect(() => {
     fetchPopularBookingPeople({
-      take: 10,
-      skip: 0,
+      size: 10,
+      page: 0,
       criteria,
     });
   }, [criteria, fetchPopularBookingPeople]);

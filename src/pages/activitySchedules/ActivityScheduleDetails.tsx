@@ -8,11 +8,11 @@ import Modal from '@/components/modals/Modal';
 import { dayHoursArray } from '@/helpers/activity.helper';
 import { formatTime } from '@/helpers/strings.helper';
 import { useUpdateActivityScheduleMutation } from '@/states/apiSlice';
+import { setSelectedActivity } from '@/states/features/activitySlice';
 import {
   setActivityScheduleDetailsModal,
-  setSelectedActivity,
   setSelectedActivitySchedule,
-} from '@/states/features/activitySlice';
+} from '@/states/features/activityScheduleSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -23,11 +23,11 @@ import { toast } from 'react-toastify';
 const ActivityScheduleDetails = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const {
-    activityScheduleDetailsModal,
-    selectedActivitySchedule,
-    selectedActivity,
-  } = useSelector((state: RootState) => state.activity);
+  const { selectedActivity } = useSelector(
+    (state: RootState) => state.activity
+  );
+  const { activityScheduleDetailsModal, selectedActivitySchedule } =
+    useSelector((state: RootState) => state.activitySchedule);
   const [transportationsLabel, setTransportationsLabel] =
     useState<string>('transportations');
 
@@ -64,7 +64,6 @@ const ActivityScheduleDetails = () => {
     if (updateActivityScheduleIsSuccess) {
       dispatch(setActivityScheduleDetailsModal(false));
       toast.success('Activity schedule updated successfully');
-      window.location.reload();
     } else if (updateActivityScheduleIsError) {
       const errorResponse = (updateActivityScheduleError as ErrorResponse)?.data
         ?.message;

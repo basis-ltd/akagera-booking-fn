@@ -8,10 +8,8 @@ import Modal from '@/components/modals/Modal';
 import { dayHoursArray } from '@/helpers/activity.helper';
 import { formatTime } from '@/helpers/strings.helper';
 import { useCreateActivityScheduleMutation } from '@/states/apiSlice';
-import {
-  setCreateActivityScheduleModal,
-  setSelectedActivity,
-} from '@/states/features/activitySlice';
+import { setSelectedActivity } from '@/states/features/activitySlice';
+import { addToActivityScheduleList, setCreateActivityScheduleModal } from '@/states/features/activityScheduleSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -22,8 +20,11 @@ import { toast } from 'react-toastify';
 const CreateActivitySchedule = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { createActivityScheduleModal, selectedActivity } = useSelector(
+  const { selectedActivity } = useSelector(
     (state: RootState) => state.activity
+  );
+  const { createActivityScheduleModal } = useSelector(
+    (state: RootState) => state.activitySchedule
   );
   const [transportationsLabel, setTransportationsLabel] =
     useState<string>('transportations');
@@ -35,6 +36,7 @@ const CreateActivitySchedule = () => {
   const [
     createActivitySchedule,
     {
+      data: createActivityScheduleData,
       error: createActivityScheduleError,
       isError: createActivityScheduleIsError,
       isLoading: createActivityScheduleIsLoading,
@@ -60,7 +62,7 @@ const CreateActivitySchedule = () => {
       dispatch(setCreateActivityScheduleModal(false));
       dispatch(setSelectedActivity(null));
       toast.success('Activity schedule created successfully');
-      window.location.reload();
+      dispatch(addToActivityScheduleList(createActivityScheduleData?.data));
     }
     if (createActivityScheduleIsError) {
       toast.error(
@@ -73,6 +75,7 @@ const CreateActivitySchedule = () => {
     createActivityScheduleIsError,
     dispatch,
     createActivityScheduleError,
+    createActivityScheduleData?.data,
   ]);
 
   // SET TRANSPORTATIONS LABEL

@@ -35,7 +35,7 @@ const ListUsers = () => {
 
   // FETCH USERS
   useEffect(() => {
-    fetchUsers({ take: 100, skip: 0 });
+    fetchUsers({ size: 100, page: 0 });
   }, [fetchUsers]);
 
   // HANDLE FETCH USERS RESPONSE

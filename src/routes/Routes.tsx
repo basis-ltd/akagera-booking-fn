@@ -22,8 +22,12 @@ import DeleteActivity from '@/pages/activities/DeleteActivity.tsx';
 import Dashboard from '@/pages/dashboard/Dashboard.tsx';
 import ViewBookingActivites from '@/pages/dashboard/ViewBookingActivites.tsx';
 import GenerateReport from '@/pages/dashboard/GenerateReport.tsx';
-import ActivityScheduleDetails from '@/pages/activities/ActivityScheduleDetails.tsx';
-import CreateActivitySchedule from '@/pages/activities/CreateActivitySchedule.tsx';
+import ActivityScheduleDetails from '@/pages/activitySchedules/ActivityScheduleDetails.tsx';
+import CreateActivitySchedule from '@/pages/activitySchedules/CreateActivitySchedule.tsx';
+import DeleteActivitySchedule from '@/pages/activitySchedules/DeleteActivitySchedule.tsx';
+import CreateActivityRate from '@/pages/activityRates/CreateActivityRate.tsx';
+import DeleteActivityRate from '@/pages/activityRates/DeleteActivityRate.tsx';
+import UpdateActivityRate from '@/pages/activityRates/UpdateActivityRate.tsx';
 
 const Router = () => {
   return (
@@ -64,6 +68,10 @@ const Router = () => {
       <GenerateReport />
       <ActivityScheduleDetails />
       <CreateActivitySchedule />
+      <DeleteActivitySchedule />
+      <CreateActivityRate />
+      <DeleteActivityRate />
+      <UpdateActivityRate />
     </section>
   );
 };

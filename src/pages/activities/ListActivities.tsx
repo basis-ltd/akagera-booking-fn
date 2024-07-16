@@ -37,7 +37,7 @@ const ListActivities = () => {
 
   // FETCH ACTIVITIES
   useEffect(() => {
-    fetchActivities({ take: 100, skip: 0 });
+    fetchActivities({ size: 100, page: 0 });
   }, [fetchActivities]);
 
   // HANDLE FETCH ACTIVITIES RESPONSE
