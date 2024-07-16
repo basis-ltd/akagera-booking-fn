@@ -115,36 +115,36 @@ const UpdateActivity = () => {
           }}
         />{' '}
         <fieldset className="grid grid-cols-2 gap-4 w-full">
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="w-full flex flex-col gap-1">
-                  <TextArea
-                    {...field}
-                    label="Description (optional)"
-                    placeholder="Enter activity description"
-                  />
-                </label>
-              );
-            }}
-          />
-          <Controller
-            name="disclaimer"
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="w-full flex flex-col gap-1">
-                  <TextArea
-                    {...field}
-                    label="Disclaimer (optional)"
-                    placeholder="Enter activity disclaimer"
-                  />
-                </label>
-              );
-            }}
-          />
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => {
+            return (
+              <label className="w-full flex flex-col gap-1">
+                <TextArea
+                  {...field}
+                  label="Description (optional)"
+                  placeholder="Enter activity description"
+                />
+              </label>
+            );
+          }}
+        />
+        <Controller
+          name="disclaimer"
+          control={control}
+          render={({ field }) => {
+            return (
+              <label className="w-full flex flex-col gap-1">
+                <TextArea
+                  {...field}
+                  label="Disclaimer (optional)"
+                  placeholder="Enter activity disclaimer"
+                />
+              </label>
+            );
+          }}
+        />
         </fieldset>
         <menu className="w-full flex items-center gap-3 justify-between">
           <Button

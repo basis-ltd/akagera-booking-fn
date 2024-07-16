@@ -2,6 +2,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { COUNTRIES } from '@/constants/countries.constants';
+import { genderOptions } from '@/constants/inputs.constants';
 import { capitalizeString } from '@/helpers/strings.helper';
 import { useLazyFetchPopularBookingPeopleQuery } from '@/states/apiSlice';
 import { AppDispatch } from '@/states/store';
@@ -13,7 +14,15 @@ import { useDispatch } from 'react-redux';
 import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const PopularBookingPeople = () => {
+type PopularBookingPeopleProps = {
+  startDate?: Date | string;
+  endDate?: Date | string;
+};
+
+const PopularBookingPeople = ({
+  startDate,
+  endDate,
+}: PopularBookingPeopleProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const [criteria, setCriteria] = useState<string>('nationality');
@@ -22,7 +31,7 @@ const PopularBookingPeople = () => {
   const { control } = useForm();
 
   // NAVIGATION
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH POPULAR BOOKING PEOPLE
   const [
@@ -39,11 +48,13 @@ const PopularBookingPeople = () => {
   // FETCH POPULAR BOOKING PEOPLE
   useEffect(() => {
     fetchPopularBookingPeople({
-      take: 10,
-      skip: 0,
+      size: 10,
+      page: 0,
       criteria,
+      startDate,
+      endDate,
     });
-  }, [criteria, fetchPopularBookingPeople]);
+  }, [criteria, endDate, fetchPopularBookingPeople, startDate]);
 
   // HANDLE POPULAR BOOKING PEOPLE RESPONSE
   useEffect(() => {
@@ -75,11 +86,11 @@ const PopularBookingPeople = () => {
       accessorKey: 'count',
     },
     {
-        header: 'Actions',
-        accessorKey: 'actions',
-        cell: () => {
-          return (
-            <menu className="flex items-center gap-2">
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: () => {
+        return (
+          <menu className="flex items-center gap-2">
             <FontAwesomeIcon
               icon={faArrowRight}
               className="cursor-pointer text-primary hover:text-primary-dark transition-all duration-200 ease-in-out hover:translate-x-1 transform"
@@ -89,9 +100,9 @@ const PopularBookingPeople = () => {
               }}
             />
           </menu>
-          );
-        },
-    }
+        );
+      },
+    },
   ];
 
   return (
@@ -110,17 +121,20 @@ const PopularBookingPeople = () => {
                 <Select
                   {...field}
                   placeholder="Select criteria"
-                  options={['nationality', 'residence', 'dateOfBirth']?.map(
-                    (criteria) => {
-                      return {
-                        label:
-                          criteria === 'dateOfBirth'
-                            ? 'Age'
-                            : capitalizeString(criteria),
-                        value: criteria,
-                      };
-                    }
-                  )}
+                  options={[
+                    'nationality',
+                    'residence',
+                    'dateOfBirth',
+                    'gender',
+                  ]?.map((criteria) => {
+                    return {
+                      label:
+                        criteria === 'dateOfBirth'
+                          ? 'Age'
+                          : capitalizeString(criteria),
+                      value: criteria,
+                    };
+                  })}
                   onChange={(e) => {
                     field.onChange(e);
                     setCriteria(e);
@@ -151,9 +165,18 @@ const PopularBookingPeople = () => {
                 return {
                   no: index + 1,
                   ...bookingPerson,
-                  name: COUNTRIES?.find(
-                    (country) => country?.code === bookingPerson?.value
-                  )?.name,
+                  name:
+                    criteria === 'gender'
+                      ? genderOptions?.find(
+                          (gender) => gender?.value === bookingPerson?.value
+                        )?.label
+                      : ['residence', 'nationality'].includes(criteria)
+                      ? COUNTRIES?.find(
+                          (country) => country?.code === bookingPerson?.value
+                        )?.name
+                      : criteria === 'dateOfBirth'
+                      ? `${bookingPerson?.value} years`
+                      : bookingPerson?.value,
                   count: bookingPerson?.count,
                 };
               }

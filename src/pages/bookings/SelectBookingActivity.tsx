@@ -101,8 +101,8 @@ const SelectBookingActivity = () => {
     if (booking) {
       fetchBookingActivities({
         bookingId: booking?.id,
-        take: 100,
-        skip: 0,
+        size: 100,
+        page: 0,
         activityId: selectedActivity?.id,
       });
     }
@@ -485,7 +485,7 @@ const SelectBookingActivity = () => {
                   defaultValue={1}
                   control={control}
                   rules={{
-                    required: 'Specify the number of transportations',
+                    required: `Specify the number of ${transportationsLabel} available for this activity`,
                   }}
                   render={({ field }) => {
                     return (

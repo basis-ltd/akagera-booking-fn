@@ -8,14 +8,22 @@ const initialState: {
   user: User;
   token: string;
   createUserModal: boolean;
-  deleteUserModal: boolean
+  deleteUserModal: boolean;
+  page: number;
+  size: number;
+  totalCount: number;
+  totalPages: number;
 } = {
   usersList: [],
   selectedUser: undefined,
   user: store.get('user'),
   token: store.get('token') || '',
   createUserModal: false,
-  deleteUserModal: false
+  deleteUserModal: false,
+  page: 0,
+  size: 10,
+  totalCount: 0,
+  totalPages: 1,
 };
 
 const userSlice = createSlice({
@@ -49,7 +57,19 @@ const userSlice = createSlice({
     },
     setDeleteUserModal: (state, action) => {
       state.deleteUserModal = action.payload
-    }
+    },
+    setPage: (state, action) => {
+      state.page = action.payload;
+    },
+    setSize: (state, action) => {
+      state.size = action.payload;
+    },
+    setTotalCount: (state, action) => {
+      state.totalCount = action.payload;
+    },
+    setTotalPages: (state, action) => {
+      state.totalPages = action.payload;
+    },
   },
 });
 
@@ -61,7 +81,11 @@ export const {
   removeUserFromList,
   setToken,
   setCreateUserModal,
-  setDeleteUserModal
+  setDeleteUserModal,
+  setPage,
+  setSize,
+  setTotalCount,
+  setTotalPages,
 } = userSlice.actions;
 
 export default userSlice.reducer;

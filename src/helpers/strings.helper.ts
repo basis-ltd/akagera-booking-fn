@@ -7,7 +7,7 @@ export const formatDate = (date: string | Date) => {
 // CAPITALIZE STRING
 export const capitalizeString = (string: string | undefined | null) => {
   if (!string) return "";
-  const isCamelCase = /^[a-z]+([A-Z][a-z])$/.test(string);
+  const isCamelCase = /^[a-z]+([A-Z][a-z]*)*$/.test(string);
   if (isCamelCase) return capitalizeCamelCase(string)
   const words = string?.toLowerCase()?.split("_");
   const capitalizedWords =
@@ -33,11 +33,12 @@ export const removeDuplicates = (array: never[]) => {
 };
 
 export const formatCurrency = (
-  amount: number | undefined = 0,
+  amount: string | number | undefined,
   currency = 'USD'
 ) => {
+  if (!amount) return '';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
-  }).format(amount);
+  }).format(Number(amount));
 };

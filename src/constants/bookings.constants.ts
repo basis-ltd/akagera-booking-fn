@@ -1,3 +1,7 @@
+import { capitalizeString, formatCurrency } from "@/helpers/strings.helper";
+import { Booking } from "@/types/models/booking.types";
+import { Row } from "@tanstack/react-table";
+
 export const exitGateOptions = [
   { label: 'South Gate', value: 'southGate' },
   { label: 'North Gate', value: 'northGate' },
@@ -85,6 +89,18 @@ export const bookingDaysOptions = [
 
 export const bookingColumns = [
   {
+    header: 'Type',
+    accessorKey: 'type',
+    cell: ({ row }: { row: Row<Booking> }) =>
+      capitalizeString(row.original.type),
+  },
+  {
+    header: 'Amount',
+    accessorKey: 'amount',
+    cell: ({ row }: { row: Row<Booking> }) =>
+      formatCurrency(row?.original?.totalAmountUsd),
+  },
+  {
     header: 'Reference ID',
     accessorKey: 'referenceId',
   },
@@ -108,13 +124,15 @@ export const bookingColumns = [
   {
     header: 'Entry Gate',
     accessorKey: 'entryGate',
+    cell: ({ row }: { row: Row<Booking> }) => capitalizeString(row?.original?.entryGate),
   },
   {
     header: 'Exit Gate',
     accessorKey: 'exitGate',
+    cell: ({ row }: { row: Row<Booking> }) => capitalizeString(row?.original?.exitGate),
   },
   {
     header: 'Notes',
     accessorKey: 'notes',
-  },
+  }
 ];

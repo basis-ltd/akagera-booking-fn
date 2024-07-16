@@ -64,7 +64,7 @@ const CreateBookingEntryActivity = () => {
 
   // FETCH BOOKING PEOPLE
   useEffect(() => {
-    fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
+    fetchBookingPeople({ bookingId: booking?.id, size: 100, page: 0 });
   }, [booking?.id, fetchBookingPeople, selectedService]);
 
   // HANDLE FETCH BOOKING PEOPLE RESPONSE

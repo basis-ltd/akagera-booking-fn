@@ -4,7 +4,16 @@ import Table from '@/components/table/Table';
 import { userColumns } from '@/constants/user.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { useLazyFetchUsersQuery } from '@/states/apiSlice';
-import { setCreateUserModal, setDeleteUserModal, setSelectedUser, setUsersList } from '@/states/features/userSlice';
+import {
+  setCreateUserModal,
+  setDeleteUserModal,
+  setPage,
+  setSelectedUser,
+  setSize,
+  setTotalCount,
+  setTotalPages,
+  setUsersList,
+} from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { User } from '@/types/models/user.types';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -19,7 +28,9 @@ import DeleteUser from './DeleteUser';
 const ListUsers = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { usersList } = useSelector((state: RootState) => state.user);
+  const { usersList, page, size, totalCount, totalPages } = useSelector(
+    (state: RootState) => state.user
+  );
 
   // INITIALIZE FETCH USERS QUERY
   const [
@@ -35,8 +46,8 @@ const ListUsers = () => {
 
   // FETCH USERS
   useEffect(() => {
-    fetchUsers({ take: 100, skip: 0 });
-  }, [fetchUsers]);
+    fetchUsers({ size, page });
+  }, [fetchUsers, page, size]);
 
   // HANDLE FETCH USERS RESPONSE
   useEffect(() => {
@@ -50,6 +61,8 @@ const ListUsers = () => {
       }
     } else if (usersIsSuccess) {
       dispatch(setUsersList(usersData?.data?.rows));
+      dispatch(setTotalCount(usersData?.data?.totalCount));
+      dispatch(setTotalPages(usersData?.data?.totalPages));
     }
   }, [dispatch, usersData, usersError, usersIsError, usersIsSuccess]);
 
@@ -66,8 +79,8 @@ const ListUsers = () => {
               icon={faTrash}
               onClick={(e) => {
                 e.preventDefault();
-                dispatch(setSelectedUser(row?.original))
-                dispatch(setDeleteUserModal(true))
+                dispatch(setSelectedUser(row?.original));
+                dispatch(setDeleteUserModal(true));
               }}
               className="text-white p-2 cursor-pointer px-[8.2px] bg-red-600 rounded-full text-[13px] transition-all duration-300 hover:scale-[1.01]"
             />
@@ -103,6 +116,13 @@ const ListUsers = () => {
         ) : (
           usersIsSuccess && (
             <Table
+              showFilter={false}
+              page={page}
+              size={size}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              setPage={setPage}
+              setSize={setSize}
               data={usersList?.map((user: User, index: number) => {
                 return {
                   ...user,

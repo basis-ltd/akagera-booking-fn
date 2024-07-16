@@ -51,7 +51,7 @@ export const activitySlice = createSlice({
       state.activitiesList = state.activitiesList.filter(
         (activity) => activity.id !== action.payload
       );
-    }
+    },
   },
 });
 

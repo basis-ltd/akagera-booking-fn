@@ -44,7 +44,7 @@ const CreateBookingActivitiesActivity = () => {
   // FETCH BOOKING PEOPLE
   useEffect(() => {
     if (booking) {
-      fetchBookingPeople({ bookingId: booking?.id, take: 100, skip: 0 });
+      fetchBookingPeople({ bookingId: booking?.id, size: 100, page: 0 });
     }
   }, [booking, fetchBookingPeople]);
 
@@ -96,7 +96,7 @@ const CreateBookingActivitiesActivity = () => {
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
     if (booking && !selectBookingActivityModal) {
-      fetchBookingActivities({ bookingId: booking?.id, take: 100, skip: 0 });
+      fetchBookingActivities({ bookingId: booking?.id, size: 100, page: 0 });
     }
   }, [booking, fetchBookingActivities, selectBookingActivityModal]);
 
@@ -124,7 +124,7 @@ const CreateBookingActivitiesActivity = () => {
   // FETCH ACTIVITIES
   useEffect(() => {
     if (selectedService) {
-      fetchActivities({ serviceId: selectedService.id, take: 100, skip: 0 });
+      fetchActivities({ serviceId: selectedService.id, size: 100, page: 0 });
     }
   }, [fetchActivities, selectedService]);
 

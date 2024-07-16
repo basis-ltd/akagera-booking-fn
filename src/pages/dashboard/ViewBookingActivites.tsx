@@ -2,7 +2,10 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import AdminLayout from '@/containers/AdminLayout';
-import { useLazyFetchActivitiesQuery, useLazyFetchBookingActivitiesQuery } from '@/states/apiSlice';
+import {
+  useLazyFetchActivitiesQuery,
+  useLazyFetchBookingActivitiesQuery,
+} from '@/states/apiSlice';
 import { setActivitiesList } from '@/states/features/activitySlice';
 import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -26,12 +29,15 @@ const ViewBookingActivites = () => {
   );
   const { activitiesList } = useSelector((state: RootState) => state.activity);
   const [activityId, setActivityId] = useState<UUID | null>(null);
+  const [startTime, setStartTime] = useState<Date | string | null>(
+    moment().format('YYYY-MM-DD')
+  );
 
   // REACT HOOK FORM
-    const { control } = useForm();
+  const { control } = useForm();
 
-    // NAVIGATION
-    const navigate = useNavigate();
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE LOCALIZER
   const localizer = momentLocalizer(moment);
@@ -51,11 +57,12 @@ const ViewBookingActivites = () => {
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
     fetchBookingActivities({
-      take: 100,
-      skip: 0,
-      activityId
+      size: 100,
+      page: 0,
+      activityId,
+      startTime,
     });
-  }, [activityId, fetchBookingActivities]);
+  }, [activityId, fetchBookingActivities, startTime]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
   useEffect(() => {
@@ -78,48 +85,52 @@ const ViewBookingActivites = () => {
     dispatch,
   ]);
 
-    // INITIALIZE FETCH ACTIVITIES QUERY
-    const [
-      fetchActivities,
-      {
-        data: activitiesData,
-        error: activitiesError,
-        isError: activitiesIsError,
-        isFetching: activitiesIsFetching,
-        isSuccess: activitiesIsSuccess,
-      },
-    ] = useLazyFetchActivitiesQuery();
-  
-    // FETCH ACTIVITIES
-    useEffect(() => {
-      fetchActivities({ take: 100, skip: 0 });
-    }, [fetchActivities]);
-  
-    // HANDLE FETCH ACTIVITIES RESPONSE
-    useEffect(() => {
-      if (activitiesIsError) {
-        const errorResponse =
-          (activitiesError as ErrorResponse)?.data?.message ||
-          'An error occurred while fetching activities. Refresh page and try again.';
-        toast.error(errorResponse);
-      } else if (activitiesIsSuccess) {
-        dispatch(setActivitiesList(activitiesData?.data?.rows?.map((activity: Activity) => {
-          return {
-            ...activity,
-            description:
-              activity?.description !== 'NULL' ? activity?.description : '',
-            disclaimer:
-              activity?.disclaimer !== 'NULL' ? activity?.disclaimer : '',
-          }
-        })));
-      }
-    }, [
-      activitiesData,
-      activitiesError,
-      activitiesIsError,
-      activitiesIsSuccess,
-      dispatch,
-    ]);
+  // INITIALIZE FETCH ACTIVITIES QUERY
+  const [
+    fetchActivities,
+    {
+      data: activitiesData,
+      error: activitiesError,
+      isError: activitiesIsError,
+      isFetching: activitiesIsFetching,
+      isSuccess: activitiesIsSuccess,
+    },
+  ] = useLazyFetchActivitiesQuery();
+
+  // FETCH ACTIVITIES
+  useEffect(() => {
+    fetchActivities({ size: 100, page: 0 });
+  }, [fetchActivities]);
+
+  // HANDLE FETCH ACTIVITIES RESPONSE
+  useEffect(() => {
+    if (activitiesIsError) {
+      const errorResponse =
+        (activitiesError as ErrorResponse)?.data?.message ||
+        'An error occurred while fetching activities. Refresh page and try again.';
+      toast.error(errorResponse);
+    } else if (activitiesIsSuccess) {
+      dispatch(
+        setActivitiesList(
+          activitiesData?.data?.rows?.map((activity: Activity) => {
+            return {
+              ...activity,
+              description:
+                activity?.description !== 'NULL' ? activity?.description : '',
+              disclaimer:
+                activity?.disclaimer !== 'NULL' ? activity?.disclaimer : '',
+            };
+          })
+        )
+      );
+    }
+  }, [
+    activitiesData,
+    activitiesError,
+    activitiesIsError,
+    activitiesIsSuccess,
+    dispatch,
+  ]);
 
   // CUSTOMIZE EVENT PROPAGATION
   const eventStyleGetter = (event: BookingActivity) => {
@@ -165,7 +176,7 @@ const ViewBookingActivites = () => {
         <section className="grid grid-cols-4 items-start gap-4">
           <Controller
             name="startDate"
-            defaultValue={moment().format()}
+            defaultValue={moment().format('YYYY-MM-DD')}
             control={control}
             render={({ field }) => {
               return (
@@ -175,11 +186,16 @@ const ViewBookingActivites = () => {
                     type="date"
                     placeholder="Select day"
                     {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setStartTime(moment(String(e)).format('YYYY-MM-DD'));
+                    }}
                   />
                   <Link
                     onClick={(e) => {
                       e.preventDefault();
                       field.onChange(null);
+                      setStartTime(null);
                     }}
                     className="px-1 text-[12px] text-primary"
                     to={'#'}
@@ -190,49 +206,56 @@ const ViewBookingActivites = () => {
               );
             }}
           />
-          <Controller name='activityId' control={control} render={({field}) => {
-            return (
-              <label className="flex flex-col gap-1 w-full">
-                <Select
-                  {...field}
-                  placeholder="Filter by activity"
-                  options={activitiesList?.map((activity) => ({
-                    label: activity?.name,
-                    value: activity?.id,
-                  }))}
-                  onChange={(e) => {
-                    setActivityId(e as UUID);
-                    field.onChange(e);
-                  }}
-                />
-                <Link
-                  onClick={(e) => {
-                    e.preventDefault();
-                    field.onChange({
-                      target: {
-                        value: null,
-                      },
-                    });
-                    setActivityId(null);
-                  }}
-                  className="px-1 text-[12px] text-primary"
-                  to={'#'}
-                >
-                  Reset activity
-                </Link>
-              </label>
-            );
-          }} />
+          <Controller
+            name="activityId"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1 w-full">
+                  <Select
+                    {...field}
+                    placeholder="Filter by activity"
+                    options={activitiesList?.map((activity) => ({
+                      label: activity?.name,
+                      value: activity?.id,
+                    }))}
+                    onChange={(e) => {
+                      setActivityId(e as UUID);
+                      field.onChange(e);
+                    }}
+                  />
+                  <Link
+                    onClick={(e) => {
+                      e.preventDefault();
+                      field.onChange({
+                        target: {
+                          value: null,
+                        },
+                      });
+                      setActivityId(null);
+                    }}
+                    className="px-1 text-[12px] text-primary"
+                    to={'#'}
+                  >
+                    Reset activity
+                  </Link>
+                </label>
+              );
+            }}
+          />
         </section>
-        {(bookingActivitiesIsFetching || activitiesIsFetching) ? (
+        {bookingActivitiesIsFetching || activitiesIsFetching ? (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">
             <Loader className="text-primary" />
           </figure>
         ) : bookingActivitiesIsSuccess ? (
           <section className="h-[70vh] w-full flex flex-col gap-4">
-            <p className='uppercase text-primary font-semibold'>{bookingActivitiesList?.length} activities scheduled today</p>
+            <p className="uppercase text-primary font-semibold">
+              {bookingActivitiesList?.length} activities scheduled{' '}
+              {startTime ? moment(startTime).format('dddd, MMMM Do YYYY') : ''}
+            </p>
             <Calendar
-              defaultView="day"
+              defaultView="week"
               eventPropGetter={eventStyleGetter}
               localizer={localizer}
               events={bookingActivitiesList?.map(
@@ -251,11 +274,10 @@ const ViewBookingActivites = () => {
               }}
             />
           </section>
-        ): (
+        ) : (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">
-            <p className='text-primary'>No activities scheduled today</p>
+            <p className="text-primary">No activities scheduled today</p>
           </figure>
-        
         )}
       </main>
     </AdminLayout>

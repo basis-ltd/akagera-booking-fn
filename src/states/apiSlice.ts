@@ -17,14 +17,14 @@ export const apiSlice = createApi({
     return {
       // FETCH SERVICES
       fetchServices: builder.query({
-        query: ({ take = 10, skip = 0 }) =>
-          `services?take=${take}&skip=${skip}`,
+        query: ({ size = 10, page = 0 }) =>
+          `services?size=${size}&page=${page}`,
       }),
 
       // FETCH ACTIVITIES
       fetchActivities: builder.query({
-        query: ({ serviceId, take = 10, skip = 0 }) => {
-          let url = `activities?take=${take}&skip=${skip}`;
+        query: ({ serviceId, size = 10, page = 0 }) => {
+          let url = `activities?size=${size}&page=${page}`;
           if (serviceId) {
             url += `&serviceId=${serviceId}`;
           }
@@ -66,8 +66,8 @@ export const apiSlice = createApi({
       // FETCH BOOKINGS
       fetchBookings: builder.query({
         query: ({
-          take = 10,
-          skip = 0,
+          size = 10,
+          page = 0,
           referenceId,
           email,
           phone,
@@ -78,7 +78,7 @@ export const apiSlice = createApi({
           status,
           type,
         }) => {
-          let url = `bookings?take=${take}&skip=${skip}`;
+          let url = `bookings?size=${size}&page=${page}`;
           if (status) {
             url += `&status=${status}`;
           }
@@ -151,8 +151,8 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING PEOPLE
       fetchBookingPeople: builder.query({
-        query: ({ take = 10, skip = 0, bookingId }) => {
-          let url = `booking-people?take=${take}&skip=${skip}`;
+        query: ({ size = 10, page = 0, bookingId }) => {
+          let url = `booking-people?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
           }
@@ -183,8 +183,8 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING VEHICLES
       fetchBookingVehicles: builder.query({
-        query: ({ take = 10, skip = 0, bookingId }) => {
-          let url = `booking-vehicles?take=${take}&skip=${skip}`;
+        query: ({ size = 10, page = 0, bookingId }) => {
+          let url = `booking-vehicles?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
           }
@@ -205,7 +205,7 @@ export const apiSlice = createApi({
           numberOfAdults = 0,
           numberOfChildren = 0,
           numberOfSeats,
-          defaultRate
+          defaultRate,
         }) => ({
           url: `booking-activities`,
           method: 'POST',
@@ -218,20 +218,23 @@ export const apiSlice = createApi({
             numberOfAdults,
             numberOfChildren,
             numberOfSeats,
-            defaultRate
+            defaultRate,
           },
         }),
       }),
 
       // FETCH BOOKING ACTIVITIES
       fetchBookingActivities: builder.query({
-        query: ({ take = 10, skip = 0, bookingId, activityId }) => {
-          let url = `booking-activities?take=${take}&skip=${skip}`;
+        query: ({ size = 10, page = 0, bookingId, activityId, startTime }) => {
+          let url = `booking-activities?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
           }
           if (activityId) {
             url += `&activityId=${activityId}`;
+          }
+          if (startTime) {
+            url += `&startTime=${startTime}`;
           }
           return {
             url,
@@ -270,7 +273,7 @@ export const apiSlice = createApi({
       // FETCH BOOKING STATUSES
       fetchBookingStatuses: builder.query({
         query: ({ startDate, endDate }) => {
-          let url = `booking-statuses?take=100&skip=0`;
+          let url = `booking-statuses?size=100&page=0`;
           if (startDate) {
             url += `&startDate=${startDate}`;
           }
@@ -322,8 +325,8 @@ export const apiSlice = createApi({
 
       // FETCH USERS
       fetchUsers: builder.query({
-        query: ({ role, take, skip, nationality }) => {
-          let url = `users?take=${take}&skip=${skip}`;
+        query: ({ role, size, page, nationality }) => {
+          let url = `users?size=${size}&page=${page}`;
           if (role) {
             url += `&role=${role}`;
           }
@@ -394,35 +397,26 @@ export const apiSlice = createApi({
 
       // FETCH TIME SERIES BOOKINGS
       fetchTimeSeriesBookings: builder.query({
-        query: ({ granularity, month, year, type }) => {
-          let url = `bookings/time-series?granularity=${granularity}`;
-          if (month) {
-            url += `&month=${month}`;
-          }
-          if (year) {
-            url += `&year=${year}`;
-          }
+        query: ({ startDate, endDate, type }) => {
+          let url = `bookings/time-series?startDate=${startDate}&endDate=${endDate}`;
           if (type) {
             url += `&type=${type}`;
           }
           return {
             url,
           };
-        }
+        },
       }),
 
       // FETCH POPULAR ACTIVITIES
       fetchPopularActivities: builder.query({
-        query: ({ take = 10, skip = 0 }) =>
-          `booking-activities/popular?take=${take}&skip=${skip}`,
-      }),
-
-      // FETCH POPULAR BOOKING PEOPLE
-      fetchPopularBookingPeople: builder.query({
-        query: ({ take = 10, skip = 0, criteria }) => {
-          let url = `booking-people/popular?take=${take}&skip=${skip}`;
-          if (criteria) {
-            url += `&criteria=${criteria}`;
+        query: ({ size = 10, page = 0, startDate, endDate }) => {
+          let url = `booking-activities/popular?size=${size}&page=${page}`;
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
           }
           return {
             url,
@@ -430,10 +424,29 @@ export const apiSlice = createApi({
         }
       }),
 
+      // FETCH POPULAR BOOKING PEOPLE
+      fetchPopularBookingPeople: builder.query({
+        query: ({ size = 10, page = 0, criteria, startDate, endDate }) => {
+          let url = `booking-people/popular?size=${size}&page=${page}`;
+          if (criteria) {
+            url += `&criteria=${criteria}`;
+          }
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
       // FETCH BOOKING PEOPLE STATS
       fetchBookingPeopleStats: builder.query({
-        query: ({ startDate, endDate, month, take = 5000, skip = 0 }) => {
-          let url = `booking-people/stats?take=${take}&skip=${skip}`;
+        query: ({ startDate, endDate, month, size = 5000, page = 0 }) => {
+          let url = `booking-people/stats?size=${size}&page=${page}`;
           if (startDate) {
             url += `&startDate=${startDate}`;
           }
@@ -445,6 +458,185 @@ export const apiSlice = createApi({
           }
           return {
             url,
+          };
+        },
+      }),
+
+      // UPDATE ACTIVITY SCHEDULE
+      updateActivitySchedule: builder.mutation({
+        query: ({
+          id,
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          numberOfSeats,
+          activityId,
+        }) => {
+          return {
+            url: `activity-schedules/${id}`,
+            method: 'PATCH',
+            body: {
+              startTime,
+              endTime,
+              description,
+              disclaimer,
+              numberOfSeats,
+              activityId,
+            },
+          };
+        },
+      }),
+
+      // CREATE ACTIVITY SCHEDULE
+      createActivitySchedule: builder.mutation({
+        query: ({
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          numberOfSeats,
+          activityId,
+        }) => {
+          return {
+            url: `activity-schedules`,
+            method: 'POST',
+            body: {
+              startTime,
+              endTime,
+              description,
+              disclaimer,
+              numberOfSeats,
+              activityId,
+            },
+          };
+        },
+      }),
+
+      // DELETE ACTIVITY SCHEUDLE
+      deleteActivitySchedule: builder.mutation({
+        query: ({ id }) => {
+          return {
+            url: `activity-schedules/${id}`,
+            method: 'DELETE',
+          };
+        },
+      }),
+
+      // LIST ACTIVITY SCHEDULES
+      fetchActivitySchedules: builder.query({
+        query: ({ size = 10, page = 0, activityId }) => {
+          let url = `activity-schedules?size=${size}&page=${page}`;
+          if (activityId) {
+            url += `&activityId=${activityId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
+      // LIST ACTIVITY RATES
+      fetchActivityRates: builder.query({
+        query: ({ size = 10, page = 0, activityId }) => {
+          let url = `activity-rates?size=${size}&page=${page}`;
+          if (activityId) {
+            url += `&activityId=${activityId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
+      // CREATE ACTIVITY RATE
+      createActivityRate: builder.mutation({
+        query: ({
+          name,
+          ageRage,
+          description,
+          disclaimer,
+          amountUsd,
+          amountRwf,
+          activityId,
+        }) => {
+          return {
+            url: `activity-rates`,
+            method: 'POST',
+            body: {
+              name,
+              ageRage,
+              description,
+              disclaimer,
+              amountUsd,
+              amountRwf,
+              activityId,
+            },
+          };
+        },
+      }),
+
+      // CREATE ACTIVITY RATE
+      updateActivityRate: builder.mutation({
+        query: ({
+          name,
+          ageRage,
+          description,
+          disclaimer,
+          amountUsd,
+          amountRwf,
+          activityId,
+          id,
+        }) => {
+          return {
+            url: `activity-rates/${id}`,
+            method: 'PATCH',
+            body: {
+              name,
+              ageRage,
+              description,
+              disclaimer,
+              amountUsd,
+              amountRwf,
+              activityId,
+            },
+          };
+        },
+      }),
+
+      // DELETE ACTIVITY RATE
+      deleteActivityRate: builder.mutation({
+        query: ({ id }) => {
+          return {
+            url: `activity-rates/${id}`,
+            method: 'DELETE',
+          };
+        },
+      }),
+
+      // VERIFY AUTHENTICATION
+      verifyAuthentication: builder.mutation({
+        query: ({ email, otp }) => {
+          return {
+            url: `auth/verify`,
+            method: 'POST',
+            body: {
+              otp,
+              email
+            },
+          };
+        },
+      }),
+
+      // REQUEST OTP
+      requestOtp: builder.mutation({
+        query: ({ email }) => {
+          return {
+            url: `auth/request-otp`,
+            method: 'POST',
+            body: {
+              email
+            },
           };
         },
       }),
@@ -481,6 +673,16 @@ export const {
   useLazyFetchPopularActivitiesQuery,
   useLazyFetchPopularBookingPeopleQuery,
   useLazyFetchBookingPeopleStatsQuery,
+  useUpdateActivityScheduleMutation,
+  useCreateActivityScheduleMutation,
+  useDeleteActivityScheduleMutation,
+  useLazyFetchActivitySchedulesQuery,
+  useLazyFetchActivityRatesQuery,
+  useCreateActivityRateMutation,
+  useDeleteActivityRateMutation,
+  useUpdateActivityRateMutation,
+  useVerifyAuthenticationMutation,
+  useRequestOtpMutation,
 } = apiSlice;
 
 export default apiSlice;

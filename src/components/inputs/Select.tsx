@@ -34,7 +34,7 @@ const Select: FC<SelectProps> = ({
   name = undefined,
 }) => {
   return (
-    <label className={`flex flex-col gap-1 w-full ${labelClassName}`}>
+    <label className={`flex flex-col gap-[5px] w-full ${labelClassName}`}>
       <p className={label ? 'flex items-center gap-1 text-[14px]' : 'hidden'}>
         {label} <span className={required ? `text-red-600` : 'hidden'}>*</span>
       </p>

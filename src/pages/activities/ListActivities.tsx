@@ -37,7 +37,7 @@ const ListActivities = () => {
 
   // FETCH ACTIVITIES
   useEffect(() => {
-    fetchActivities({ take: 100, skip: 0 });
+    fetchActivities({ size: 100, page: 0 });
   }, [fetchActivities]);
 
   // HANDLE FETCH ACTIVITIES RESPONSE
@@ -119,9 +119,7 @@ const ListActivities = () => {
         ) : (
           <section className="w-full flex flex-col gap-6">
             <Table
-              rowClickHandler={(row: Activity) => {
-                navigate(`${row?.id}`);
-              }}
+              showFilter={false}
               data={activitiesList?.map((activity: Activity, index: number) => {
                 return {
                   ...activity,

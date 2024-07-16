@@ -25,6 +25,7 @@ import PopularBookingPeople from '@/containers/PopularBookingPeople';
 import DashboardCard from '@/components/modals/DashboardCard';
 import CustomTooltip from '@/components/inputs/CustomTooltip';
 import { setGenerateReportModal } from '@/states/features/dashboardSlice';
+import Input from '@/components/inputs/Input';
 
 const Dashboard = () => {
   // STATE VARIABLES
@@ -32,15 +33,16 @@ const Dashboard = () => {
   const { timeSeriesBookings } = useSelector(
     (state: RootState) => state.booking
   );
-  const [granularity, setGranularity] = useState(`day`);
-  const [month, setMonth] = useState(moment().format('M'));
-  const [year, setYear] = useState(moment().format('YYYY'));
+  const [startDate, setStartDate] = useState(
+    moment().startOf('month').format('YYYY-MM-DD')
+  );
+  const [endDate, setEndDate] = useState(moment().endOf('month').format('YYYY-MM-DD'));
   const [type, setType] = useState(``);
   const [metric, setMetric] = useState(`registrations`);
   const [showFilter, setShowFilter] = useState(false);
 
   // REACT HOOK FORM
-  const { control, setValue, reset, watch } = useForm();
+  const { control, setValue, reset } = useForm();
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -59,8 +61,8 @@ const Dashboard = () => {
 
   // FETCH TIME SERIES BOOKINGS
   useEffect(() => {
-    fetchTimeSeriesBookings({ granularity, month, year, type });
-  }, [fetchTimeSeriesBookings, granularity, month, type, year]);
+    fetchTimeSeriesBookings({ startDate, endDate, type });
+  }, [fetchTimeSeriesBookings, startDate, endDate, type]);
 
   // HANDLE TIME SERIES BOOKINGS RESPONSE
   useEffect(() => {
@@ -84,12 +86,8 @@ const Dashboard = () => {
       <main className="w-[95%] mx-auto p-6 flex flex-col gap-6">
         <menu className="flex items-center gap-3 justify-between">
           <h1 className="text-primary uppercase font-semibold text-xl">
-            {granularity === `day`
-              ? `Daily bookings for the month of ${moment(month).format(
-                  'MMMM'
-                )}`
-              : granularity === `month` &&
-                `Monthly bookings for the year ${moment(year).format('YYYY')}`}
+            Daily bookings for the month of{' '}
+            {moment(startDate).format('MMMM YYYY')}
           </h1>
           <ul className="flex items-center gap-3">
             <CustomButton
@@ -125,85 +123,46 @@ const Dashboard = () => {
         {showFilter && (
           <menu className="grid grid-cols-5 gap-6 w-full items-center px-4">
             <Controller
-              name="granularity"
+              name="startDate"
               control={control}
-              defaultValue={granularity}
+              defaultValue={startDate}
               render={({ field }) => {
                 return (
                   <label className="w-full">
-                    <Select
-                      label="Granularity"
-                      placeholder="Select granularity"
-                      options={['day', 'month']?.map((granularity) => {
-                        return {
-                          value: granularity,
-                          label: capitalizeString(granularity),
-                        };
-                      })}
+                    <Input
                       {...field}
                       onChange={(e) => {
-                        setValue('granularity', e);
-                        setGranularity(e);
+                        field.onChange(e);
+                        setStartDate(moment(String(e)).format('YYYY-MM-DD'));
                       }}
+                      label="Start date"
+                      type="date"
                     />
                   </label>
                 );
               }}
             />
-            {watch('granularity') === 'day' && (
-              <Controller
-                name="month"
-                control={control}
-                render={({ field }) => {
-                  return (
-                    <label className="w-full">
-                      <Select
-                        label="Month"
-                        placeholder="Select month"
-                        options={moment.months()?.map((month, index) => {
-                          return {
-                            value: String(index + 1),
-                            label: capitalizeString(month),
-                          };
-                        })}
-                        {...field}
-                        onChange={(e) => {
-                          setValue('month', e);
-                          setMonth(e);
-                        }}
-                      />
-                    </label>
-                  );
-                }}
-              />
-            )}
-            {watch('granularity') === 'month' && (
-              <Controller
-                name="year"
-                control={control}
-                render={({ field }) => {
-                  return (
-                    <label className="w-full">
-                      <Select
-                        label="Year"
-                        placeholder="Select year"
-                        options={[...Array(10).keys()].map((_, index) => {
-                          return {
-                            value: String(moment().year() - index),
-                            label: String(moment().year() - index),
-                          };
-                        })}
-                        {...field}
-                        onChange={(e) => {
-                          setValue('year', e);
-                          setYear(e);
-                        }}
-                      />
-                    </label>
-                  );
-                }}
-              />
-            )}
+            <Controller
+              name="endDate"
+              control={control}
+              defaultValue={endDate}
+              render={({ field }) => {
+                return (
+                  <label className="w-full">
+                    <Input
+                      type="date"
+                      fromDate={startDate as unknown as Date}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setEndDate(moment(String(e)).format('YYYY-MM-DD'));
+                      }}
+                      label="End date"
+                    />
+                  </label>
+                );
+              }}
+            />
             <Controller
               name="type"
               control={control}
@@ -216,7 +175,7 @@ const Dashboard = () => {
                       options={['booking', 'registration']?.map((type) => {
                         return {
                           value: type,
-                          label: capitalizeString(type),
+                          label: `${capitalizeString(type)}s`,
                         };
                       })}
                       {...field}
@@ -239,12 +198,16 @@ const Dashboard = () => {
                     <Select
                       label="Metric"
                       placeholder="Select metric"
-                      options={['registrations', 'revenue']?.map((type) => {
-                        return {
-                          value: type,
-                          label: capitalizeString(type),
-                        };
-                      })}
+                      options={[
+                        {
+                          label: `${capitalizeString(type) || ''} Count`,
+                          value: 'registrations',
+                        },
+                        {
+                          label: `${capitalizeString(type) || ''} Revenue`,
+                          value: 'revenue',
+                        },
+                      ]}
                       {...field}
                       onChange={(e) => {
                         setValue('metric', e);
@@ -261,9 +224,8 @@ const Dashboard = () => {
               onClick={(e) => {
                 e.preventDefault();
                 reset();
-                setGranularity(`day`);
-                setMonth(moment().format('M'));
-                setYear(moment().format('YYYY'));
+                setStartDate(moment().startOf('month').format('YYYY-MM-DD'));
+                setEndDate(moment().endOf('month').format('YYYY-MM-DD'));
                 setType(``);
               }}
             >
@@ -304,7 +266,7 @@ const Dashboard = () => {
                     0
                   )}
                   callToAction={() => {
-                    navigate(`/dashboard/registrations`);
+                    navigate(`/dashboard/bookings`);
                   }}
                 />
                 <DashboardCard
@@ -316,7 +278,7 @@ const Dashboard = () => {
                     )
                   )}`}
                   callToAction={() => {
-                    navigate(`/dashboard/registrations`);
+                    navigate(`/dashboard/bookings`);
                   }}
                 />
               </menu>
@@ -324,8 +286,8 @@ const Dashboard = () => {
           )}
         </section>
         <section className="grid grid-cols-2 w-full gap-[5%]">
-          <PopularActivites />
-          <PopularBookingPeople />
+          <PopularActivites startDate={startDate} endDate={endDate} />
+          <PopularBookingPeople startDate={startDate} endDate={endDate} />
         </section>
       </main>
     </AdminLayout>

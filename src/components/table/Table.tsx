@@ -3,6 +3,7 @@ import {
   ColumnFiltersState,
   Row,
   SortingState,
+  Table as TableType,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -28,35 +29,35 @@ import TableToolbar from './TableToolbar';
 import { useState } from 'react';
 import { UnknownAction } from '@reduxjs/toolkit';
 
-interface DataTableProps<T extends object> {
-  data: T[];
-  columns: ColumnDef<T>[];
-  rowClickHandler?: undefined | ((row: T) => void);
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  rowClickHandler?: undefined | ((row: TData) => void);
   showFilter?: boolean;
   showPagination?: boolean;
   showExport?: boolean;
   page?: number;
   size?: number;
-  totalElements?: number;
+  totalCount?: number;
   totalPages?: number;
   setPage?: (page: number) => UnknownAction;
   setSize?: (size: number) => UnknownAction;
 }
 
-const Table = <T extends object>({
+export default function Table<TData, TValue>({
   columns = [],
   data = [],
   rowClickHandler = undefined,
   showFilter = true,
   showPagination = true,
   showExport = true,
-  page = 1,
-  size = 100,
-  totalElements,
+  page = 0,
+  size = 10,
+  totalCount,
   totalPages,
   setPage,
   setSize,
-}: DataTableProps<T>) => {
+}: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -71,7 +72,7 @@ const Table = <T extends object>({
       rowSelection,
       columnFilters,
       pagination: {
-        pageIndex: page - 1,
+        pageIndex: page,
         pageSize: size,
       },
     },
@@ -89,9 +90,13 @@ const Table = <T extends object>({
   });
 
   return (
-    <div className="space-y-4 w-full mb-4">
+    <div className="space-y-4 w-full">
       {showFilter && (
-        <TableToolbar table={table} columns={columns} showExport={showExport} />
+        <TableToolbar
+          table={table as unknown as TableType<object>}
+          columns={columns as ColumnDef<object>[]}
+          showExport={showExport}
+        />
       )}
       <div className="rounded-md border">
         <DataTable>
@@ -129,7 +134,9 @@ const Table = <T extends object>({
                       e.preventDefault();
                       rowClickHandler &&
                         row?.id !== 'no' &&
-                        rowClickHandler(row.original as Row<T>['original']);
+                        rowClickHandler(
+                          row?.original as Row<TData>['original']
+                        );
                     }}
                   >
                     {row.getVisibleCells().map((cell) => {
@@ -138,12 +145,12 @@ const Table = <T extends object>({
                         'action',
                         'checkbox',
                         'actions',
-                      ].includes(cell.column.id);
+                      ].includes(cell.column.id || cell?.column?.accessorKey);
                       return (
                         <TableCell
                           className={`${
                             preventAction ? '!cursor-auto' : ''
-                          } text-[13px] p-4 w-fit`}
+                          } text-[13px] p-4`}
                           key={cell.id}
                           onClick={(e) => {
                             if (preventAction) {
@@ -168,7 +175,7 @@ const Table = <T extends object>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No records available.
+                  No results.
                 </TableCell>
               </TableRow>
             )}
@@ -179,7 +186,7 @@ const Table = <T extends object>({
         <DataTablePagination
           page={page}
           size={size}
-          totalElements={totalElements}
+          totalCount={totalCount}
           totalPages={totalPages}
           table={table}
           setPage={setPage}
@@ -188,6 +195,4 @@ const Table = <T extends object>({
       )}
     </div>
   );
-};
-
-export default Table;
+}
