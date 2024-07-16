@@ -68,7 +68,7 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-  const [bookingStatus, setBookingStatus] = useState('pending_contact');
+  const [bookingStatus, setBookingStatus] = useState('');
 
   // NAVIGATION
   const { id } = useParams();
@@ -637,7 +637,6 @@ const BookingPreview = () => {
                 totalAmountUsd: Number(booking?.totalAmountUsd),
               });
             }}
-            disabled={!bookingStatus}
           >
             {updateBookingIsLoading ? <Loader /> : 'Submit'}
           </Button>
