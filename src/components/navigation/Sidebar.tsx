@@ -10,7 +10,6 @@ import {
   faChevronCircleLeft,
   faChevronCircleRight,
   faDashboard,
-  faList,
   faUserGroup,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -38,15 +37,9 @@ const Sidebar = () => {
       icon: faBookmark,
     },
     {
-      label: 'Bookings',
+      label: 'Bookings/Registrations',
       path: '/dashboard/bookings',
       icon: faChartSimple,
-      role: 'receptionist'
-    },
-    {
-      label: 'Registrations',
-      path: '/dashboard/registrations',
-      icon: faList,
       role: 'receptionist'
     },
     {

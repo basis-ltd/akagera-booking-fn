@@ -13,6 +13,10 @@ const initialState: {
     value: number;
     totalAmountUsd: number;
   }[];
+  page: number;
+  size: number;
+  totalCount: number;
+  totalPages: number;
 } = {
   bookingsList: [],
   selectedBooking: {} as Booking,
@@ -21,6 +25,10 @@ const initialState: {
   draftBookingsList: [],
   booking: { totalAmountUsd: 0 } as Booking & { totalAmountUsd: number },
   timeSeriesBookings: [],
+  page: 0,
+  size: 10,
+  totalCount: 0,
+  totalPages: 1,
 };
 
 export const bookingSlice = createSlice({
@@ -54,6 +62,18 @@ export const bookingSlice = createSlice({
     setTimeSeriesBookings: (state, action) => {
       state.timeSeriesBookings = action.payload;
     },
+    setPage: (state, action) => {
+      state.page = action.payload;
+    },
+    setSize: (state, action) => {
+      state.size = action.payload;
+    },
+    setTotalCount: (state, action) => {
+      state.totalCount = action.payload;
+    },
+    setTotalPages: (state, action) => {
+      state.totalPages = action.payload;
+    },
   },
 });
 
@@ -67,6 +87,10 @@ export const {
   setBookingTotalAmountUsd,
   addBookingTotalAmountUsd,
   setTimeSeriesBookings,
+  setPage,
+  setSize,
+  setTotalCount,
+  setTotalPages,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

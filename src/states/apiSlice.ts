@@ -225,13 +225,16 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING ACTIVITIES
       fetchBookingActivities: builder.query({
-        query: ({ size = 10, page = 0, bookingId, activityId }) => {
+        query: ({ size = 10, page = 0, bookingId, activityId, startTime }) => {
           let url = `booking-activities?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
           }
           if (activityId) {
             url += `&activityId=${activityId}`;
+          }
+          if (startTime) {
+            url += `&startTime=${startTime}`;
           }
           return {
             url,
@@ -394,14 +397,8 @@ export const apiSlice = createApi({
 
       // FETCH TIME SERIES BOOKINGS
       fetchTimeSeriesBookings: builder.query({
-        query: ({ granularity, month, year, type }) => {
-          let url = `bookings/time-series?granularity=${granularity}`;
-          if (month) {
-            url += `&month=${month}`;
-          }
-          if (year) {
-            url += `&year=${year}`;
-          }
+        query: ({ startDate, endDate, type }) => {
+          let url = `bookings/time-series?startDate=${startDate}&endDate=${endDate}`;
           if (type) {
             url += `&type=${type}`;
           }
@@ -413,16 +410,32 @@ export const apiSlice = createApi({
 
       // FETCH POPULAR ACTIVITIES
       fetchPopularActivities: builder.query({
-        query: ({ size = 10, page = 0 }) =>
-          `booking-activities/popular?size=${size}&page=${page}`,
+        query: ({ size = 10, page = 0, startDate, endDate }) => {
+          let url = `booking-activities/popular?size=${size}&page=${page}`;
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
+          }
+          return {
+            url,
+          };
+        }
       }),
 
       // FETCH POPULAR BOOKING PEOPLE
       fetchPopularBookingPeople: builder.query({
-        query: ({ size = 10, page = 0, criteria }) => {
+        query: ({ size = 10, page = 0, criteria, startDate, endDate }) => {
           let url = `booking-people/popular?size=${size}&page=${page}`;
           if (criteria) {
             url += `&criteria=${criteria}`;
+          }
+          if (startDate) {
+            url += `&startDate=${startDate}`;
+          }
+          if (endDate) {
+            url += `&endDate=${endDate}`;
           }
           return {
             url,

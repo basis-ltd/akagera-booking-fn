@@ -7,7 +7,7 @@ export const formatDate = (date: string | Date) => {
 // CAPITALIZE STRING
 export const capitalizeString = (string: string | undefined | null) => {
   if (!string) return "";
-  const isCamelCase = /^[a-z]+([A-Z][a-z])$/.test(string);
+  const isCamelCase = /^[a-z]+([A-Z][a-z]*)*$/.test(string);
   if (isCamelCase) return capitalizeCamelCase(string)
   const words = string?.toLowerCase()?.split("_");
   const capitalizedWords =

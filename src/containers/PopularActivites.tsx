@@ -11,7 +11,12 @@ import { useDispatch } from 'react-redux';
 import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const PopularActivites = () => {
+type PopularActivitesProps = {
+  startDate?: Date | string;
+  endDate?: Date | string;
+};
+
+const PopularActivites = ({ startDate, endDate }: PopularActivitesProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
 
@@ -35,8 +40,10 @@ const PopularActivites = () => {
     fetchPopularActivities({
       size: 5,
       page: 0,
+      startDate,
+      endDate,
     });
-  }, [fetchPopularActivities]);
+  }, [endDate, fetchPopularActivities, startDate]);
 
   // HANDLE POPULAR ACTIVITIES RESPONSE
   useEffect(() => {
