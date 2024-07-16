@@ -1,3 +1,4 @@
+import store from 'store';
 import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
 import Input from '@/components/inputs/Input';
@@ -5,7 +6,7 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import { useLoginMutation } from '@/states/apiSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { AppDispatch } from '@/states/store';
 import { useDispatch } from 'react-redux';
@@ -13,10 +14,12 @@ import { setToken, setUser } from '@/states/features/userSlice';
 import Loader from '@/components/inputs/Loader';
 import PublicLayout from '@/containers/PublicLayout';
 import validateInputs from '@/helpers/validations.helper';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -25,6 +28,7 @@ const Login = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
@@ -51,10 +55,15 @@ const Login = () => {
   // HANDLE LOGIN RESPONSE
   useEffect(() => {
     if (loginIsSuccess) {
-      dispatch(setUser(loginData?.data?.user));
-      dispatch(setToken(loginData?.data?.token));
-      toast.success('Login successful, redirecting...');
-      navigate('/dashboard/registrations');
+      if (loginData?.data?.user) {
+        dispatch(setUser(loginData?.data?.user));
+        dispatch(setToken(loginData?.data?.token));
+        toast.success('Login successful, redirecting...');
+        navigate('/dashboard');
+      } else {
+        store.set('email', watch('username'));
+        navigate('/auth/verify');
+      }
     }
     if (loginIsError) {
       if ((loginError as ErrorResponse)?.status === 500) {
@@ -71,6 +80,7 @@ const Login = () => {
     loginData?.data?.token,
     loginError,
     navigate,
+    watch,
   ]);
 
   return (
@@ -134,8 +144,10 @@ const Login = () => {
                       {...field}
                       label="Password"
                       required
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
+                      suffixIcon={showPassword ? faEyeSlash : faEye}
+                      suffixIconHandler={() => setShowPassword(!showPassword)}
                     />
                     {errors?.password && (
                       <InputErrorMessage message={errors?.password?.message} />
@@ -150,12 +162,12 @@ const Login = () => {
                 <Button submit primary>
                   {loginIsLoading ? <Loader /> : 'Login'}
                 </Button>
-                <Link
+                {/* <Link
                   to="/auth/register"
                   className="text-center text-sm text-primary hover:underline"
                 >
                   Don't have an account? Register
-                </Link>
+                </Link> */}
               </ul>
             </menu>
           </fieldset>

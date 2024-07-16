@@ -613,6 +613,33 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // VERIFY AUTHENTICATION
+      verifyAuthentication: builder.mutation({
+        query: ({ email, otp }) => {
+          return {
+            url: `auth/verify`,
+            method: 'POST',
+            body: {
+              otp,
+              email
+            },
+          };
+        },
+      }),
+
+      // REQUEST OTP
+      requestOtp: builder.mutation({
+        query: ({ email }) => {
+          return {
+            url: `auth/request-otp`,
+            method: 'POST',
+            body: {
+              email
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -654,6 +681,8 @@ export const {
   useCreateActivityRateMutation,
   useDeleteActivityRateMutation,
   useUpdateActivityRateMutation,
+  useVerifyAuthenticationMutation,
+  useRequestOtpMutation,
 } = apiSlice;
 
 export default apiSlice;

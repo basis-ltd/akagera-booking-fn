@@ -28,6 +28,7 @@ import DeleteActivitySchedule from '@/pages/activitySchedules/DeleteActivitySche
 import CreateActivityRate from '@/pages/activityRates/CreateActivityRate.tsx';
 import DeleteActivityRate from '@/pages/activityRates/DeleteActivityRate.tsx';
 import UpdateActivityRate from '@/pages/activityRates/UpdateActivityRate.tsx';
+import VerifyAuthentication from '@/pages/auth/VerifyAuthentication.tsx';
 
 const Router = () => {
   return (
@@ -47,6 +48,7 @@ const Router = () => {
         <Route path="/bookings/:id/details" element={<BookingDetails />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/verify" element={<VerifyAuthentication />} />
         <Route path="/dashboard/bookings" element={<ViewBookings />} />
         <Route
           path="/dashboard/registrations"

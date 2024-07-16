@@ -29,10 +29,10 @@ const Sidebar = () => {
       label: 'Dashboard',
       path: '/dashboard',
       icon: faChartLine,
-      role: 'admin'
+      role: 'admin',
     },
     {
-      label: 'Booking activities',
+      label: 'Booking calendar',
       path: '/dashboard/bookings/activities',
       icon: faBookmark,
     },
@@ -40,19 +40,19 @@ const Sidebar = () => {
       label: 'Bookings/Registrations',
       path: '/dashboard/bookings',
       icon: faChartSimple,
-      role: 'receptionist'
+      role: 'receptionist',
     },
     {
       label: 'Users',
       path: '/dashboard/users',
       icon: faUserGroup,
-      role: 'admin'
+      role: 'admin',
     },
     {
       label: 'Activities',
       path: '/dashboard/activities',
       icon: faDashboard,
-      role: 'admin'
+      role: 'admin',
     },
   ];
 
