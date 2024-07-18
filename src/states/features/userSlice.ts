@@ -5,8 +5,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState: {
   usersList: User[];
   selectedUser?: User;
-  user: User;
-  token: string;
+  user?: User;
+  token?: string;
   createUserModal: boolean;
   deleteUserModal: boolean;
   page: number;
@@ -16,8 +16,8 @@ const initialState: {
 } = {
   usersList: [],
   selectedUser: undefined,
-  user: store.get('user'),
-  token: store.get('token') || '',
+  user: store.get('user') || undefined,
+  token: store.get('token') || undefined,
   createUserModal: false,
   deleteUserModal: false,
   page: 0,

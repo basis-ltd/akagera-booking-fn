@@ -31,4 +31,5 @@ export type Booking = {
     type: string;
     bookingPeople?: BookingPerson[];
     bookingActivities?: BookingActivity[];
+    accomodation?: string;
 };

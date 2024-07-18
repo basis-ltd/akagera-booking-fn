@@ -61,10 +61,10 @@ const VerifyAuthentication = () => {
   // HANDLE VERIFY AUTH RESPONSE
   useEffect(() => {
     if (verifyAuthIsSuccess) {
+      store.clearAll();
       dispatch(setUser(verifyAuthData?.data?.user));
       dispatch(setToken(verifyAuthData?.data?.token));
       toast.success('Login successful, redirecting...');
-      store.clearAll();
       navigate('/dashboard');
     } else if (verifyAuthIsError) {
       const errorResponse = (verifyAuthError as ErrorResponse)?.data?.message;

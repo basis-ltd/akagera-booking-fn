@@ -454,6 +454,10 @@ const BookingDetails = () => {
             <p className="font-bold">{formatDate(booking?.startDate)}</p>
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
+            <p>Accomodation:</p>
+            <p className="font-bold">{capitalizeString(booking?.accomodation) || 'N/A'}</p>
+          </ul>
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Status:</p>
             <p
               className={`font-medium p-1 rounded-md text-[14px] ${getBookingStatusColor(

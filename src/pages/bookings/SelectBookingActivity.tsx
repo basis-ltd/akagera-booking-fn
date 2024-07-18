@@ -59,7 +59,8 @@ const SelectBookingActivity = () => {
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
   >(undefined);
-  const [transportationsLabel, setTransportationsLabel] = useState<string>('transportations');
+  const [transportationsLabel, setTransportationsLabel] =
+    useState<string>('transportations');
 
   // REACT HOOK FORM
   const {
@@ -177,8 +178,9 @@ const SelectBookingActivity = () => {
       startTime: bookingActivity?.startTime || booking?.startDate,
       endTime: bookingActivity?.endTime || booking?.endDate,
       numberOfAdults: data?.numberOfAdults ? Number(data?.numberOfAdults) : 0,
-      numberOfChildren:
-        data?.numberOfChildren ? Number(data?.numberOfChildren) : 0,
+      numberOfChildren: data?.numberOfChildren
+        ? Number(data?.numberOfChildren)
+        : 0,
       numberOfSeats: data?.numberOfSeats && Number(data?.numberOfSeats),
       defaultRate: data?.defaultRate ? Number(data?.defaultRate) : null,
     });
@@ -233,7 +235,11 @@ const SelectBookingActivity = () => {
         setTransportationsLabel('participants');
         break;
       case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
+      case 'BOAT TRIP – SCHEDULED SUNSET TRIP':
         setTransportationsLabel('guides');
+        break;
+      case 'BOAT TRIP – SCHEDULED MORNING/DAY':
+        setTransportationsLabel('seats');
         break;
       default:
         setTransportationsLabel('transportations');
@@ -251,6 +257,9 @@ const SelectBookingActivity = () => {
           activitySchedule: '',
           numberOfAdults: '',
           numberOfChildren: '',
+          numberOfParticipants: '',
+          defaultRate: '',
+          numberOfSeats: 1,
         });
       }}
       heading={`Confirm adding ${selectedActivity.name} to "${
@@ -543,7 +552,7 @@ const SelectBookingActivity = () => {
             {selectedActivitySchedule &&
               selectedActivitySchedule?.numberOfSeats !== 1000 && (
                 <p className="text-slate-900 text-[15px]">
-                  Number of transportations available for this period:{' '}
+                  Number of {transportationsLabel} available for this period:{' '}
                   {selectedActivitySchedule?.numberOfSeats}
                 </p>
               )}
@@ -615,6 +624,9 @@ const SelectBookingActivity = () => {
                   activitySchedule: '',
                   numberOfAdults: '',
                   numberOfChildren: '',
+                  numberOfParticipants: '',
+                  defaultRate: '',
+                  numberOfSeats: 1,
                 });
               }}
             >

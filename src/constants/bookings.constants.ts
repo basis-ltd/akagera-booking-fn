@@ -132,6 +132,11 @@ export const bookingColumns = [
     cell: ({ row }: { row: Row<Booking> }) => capitalizeString(row?.original?.exitGate),
   },
   {
+    header: 'Accomodation',
+    accessorKey: 'accommodation',
+    cell: ({ row }: { row: Row<Booking> }) => capitalizeString(row?.original?.accomodation),
+  },
+  {
     header: 'Notes',
     accessorKey: 'notes',
   }

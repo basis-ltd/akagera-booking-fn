@@ -43,7 +43,7 @@ const GenerateReport = () => {
   // HANDLE FETCH BOOKING PEOPLE STATS QUERY
   useEffect(() => {
     if (bookingPeopleStatsIsSuccess) {
-      generateMonthlyReport({ bookingPeople: bookingPeopleStats?.data?.rows });
+      generateMonthlyReport(bookingPeopleStats?.data?.rows);
     }
     if (bookingPeopleStatsIsError) {
       const errorResponse =

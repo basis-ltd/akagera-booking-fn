@@ -151,7 +151,8 @@ const ListDraftBookings = () => {
           <menu className="flex items-center gap-2">
             {Object.values(bookingStatus)
               ?.filter(
-                (status) => !['approved', 'cash_received'].includes(status)
+                (status) =>
+                  !['approved', 'cash_received', 'confirmed'].includes(status)
               )
               ?.includes(row?.original?.status) && (
               <Link

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import store from 'store';
+import { Link, useNavigate } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/states/store';
@@ -32,6 +33,9 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
   );
   const { user } = useSelector((state: RootState) => state.user);
   const [isOpen, setIsOpen] = useState(false);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   return (
     <header
@@ -77,7 +81,10 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
   );
 };
 
-const NavbarDropdown = ({ isOpen, user }: { isOpen: boolean; user: User }) => {
+const NavbarDropdown = ({ isOpen, user }: { isOpen: boolean; user?: User }) => {
+
+  const navigate = useNavigate();
+
   return (
     <menu
       className={`w-[250px] right-[-95px] transition-all ease-out duration-500 flex flex-col gap-2 absolute translate-y-0 bg-white rounded-md shadow-md z-[10000] ${
@@ -96,6 +103,15 @@ const NavbarDropdown = ({ isOpen, user }: { isOpen: boolean; user: User }) => {
             <Link
               key={index}
               to={navItem?.path}
+              onClick={(e) => {
+                e.preventDefault();
+                if (navItem?.path === '/auth/login') {
+                  store.clearAll();
+                  navigate(navItem?.path);
+                } else {
+                  navigate(navItem?.path);
+                }
+              }}
               className="p-3 px-6 text-center text-black hover:bg-primary hover:text-white w-full"
             >
               {navItem?.label}

@@ -15,7 +15,7 @@ import {
   calculateBookingPersonPrice,
   calculateVehiclePrice,
 } from '@/helpers/booking.helper';
-import { formatDate, formatCurrency } from '@/helpers/strings.helper';
+import { formatDate, formatCurrency, capitalizeString } from '@/helpers/strings.helper';
 import {
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
@@ -68,7 +68,7 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-  const [bookingStatus, setBookingStatus] = useState('');
+  const [bookingStatus, setBookingStatus] = useState('pending');
 
   // NAVIGATION
   const { id } = useParams();
@@ -445,6 +445,10 @@ const BookingPreview = () => {
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Date:</p>
             <p className="font-bold">{formatDate(booking?.startDate)}</p>
+          </ul>
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
+            <p>Accomodation:</p>
+            <p className="font-bold">{capitalizeString(booking?.accomodation) || 'N/A'}</p>
           </ul>
         </menu>
         {booking?.type !== 'registration' &&

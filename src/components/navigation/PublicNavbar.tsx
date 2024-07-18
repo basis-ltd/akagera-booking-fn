@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import Button from '../inputs/Button';
+import { RootState } from '@/states/store';
+import { useSelector } from 'react-redux';
 
 type PublicNavbarProps = {
   className?: string;
@@ -10,6 +12,7 @@ type PublicNavbarProps = {
 const PublicNavbar = ({ className, hideActions }: PublicNavbarProps) => {
   // NAVIGATION
   const navigate = useNavigate();
+  const { user, token } = useSelector((state: RootState) => state.user);
 
   return (
     <header
@@ -25,11 +28,16 @@ const PublicNavbar = ({ className, hideActions }: PublicNavbarProps) => {
       >
         <img className="text-white h-full w-auto" src={akageraLogo} />
       </Link>
-      {!hideActions && (
-        <Button primary route={'/auth/login'}>
-          Login
-        </Button>
-      )}
+      {!hideActions &&
+        ((!user && !token) ? (
+          <Button primary route={'/auth/login'}>
+            Login
+          </Button>
+        ) : (
+          <Button primary route={'/dashboard'}>
+            Dashboard
+          </Button>
+        ))}
     </header>
   );
 };
