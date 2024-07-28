@@ -158,6 +158,7 @@ const Input: FC<InputProps> = ({
           </span>
         </p>
         <DatePicker
+        readOnly={readOnly}
         selectionType={selectionType}
           placeholder={placeholder}
           fromDate={fromDate}

@@ -23,6 +23,7 @@ interface DatePickerProps {
   fromDate?: Date;
   placeholder?: string;
   toDate?: Date;
+  readOnly?: boolean;
 }
 
 const DatePicker: FC<DatePickerProps> = ({
@@ -32,6 +33,7 @@ const DatePicker: FC<DatePickerProps> = ({
   fromDate = undefined,
   placeholder = 'Select date',
   toDate = undefined,
+  readOnly = false,
 }) => {
   // SET MONTH AND YEAR
   const [year, setYear] = useState<string | undefined>(moment().format('YYYY'));
@@ -49,7 +51,10 @@ const DatePicker: FC<DatePickerProps> = ({
             'w-full justify-start text-left font-normal py-2 h-[40px]',
             !value && 'text-muted-foreground'
           )}
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            if (readOnly) return;
+            setOpen(!open);
+          }}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (
@@ -110,7 +115,7 @@ const DatePicker: FC<DatePickerProps> = ({
             }}
             selected={value}
             onSelect={(e) => {
-              if (e) {
+              if (e && !readOnly) {
                 onChange(moment(e).format());
                 setOpen(false);
               }

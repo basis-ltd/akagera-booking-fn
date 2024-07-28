@@ -10,7 +10,11 @@ import { FC, ReactNode } from 'react';
 
 interface SelectProps {
   label?: string | undefined;
-  options?: Array<{ label: string | ReactNode; value: string; disabled?: boolean }>;
+  options?: Array<{
+    label: string | ReactNode;
+    value: string;
+    disabled?: boolean;
+  }>;
   defaultValue?: string | undefined;
   placeholder?: string;
   className?: string;
@@ -19,6 +23,7 @@ interface SelectProps {
   required?: boolean;
   labelClassName?: string | undefined;
   name?: string | undefined;
+  readOnly?: boolean;
 }
 
 const Select: FC<SelectProps> = ({
@@ -32,6 +37,7 @@ const Select: FC<SelectProps> = ({
   required = false,
   labelClassName = undefined,
   name = undefined,
+  readOnly = false,
 }) => {
   return (
     <label className={`flex flex-col gap-[5px] w-full ${labelClassName}`}>
@@ -39,7 +45,9 @@ const Select: FC<SelectProps> = ({
         {label} <span className={required ? `text-red-600` : 'hidden'}>*</span>
       </p>
       <SelectComponent
-        onValueChange={onChange}
+        onValueChange={
+          (!readOnly && onChange) as ((value: string) => void) | undefined
+        }
         defaultValue={defaultValue}
         value={value}
         name={name}
@@ -50,7 +58,9 @@ const Select: FC<SelectProps> = ({
           <SelectValue
             className="!text-[10px]"
             placeholder={
-              <p className="text-[14px] text-gray-500">{placeholder || 'Select option'}</p>
+              <p className="text-[14px] text-gray-500">
+                {placeholder || 'Select option'}
+              </p>
             }
           />
         </SelectTrigger>

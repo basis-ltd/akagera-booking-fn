@@ -421,7 +421,7 @@ export const apiSlice = createApi({
           return {
             url,
           };
-        }
+        },
       }),
 
       // FETCH POPULAR BOOKING PEOPLE
@@ -622,7 +622,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: {
               otp,
-              email
+              email,
             },
           };
         },
@@ -635,7 +635,42 @@ export const apiSlice = createApi({
             url: `auth/request-otp`,
             method: 'POST',
             body: {
-              email
+              email,
+            },
+          };
+        },
+      }),
+
+      // GET USER PROFILE
+      getUserById: builder.query({
+        query: ({ id }) => `users/${id}`,
+      }),
+
+      // UPDATE USER
+      updateUser: builder.mutation({
+        query: ({
+          id,
+          name,
+          email,
+          role,
+          gender,
+          dateOfBirth,
+          phone,
+          nationality,
+          residence,
+        }) => {
+          return {
+            url: `users/${id}`,
+            method: 'PATCH',
+            body: {
+              name,
+              role,
+              email,
+              phone,
+              gender,
+              dateOfBirth,
+              nationality,
+              residence,
             },
           };
         },
@@ -683,6 +718,8 @@ export const {
   useUpdateActivityRateMutation,
   useVerifyAuthenticationMutation,
   useRequestOtpMutation,
+  useLazyGetUserByIdQuery,
+  useUpdateUserMutation,
 } = apiSlice;
 
 export default apiSlice;

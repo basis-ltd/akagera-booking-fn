@@ -18,7 +18,7 @@ type NavbarProps = {
 const navbarNav = [
   {
     label: 'Account',
-    path: '/auth/login',
+    path: '/user/profile',
   },
   {
     label: 'Log out',
@@ -34,9 +34,6 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
   const { user } = useSelector((state: RootState) => state.user);
   const [isOpen, setIsOpen] = useState(false);
 
-  // NAVIGATION
-  const navigate = useNavigate();
-
   return (
     <header
       className={`${
@@ -45,10 +42,7 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
         showLogo && '!w-[100vw] !left-0'
       } bg-white flex items-center gap-3 justify-between h-[10vh] mx-auto px-[7.5%] bg-transparent fixed py-6 z-[1000] ${className}`}
     >
-      <Link
-        to={'/'}
-        className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}
-      >
+      <Link to={'/'} className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}>
         <img className="text-white h-full w-auto" src={akageraLogo} />
       </Link>
       <menu
@@ -82,7 +76,6 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
 };
 
 const NavbarDropdown = ({ isOpen, user }: { isOpen: boolean; user?: User }) => {
-
   const navigate = useNavigate();
 
   return (

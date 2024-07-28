@@ -29,6 +29,7 @@ import CreateActivityRate from '@/pages/activityRates/CreateActivityRate.tsx';
 import DeleteActivityRate from '@/pages/activityRates/DeleteActivityRate.tsx';
 import UpdateActivityRate from '@/pages/activityRates/UpdateActivityRate.tsx';
 import VerifyAuthentication from '@/pages/auth/VerifyAuthentication.tsx';
+import UserProfile from '@/pages/users/UserProfile.tsx';
 
 const Router = () => {
   return (
@@ -57,6 +58,7 @@ const Router = () => {
         <Route path="/dashboard/users" element={<ListUsers />} />
         <Route path="/dashboard/activities" element={<ListActivities />} />
         <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
+        <Route path="/user/profile" element={<UserProfile />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
