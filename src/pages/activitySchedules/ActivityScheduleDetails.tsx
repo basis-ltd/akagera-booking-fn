@@ -55,6 +55,8 @@ const ActivityScheduleDetails = () => {
       description: data?.description,
       disclaimer: data?.disclaimer,
       numberOfSeats: data?.numberOfSeats,
+      minNumberOfSeats: data?.minNumberOfSeats || undefined,
+      maxNumberOfSeats: data?.maxNumberOfSeats || undefined,
       activityId: selectedActivity?.id,
     });
   };
@@ -84,6 +86,8 @@ const ActivityScheduleDetails = () => {
     setValue('endTime', selectedActivitySchedule?.endTime);
     setValue('description', selectedActivitySchedule?.description);
     setValue('disclaimer', selectedActivitySchedule?.disclaimer);
+    setValue('minNumberOfSeats', selectedActivitySchedule?.minNumberOfSeats);
+    setValue('maxNumberOfSeats', selectedActivitySchedule?.maxNumberOfSeats);
     setValue('numberOfSeats', selectedActivitySchedule?.numberOfSeats);
   }, [selectedActivitySchedule, setValue]);
 
@@ -219,6 +223,39 @@ const ActivityScheduleDetails = () => {
                     {...field}
                     label="Disclaimer (optional)"
                     placeholder="Enter disclaimer"
+                  />
+                </label>
+              );
+            }}
+          />
+          <Controller
+            name="minNumberOfSeats"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label={`Minimum number of ${transportationsLabel} (optional)`}
+                    placeholder={`Enter minimum number of ${transportationsLabel}`}
+                  />
+                </label>
+              );
+            }}
+          />
+          
+          <Controller
+            name="maxNumberOfSeats"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label={`Maximum number of ${transportationsLabel} (optional)`}
+                    placeholder={`Enter maximum number of ${transportationsLabel}`}
                   />
                 </label>
               );

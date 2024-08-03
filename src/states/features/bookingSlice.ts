@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Booking } from '../../types/models/booking.types';
+import { Payment } from '@/types/models/payment.types';
 
 const initialState: {
   bookingsList: Booking[];
@@ -17,6 +18,7 @@ const initialState: {
   size: number;
   totalCount: number;
   totalPages: number;
+  bookingPaymentsList: Payment[];
 } = {
   bookingsList: [],
   selectedBooking: {} as Booking,
@@ -29,6 +31,7 @@ const initialState: {
   size: 10,
   totalCount: 0,
   totalPages: 1,
+  bookingPaymentsList: [],
 };
 
 export const bookingSlice = createSlice({
@@ -74,6 +77,17 @@ export const bookingSlice = createSlice({
     setTotalPages: (state, action) => {
       state.totalPages = action.payload;
     },
+    setBookingPaymentsList: (state, action) => {
+      state.bookingPaymentsList = action.payload;
+    },
+    updateBookingPayment: (state, action) => {
+      const bookingPayment = state.bookingPaymentsList.find(
+        (payment) => payment.id === action.payload.id
+      );
+      if (bookingPayment) {
+        Object.assign(bookingPayment, action.payload);
+      }
+    }
   },
 });
 
@@ -91,6 +105,8 @@ export const {
   setSize,
   setTotalCount,
   setTotalPages,
+  setBookingPaymentsList,
+  updateBookingPayment,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

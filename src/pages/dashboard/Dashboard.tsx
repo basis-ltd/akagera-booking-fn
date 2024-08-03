@@ -286,7 +286,7 @@ const Dashboard = () => {
           )}
         </section>
         <section className="grid grid-cols-2 w-full gap-[5%]">
-          <PopularActivites startDate={startDate} endDate={endDate} />
+         {type !== 'registration' && <PopularActivites startDate={startDate} endDate={endDate} />}
           <PopularBookingPeople startDate={startDate} endDate={endDate} />
         </section>
       </main>

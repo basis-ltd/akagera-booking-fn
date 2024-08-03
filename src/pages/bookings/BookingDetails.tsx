@@ -1,4 +1,5 @@
 import Button from '@/components/inputs/Button';
+import CustomTooltip from '@/components/inputs/CustomTooltip';
 import Loader from '@/components/inputs/Loader';
 import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
@@ -7,6 +8,7 @@ import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
 import { bookingVehicleColumns } from '@/constants/bookingVehicle.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
+import { paymentColumns } from '@/constants/payment.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import {
@@ -21,9 +23,11 @@ import {
   capitalizeString,
 } from '@/helpers/strings.helper';
 import {
+  useConfirmPaymentMutation,
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
   useLazyFetchBookingVehiclesQuery,
+  useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
   useUpdateBookingMutation,
 } from '@/states/apiSlice';
@@ -40,6 +44,8 @@ import {
 import {
   addBookingTotalAmountUsd,
   setBooking,
+  setBookingPaymentsList,
+  updateBookingPayment,
 } from '@/states/features/bookingSlice';
 import {
   setBookingVehiclesList,
@@ -50,7 +56,8 @@ import { AppDispatch, RootState } from '@/states/store';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Payment } from '@/types/models/payment.types';
+import { faCircleCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -62,7 +69,9 @@ import { toast } from 'react-toastify';
 const BookingDetails = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { booking } = useSelector((state: RootState) => state.booking);
+  const { booking, bookingPaymentsList } = useSelector(
+    (state: RootState) => state.booking
+  );
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
   );
@@ -291,6 +300,80 @@ const BookingDetails = () => {
     booking,
   ]);
 
+  // INITIALIZE FETCH PAYMENTS QUERY
+  const [
+    fetchPayments,
+    {
+      data: paymentsData,
+      error: paymentsError,
+      isSuccess: paymentsIsSuccess,
+      isError: paymentsIsError,
+      isFetching: paymentsIsFetching,
+    },
+  ] = useLazyFetchPaymentsQuery();
+
+  // FETCH BOOKING PAYMENTS
+  useEffect(() => {
+    if (booking?.id) {
+      fetchPayments({ bookingId: booking?.id, size: 100 });
+    }
+  }, [fetchPayments, booking]);
+
+  // HANDLE FETCH PAYMENTS RESPONSE
+  useEffect(() => {
+    if (paymentsIsError) {
+      if ((paymentsError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while fetching booking payments. Please try again later.'
+        );
+      } else {
+        toast.error((paymentsError as ErrorResponse).data.message);
+      }
+    } else if (paymentsIsSuccess) {
+      dispatch(setBookingPaymentsList(paymentsData?.data?.rows));
+    }
+  }, [
+    paymentsIsSuccess,
+    paymentsIsError,
+    paymentsData,
+    paymentsError,
+    dispatch,
+  ]);
+
+  // INITIALIZE CONFIRM PAYMENT MUTATION
+  const [
+    confirmPayment,
+    {
+      isLoading: confirmPaymentIsLoading,
+      error: confirmPaymentError,
+      isSuccess: confirmPaymentIsSuccess,
+      isError: confirmPaymentIsError,
+      data: confirmPaymentData,
+    },
+  ] = useConfirmPaymentMutation();
+
+  // HANDLE CONFIRM PAYMENT RESPONSE
+  useEffect(() => {
+    if (confirmPaymentIsError) {
+      if ((confirmPaymentError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while confirming payment. Please try again later.'
+        );
+      } else {
+        toast.error((confirmPaymentError as ErrorResponse).data.message);
+      }
+    } else if (confirmPaymentIsSuccess) {
+      toast.success('Payment confirmed successfully');
+      dispatch(updateBookingPayment(confirmPaymentData?.data));
+    }
+  }, [
+    confirmPaymentIsError,
+    confirmPaymentIsSuccess,
+    confirmPaymentError,
+    dispatch,
+    confirmPaymentData?.data,
+  ]);
+
   // BOOKING ACTIVITIES COLUMNS
   const bookingActivitiesExtendedColumns = [
     ...bookingActivitiesColumns,
@@ -357,6 +440,37 @@ const BookingDetails = () => {
               className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
               icon={faTrash}
             />
+          </menu>
+        );
+      },
+    },
+  ];
+
+  // BOOKING PAYMENTS COLUMNS
+  const paymentExtendedColumns = [
+    ...paymentColumns,
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<Payment> }) => {
+        return (
+          <menu className="flex items-center gap-3">
+            {row?.original?.status === 'PAID' && (
+              <CustomTooltip label="Click to confirm payment">
+                {confirmPaymentIsLoading ? (
+                  '...'
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faCircleCheck}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      confirmPayment({ id: row?.original?.id });
+                    }}
+                    className="bg-green-700 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
+                  />
+                )}
+              </CustomTooltip>
+            )}
           </menu>
         );
       },
@@ -435,7 +549,7 @@ const BookingDetails = () => {
           </figure>
         )}
         <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
-        <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
+          <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
           <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>
           </ul>
@@ -455,7 +569,9 @@ const BookingDetails = () => {
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Accomodation:</p>
-            <p className="font-bold">{capitalizeString(booking?.accomodation) || 'N/A'}</p>
+            <p className="font-bold">
+              {capitalizeString(booking?.accomodation) || 'N/A'}
+            </p>
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Status:</p>
@@ -605,6 +721,34 @@ const BookingDetails = () => {
                     vehiclePrice: `USD ${calculateVehiclePrice(
                       bookingVehicle
                     )}`,
+                  };
+                })}
+              />
+            </menu>
+          )
+        )}
+        {paymentsIsFetching ? (
+          <figure className="w-full flex items-center justify-center min-h-[10vh]">
+            <Loader className="text-primary" />
+          </figure>
+        ) : (
+          paymentsIsSuccess && (
+            <menu className="flex flex-col gap-2 w-full">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
+                <h1 className="font-bold text-xl uppercase">Payments</h1>
+              </ul>
+              <Table
+                showFilter={false}
+                showPagination={false}
+                columns={paymentExtendedColumns as ColumnDef<Payment>[]}
+                data={bookingPaymentsList?.map((payment, index) => {
+                  return {
+                    ...payment,
+                    no: index + 1,
+                    amount: formatCurrency(payment?.amount),
+                    currency: payment?.currency,
+                    status: payment?.status,
+                    createdAt: formatDate(payment?.createdAt),
                   };
                 })}
               />

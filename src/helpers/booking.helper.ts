@@ -204,9 +204,9 @@ export function calculateNights(startDate: Date, endDate: Date) {
 }
 
 export const getBookingStatusColor = (status: string) => {
-  return ['pending', 'pending_contact'].includes(status)
+  return ['pending', 'pending_contact', 'in_progress'].includes(status)
     ? 'bg-yellow-600 text-white'
     : status === 'confirmed'
     ? 'bg-green-600 text-white'
-    : 'bg-red-400 text-white';
+    : 'bg-red-700 text-white';
 };

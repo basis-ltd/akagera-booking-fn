@@ -28,6 +28,7 @@ const DeleteActivity = () => {
       isError: deleteActivityIsError,
       isLoading: deleteActivityIsLoading,
       isSuccess: deleteActivityIsSuccess,
+      reset: deleteActivityReset,
     },
   ] = useDeleteActivityMutation();
 
@@ -45,6 +46,7 @@ const DeleteActivity = () => {
       dispatch(removeActivityFromList(selectedActivity?.id));
       dispatch(setSelectedActivity(undefined));
       dispatch(setDeleteActivityModal(false));
+      deleteActivityReset();
       navigate('/dashboard/activities');
     }
   }, [
@@ -54,6 +56,7 @@ const DeleteActivity = () => {
     dispatch,
     navigate,
     selectedActivity?.id,
+    deleteActivityReset,
   ]);
 
   return (

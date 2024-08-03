@@ -30,6 +30,10 @@ import DeleteActivityRate from '@/pages/activityRates/DeleteActivityRate.tsx';
 import UpdateActivityRate from '@/pages/activityRates/UpdateActivityRate.tsx';
 import VerifyAuthentication from '@/pages/auth/VerifyAuthentication.tsx';
 import UserProfile from '@/pages/users/UserProfile.tsx';
+import PaymentModal from '@/containers/PaymentModal.tsx';
+import PaymentSuccess from '@/pages/payments/PaymentSuccess.tsx';
+import CreateActivity from '@/pages/activities/CreateActivity.tsx';
+import BookingConsent from '@/pages/bookings/BookingConsent.tsx';
 
 const Router = () => {
   return (
@@ -46,6 +50,7 @@ const Router = () => {
           element={<ViewBookingActivites />}
         />
         <Route path="/bookings/:id/preview" element={<BookingPreview />} />
+        <Route path="/bookings/:id/consent" element={<BookingConsent />} />
         <Route path="/bookings/:id/details" element={<BookingDetails />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/auth/login" element={<Login />} />
@@ -59,6 +64,7 @@ const Router = () => {
         <Route path="/dashboard/activities" element={<ListActivities />} />
         <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
         <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/payments/:id/success" element={<PaymentSuccess />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
@@ -76,6 +82,8 @@ const Router = () => {
       <CreateActivityRate />
       <DeleteActivityRate />
       <UpdateActivityRate />
+      <PaymentModal />
+      <CreateActivity />
     </section>
   );
 };

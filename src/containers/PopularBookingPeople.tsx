@@ -96,7 +96,7 @@ const PopularBookingPeople = ({
               className="cursor-pointer text-primary hover:text-primary-dark transition-all duration-200 ease-in-out hover:translate-x-1 transform"
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`/dashboard/registrations`);
+                navigate(`/dashboard/bookings`);
               }}
             />
           </menu>

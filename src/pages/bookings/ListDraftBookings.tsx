@@ -61,7 +61,6 @@ const ListDraftBookings = () => {
       referenceId: data?.referenceId,
       email: data?.email,
       phone: data?.phone,
-      type: data?.type,
     });
   };
 
@@ -159,7 +158,7 @@ const ListDraftBookings = () => {
                 to={'#'}
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate(`/bookings/${row.original.id}/create`);
+                  navigate(`/bookings/${row.original.id}/preview`);
                   dispatch(setDraftBookingsModal(false));
                 }}
                 className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
@@ -204,42 +203,6 @@ const ListDraftBookings = () => {
             draftBookingsList?.length > 0 && bookingsIsSuccess && 'hidden'
           } w-full flex flex-col gap-4`}
         >
-          <Controller
-            name="type"
-            rules={{
-              required: 'Choose the type of booking to find',
-            }}
-            control={control}
-            render={({ field }) => {
-              return (
-                <label className="flex flex-col gap-1">
-                  <Select
-                    placeholder="Select type"
-                    label="Select type"
-                    options={[
-                      {
-                        label: 'Booking',
-                        value: 'booking',
-                      },
-                      {
-                        label: 'Registration',
-                        value: 'registration',
-                      },
-                    ]}
-                    required
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                  />
-                  {errors?.type && (
-                    <InputErrorMessage message={errors.type.message} />
-                  )}
-                </label>
-              );
-            }}
-          />
-          {watch('type') && (
             <Controller
               name="selectOption"
               rules={{
@@ -268,7 +231,6 @@ const ListDraftBookings = () => {
                 );
               }}
             />
-          )}
           <menu className="flex flex-col gap-2 w-full">
             {watch('selectOption') === 'referenceId' && (
               <Controller

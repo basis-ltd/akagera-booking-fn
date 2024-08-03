@@ -9,8 +9,6 @@ import AdminLayout from '@/containers/AdminLayout';
 import { useLazyGetUserByIdQuery, useUpdateUserMutation } from '@/states/apiSlice';
 import { setUser } from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -118,7 +116,7 @@ const UserProfile = () => {
           </figure>
         ) : (
           <article className="w-full flex flex-col gap-5">
-            <section className="w-full flex flex-col items-start gap-3 justify-between">
+            {/* <section className="w-full flex flex-col items-start gap-3 justify-between">
               <figure className="w-[100px] h-[100px] flex items-center justify-center gap-1 rounded-full">
                 {user?.photo ? (
                   <img
@@ -136,8 +134,8 @@ const UserProfile = () => {
                   <FontAwesomeIcon icon={faFileUpload} />
                 </menu>
               </Button>
-            </section>
-            <hr className="h-[.5px] border border-primary" />
+            </section> 
+            <hr className="h-[.5px] border border-primary" /> */}
             <section className="w-full flex flex-col gap-4">
               <h1 className="uppercase text-primary font-semibold text-lg">
                 {user?.name}'s Profile

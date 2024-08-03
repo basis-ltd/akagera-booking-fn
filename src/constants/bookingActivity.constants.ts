@@ -34,7 +34,7 @@ export const bookingActivitiesColumns = [
     accessorKey: 'numberOfChildren',
   },
   {
-    header: 'Number of transportations',
+    header: 'Number of cars/boats/tents',
     accessorKey: 'numberOfSeats',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
       Number(row?.original?.numberOfSeats) > 1

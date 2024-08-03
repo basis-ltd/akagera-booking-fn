@@ -53,7 +53,7 @@ const Select: FC<SelectProps> = ({
         name={name}
       >
         <SelectTrigger
-          className={`w-full focus:ring-transparent ring-0 h-[40px] ${className}`}
+          className={`w-full focus:ring-transparent ring-0 h-[35px] ${className}`}
         >
           <SelectValue
             className="!text-[10px]"

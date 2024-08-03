@@ -1,6 +1,5 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { backgrounds } from 'polished';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 interface BookingActivity {
   startTime: string;
@@ -36,9 +35,9 @@ interface Visitor {
 const activityMap: { [key: string]: { index: number; name: string } } = {
   'entry-fee-pad': { index: 7, name: 'Entry fee (PAD)' },
   'entry-fee-peb': { index: 8, name: 'Entry fee (PEB)' },
-  'gorilla': { index: 9, name: 'Gorilla' },
-  'camping': { index: 10, name: 'Camping' },
-  'fishing': { index: 11, name: 'Fishing' },
+  gorilla: { index: 9, name: 'Gorilla' },
+  camping: { index: 10, name: 'Camping' },
+  fishing: { index: 11, name: 'Fishing' },
   'boat-ride': { index: 12, name: 'Boat Ride' },
   'night-safari': { index: 13, name: 'Night safari' },
   'vehicle-fee': { index: 14, name: 'Vehicle fee' },
@@ -46,38 +45,45 @@ const activityMap: { [key: string]: { index: number; name: string } } = {
   'animal-park-pad': { index: 16, name: 'Animal park (PAD)' },
   'animal-park-usd': { index: 17, name: 'Animal Park (USD)' },
   'twin-lake': { index: 19, name: 'Twin lake' },
-  'other': { index: 20, name: 'Other' }
+  other: { index: 20, name: 'Other' },
 };
 
 export const generateMonthlyReport = (visitors: Visitor[]) => {
-  const pdf = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a2'
-  });
-  pdf.setFontSize(18);
-  pdf.text('Akagera National Park', 105, 15, { align: 'center' });
-  pdf.setFontSize(14);
-  pdf.text('Visitor Report', 105, 25, { align: 'center' });
-  pdf.setFontSize(10);
+  const workbook = XLSX.utils.book_new();
+  const worksheetName = 'Akagera National Park Visitors';
 
   const headers = [
-    'Group Nr', 'Date', 'Type of visitor', 'Nationality', 'Country (born)', 'Country (live)',
-    'Group size', ...Object.values(activityMap).sort((a, b) => a.index - b.index).map(a => a.name),
-    'Days', 'No. of Vehicles', 'Vehicle Type', 'No. of pax', 'Month'
+    'Group Nr',
+    'Date',
+    'Type of visitor',
+    'Nationality',
+    'Country (born)',
+    'Country (live)',
+    'Group size',
+    ...Object.values(activityMap)
+      .sort((a, b) => a.index - b.index)
+      .map((a) => a.name),
+    'Days',
+    'No. of Vehicles',
+    'Vehicle Type',
+    'No. of pax',
+    'Month',
   ];
 
   const data = visitors.map((visitor, index) => {
     const booking = visitor.booking;
     const startDate = new Date(booking.startDate);
     const endDate = new Date(booking.endDate);
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
+    const days = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)
+    );
 
     const activities = Object.keys(activityMap).map(() => '');
-    booking.bookingActivities.forEach(activity => {
+    booking.bookingActivities.forEach((activity) => {
       const activityInfo = getActivityInfo(activity.activityId);
       if (activityInfo) {
-        activities[activityInfo.index - 7] = (activity.numberOfAdults + activity.numberOfChildren).toString();
+        activities[activityInfo.index - 7] =
+          activity.numberOfAdults + activity.numberOfChildren;
       }
     });
 
@@ -88,32 +94,46 @@ export const generateMonthlyReport = (visitors: Visitor[]) => {
       visitor.nationality,
       visitor.nationality,
       visitor.residence,
-      booking.bookingActivities.reduce((sum, activity) => sum + activity.numberOfAdults + activity.numberOfChildren, 0),
+      booking.bookingActivities.reduce(
+        (sum, activity) =>
+          sum + activity.numberOfAdults + activity.numberOfChildren,
+        0
+      ),
       ...activities,
       days,
       booking.bookingVehicles[0]?.vehiclesCount || 0,
       booking.bookingVehicles[0]?.vehicleType.split('/')[1] || '',
-      booking.bookingActivities.reduce((sum, activity) => sum + activity.numberOfAdults + activity.numberOfChildren, 0),
-      startDate.toLocaleString('default', { month: 'long' })
+      booking.bookingActivities.reduce(
+        (sum, activity) =>
+          sum + activity.numberOfAdults + activity.numberOfChildren,
+        0
+      ),
+      startDate.toLocaleString('default', { month: 'long' }),
     ];
   });
 
-  pdf.autoTable({
-    head: [headers],
-    body: data,
-    startY: 35,
-    styles: { fontSize: 8, backgrounds: backgrounds() },
-    columnStyles: { 0: { cellWidth: 10 } },
-    didDrawPage: (data) => {
-      pdf.setFontSize(8);
-      pdf.text(`Page ${data.pageNumber} of ${pdf.internal.getNumberOfPages()}`, pdf.internal.pageSize.width - 20, pdf.internal.pageSize.height - 10);
-    }
+  const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+
+  // Adjust column widths
+  const columnWidths = headers.map((header) => ({
+    wch: Math.max(header.length, 10),
+  }));
+  worksheet['!cols'] = columnWidths;
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
+
+  // Generate Excel file
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const dataBlob = new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
 
-  pdf.save('akagera_national_park_visitors.pdf');
+  saveAs(dataBlob, 'akagera_national_park_visitors.xlsx');
 };
 
-const getActivityInfo = (activityId: string): { index: number; name: string } | undefined => {
+const getActivityInfo = (
+  activityId: string
+): { index: number; name: string } | undefined => {
   const activityIdToType: { [key: string]: string } = {
     'c37883c4-bdcd-44f1-940a-39b8c3b0e13c': 'entry-fee-pad',
     '6a2ff6d4-73cc-433e-8564-4f0eeea32969': 'entry-fee-peb',
@@ -127,7 +147,7 @@ const getActivityInfo = (activityId: string): { index: number; name: string } | 
     'j7890123-ef01-2345-6789-abcdef012345': 'animal-park-pad',
     'k8901234-f012-3456-789a-bcdef0123456': 'animal-park-usd',
     'l9012345-0123-4567-89ab-cdef01234567': 'twin-lake',
-    'm0123456-1234-5678-9abc-def012345678': 'other'
+    'm0123456-1234-5678-9abc-def012345678': 'other',
   };
 
   const activityType = activityIdToType[activityId];

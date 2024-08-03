@@ -4,7 +4,7 @@ import Table from '@/components/table/Table';
 import { activitiesColumns } from '@/constants/activity.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { useLazyFetchActivitiesQuery } from '@/states/apiSlice';
-import { setActivitiesList } from '@/states/features/activitySlice';
+import { setActivitiesList, setCreateActivityModal } from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { Activity } from '@/types/models/activity.types';
 import { faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -105,7 +105,10 @@ const ListActivities = () => {
           <h1 className="text-primary font-semibold text-lg uppercase">
             Activities
           </h1>
-          <Button primary>
+          <Button primary onClick={(e) => {
+            e.preventDefault();
+            dispatch(setCreateActivityModal(true));
+          }}>
             <menu className="flex items-center gap-2">
               <FontAwesomeIcon className="text-[13px]" icon={faPlus} />
               <p className="text-[13px]">Add Activity</p>
@@ -119,6 +122,7 @@ const ListActivities = () => {
         ) : (
           <section className="w-full flex flex-col gap-6">
             <Table
+            size={100}
               showFilter={false}
               data={activitiesList?.map((activity: Activity, index: number) => {
                 return {

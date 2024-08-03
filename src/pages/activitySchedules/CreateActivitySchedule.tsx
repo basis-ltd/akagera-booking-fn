@@ -6,7 +6,6 @@ import Select from '@/components/inputs/Select';
 import TextArea from '@/components/inputs/TextArea';
 import Modal from '@/components/modals/Modal';
 import { dayHoursArray } from '@/helpers/activity.helper';
-import { formatTime } from '@/helpers/strings.helper';
 import { useCreateActivityScheduleMutation } from '@/states/apiSlice';
 import { setSelectedActivity } from '@/states/features/activitySlice';
 import { addToActivityScheduleList, setCreateActivityScheduleModal } from '@/states/features/activityScheduleSlice';
@@ -30,7 +29,7 @@ const CreateActivitySchedule = () => {
     useState<string>('transportations');
 
   // REACT HOOK FORM
-  const { control, handleSubmit, formState, trigger, watch } = useForm();
+  const { control, handleSubmit, formState, trigger } = useForm();
 
   // INITIALIZE CRESTE ACTIVITY SCHEDULE MUTATION
   const [
@@ -52,6 +51,8 @@ const CreateActivitySchedule = () => {
       description: data?.description,
       disclaimer: data?.disclaimer,
       numberOfSeats: data?.numberOfSeats,
+      minNumberOfSeats: data?.minNumberOfSeats || undefined,
+      maxNumberOfSeats: data?.maxNumberOfSeats || undefined,
       activityId: selectedActivity?.id,
     });
   };
@@ -85,15 +86,21 @@ const CreateActivitySchedule = () => {
         setTransportationsLabel('participants');
         break;
       case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
+      case 'BOAT TRIP – SCHEDULED SUNSET TRIP':
         setTransportationsLabel('guides');
         break;
+      case 'GAME DRIVE DAY (AMC OPERATED)':
+        setTransportationsLabel('cars');
+        break;
       case 'BOAT TRIP – SCHEDULED MORNING/DAY':
-      case 'BOAT TRIP – SCHEDULED SUNSET':
-        setTransportationsLabel('boats');
+        setTransportationsLabel('seats');
         break;
       default:
-        setTransportationsLabel('transportations');
+        setTransportationsLabel('seats');
         break;
+    }
+    if (selectedActivity?.name?.toUpperCase()?.includes('CAMPING')) {
+      setTransportationsLabel('tents');
     }
   }, [selectedActivity?.name]);
 
@@ -115,10 +122,6 @@ const CreateActivitySchedule = () => {
             control={control}
             rules={{
               required: 'Select start time for this schedule',
-              validate: (value) => {
-                if (value && formatTime(value) >= formatTime(watch('endTime')))
-                  return 'Start Time must be less than End Time';
-              },
             }}
             render={({ field }) => {
               return (
@@ -148,13 +151,6 @@ const CreateActivitySchedule = () => {
             control={control}
             rules={{
               required: 'Select end time for this schedule',
-              validate: (value) => {
-                if (
-                  value &&
-                  formatTime(value) <= formatTime(watch('startTime'))
-                )
-                  return 'End Time must be greater than Start Time';
-              },
             }}
             render={({ field }) => {
               return (
@@ -210,6 +206,39 @@ const CreateActivitySchedule = () => {
             }}
           />
           <Controller
+            name="minNumberOfSeats"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label={`Minimum number of ${transportationsLabel} (optional)`}
+                    placeholder={`Enter minimum number of ${transportationsLabel}`}
+                  />
+                </label>
+              );
+            }}
+          />
+          
+          <Controller
+            name="maxNumberOfSeats"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label={`Maximum number of ${transportationsLabel} (optional)`}
+                    placeholder={`Enter maximum number of ${transportationsLabel}`}
+                  />
+                </label>
+              );
+            }}
+          />
+                    <Controller
             name="numberOfSeats"
             control={control}
             rules={{

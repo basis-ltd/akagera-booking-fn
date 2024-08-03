@@ -7,6 +7,8 @@ export type ActivitySchedule = {
   activity?: Activity;
   description?: string;
   disclaimer?: string;
+  minNumberOfSeats?: number;
+  maxNumberOfSeats?: number;
   startTime: Date;
   endTime?: Date;
   createdAt: Date;

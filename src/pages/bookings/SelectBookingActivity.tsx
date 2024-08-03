@@ -34,6 +34,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ActivityRate } from '@/types/models/activityRate.types';
+import { calculateBehindTheScenesPrice } from '@/helpers/bookingActivity.helper';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -60,7 +61,7 @@ const SelectBookingActivity = () => {
     ActivitySchedule | undefined
   >(undefined);
   const [transportationsLabel, setTransportationsLabel] =
-    useState<string>('transportations');
+    useState<string>('seats');
 
   // REACT HOOK FORM
   const {
@@ -69,6 +70,8 @@ const SelectBookingActivity = () => {
     handleSubmit,
     trigger,
     watch,
+    setError,
+    clearErrors,
     setValue,
     formState: { errors },
   } = useForm();
@@ -176,13 +179,27 @@ const SelectBookingActivity = () => {
       bookingId: booking?.id,
       activityId: selectedActivity?.id,
       startTime: bookingActivity?.startTime || booking?.startDate,
-      endTime: bookingActivity?.endTime || booking?.endDate,
+      endTime: data?.numberOfNights
+        ? moment(bookingActivity?.startTime).add(
+            Number(data?.numberOfNights),
+            'days'
+          )
+        : bookingActivity?.endTime || booking?.endDate,
       numberOfAdults: data?.numberOfAdults ? Number(data?.numberOfAdults) : 0,
       numberOfChildren: data?.numberOfChildren
         ? Number(data?.numberOfChildren)
         : 0,
       numberOfSeats: data?.numberOfSeats && Number(data?.numberOfSeats),
-      defaultRate: data?.defaultRate ? Number(data?.defaultRate) : null,
+      defaultRate: selectedActivity?.name
+        ?.toUpperCase()
+        ?.includes('BEHIND THE SCENES TOUR')
+        ? calculateBehindTheScenesPrice(
+            Number(data?.numberOfAdults) || 0,
+            Number(data?.numberOfChildren) || 0
+          )
+        : data?.defaultRate
+        ? Number(data?.defaultRate)
+        : null,
     });
   };
 
@@ -238,14 +255,55 @@ const SelectBookingActivity = () => {
       case 'BOAT TRIP – SCHEDULED SUNSET TRIP':
         setTransportationsLabel('guides');
         break;
+      case 'GAME DRIVE DAY (AMC OPERATED)':
+        setTransportationsLabel('cars');
+        break;
       case 'BOAT TRIP – SCHEDULED MORNING/DAY':
         setTransportationsLabel('seats');
         break;
       default:
-        setTransportationsLabel('transportations');
+        setTransportationsLabel('seats');
         break;
     }
+    if (selectedActivity?.name?.toUpperCase()?.includes('CAMPING')) {
+      setTransportationsLabel('tents');
+    }
   }, [selectedActivity?.name, selectedActivitySchedule]);
+
+  // VALIDATE NUMBER OF PARTICIPANTS AGAINST MIN AND MAX
+  useEffect(() => {
+    clearErrors('numberOfParticipants');
+    if (selectedActivitySchedule?.minNumberOfSeats) {
+      if (
+        Number(watch('numberOfParticipants')) <
+        selectedActivitySchedule?.minNumberOfSeats
+      ) {
+        setError('numberOfParticipants', {
+          type: 'manual',
+          message: `Number of participants must be greater than or equal to ${selectedActivitySchedule?.minNumberOfSeats}`,
+        });
+      }
+      if (
+        Number(watch('numberOfAdults') || 0) +
+          Number(watch('numberOfChildren') || 0) <
+        selectedActivitySchedule?.minNumberOfSeats
+      ) {
+        setError('numberOfParticipants', {
+          type: 'manual',
+          message: `Number of participants must be greater than or equal to ${selectedActivitySchedule?.minNumberOfSeats}`,
+        });
+      }
+    }
+  }, [
+    selectedActivitySchedule,
+    setValue,
+    watch,
+    watch('numberOfChildren'),
+    watch('numberOfAdults'),
+    watch('numberOfParticipants'),
+    setError,
+    clearErrors,
+  ]);
 
   return (
     <Modal
@@ -296,6 +354,51 @@ const SelectBookingActivity = () => {
                 );
               }}
             />
+            {selectedActivity?.name?.toUpperCase()?.includes('CAMPING') && (
+              <Controller
+                name="numberOfNights"
+                control={control}
+                rules={{
+                  required: 'Enter number of nights',
+                  validate: (value) => {
+                    return (
+                      Number(value) <=
+                        moment(booking?.endDate).diff(
+                          booking?.startDate,
+                          'days'
+                        ) || 'Number of nights cannot exceed booking nights'
+                    );
+                  },
+                }}
+                defaultValue={moment(booking?.endDate).diff(
+                  booking?.startDate,
+                  'days'
+                )}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full flex flex-col gap-1">
+                      <Input
+                        fromDate={booking?.startDate}
+                        toDate={booking?.endDate}
+                        label="Number of nights"
+                        required
+                        {...field}
+                        defaultValue={booking?.endDate}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger('numberOfNights');
+                        }}
+                      />
+                      {errors?.numberOfNights && (
+                        <InputErrorMessage
+                          message={errors?.numberOfNights?.message}
+                        />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            )}
             {selectedActivity?.activitySchedules &&
               selectedActivity?.activitySchedules?.length > 0 && (
                 <Controller
@@ -341,7 +444,7 @@ const SelectBookingActivity = () => {
                               )}`;
                               return {
                                 label: activitySchedule?.description
-                                  ? `${activitySchedule?.description} (${label})`
+                                  ? `${''} ${label}`
                                   : label,
                                 value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
                               };
@@ -448,14 +551,6 @@ const SelectBookingActivity = () => {
                   rules={{
                     required:
                       'Enter the number of participants for this boat trip',
-                    validate: (value) => {
-                      if (Number(value) < 1) {
-                        return 'Number of participants must be greater than 0';
-                      }
-                      if (Number(value) > 29) {
-                        return 'Number of participants cannot exceed 29 for one booking. Please create another booking for the remaining participants.';
-                      }
-                    },
                   }}
                   render={({ field }) => {
                     return (
@@ -569,6 +664,25 @@ const SelectBookingActivity = () => {
                   Price: ${watch('defaultRate')} USD
                 </p>
               )}
+            {selectedActivity?.name
+              ?.toUpperCase()
+              ?.includes('BEHIND THE SCENES TOUR') && (
+              <p className="text-slate-900 text-[15px]">
+                Price: $
+                {calculateBehindTheScenesPrice(
+                  Number(watch('numberOfAdults')) || 0,
+                  Number(watch('numberOfChildren')) || 0
+                )}{' '}
+                USD
+              </p>
+            )}
+            {errors?.numberOfParticipants && (
+              <>
+                <InputErrorMessage
+                  message={errors?.numberOfParticipants?.message}
+                />
+              </>
+            )}
           </menu>
 
           <menu className="flex items-center gap-3 justify-between mt-3">
@@ -583,7 +697,12 @@ const SelectBookingActivity = () => {
             >
               Cancel
             </Button>
-            <Button className="btn btn-primary" submit primary>
+            <Button
+              disabled={Object.keys(errors)?.length > 0}
+              className="btn btn-primary"
+              submit
+              primary
+            >
               {createBookingActivityIsLoading ? <Loader /> : 'Confirm'}
             </Button>
           </menu>

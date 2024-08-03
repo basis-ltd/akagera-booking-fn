@@ -9,6 +9,7 @@ const initialState: {
   activityDetailsModal: boolean;
   updateActivityModal: boolean;
   deleteActivityModal: boolean;
+  createActivityModal: boolean;
 } = {
   activitiesList: [],
   selectedActivity: {} as Activity,
@@ -17,6 +18,7 @@ const initialState: {
   activityDetailsModal: false,
   updateActivityModal: false,
   deleteActivityModal: false,
+  createActivityModal: false,
 };
 
 export const activitySlice = createSlice({
@@ -52,6 +54,9 @@ export const activitySlice = createSlice({
         (activity) => activity.id !== action.payload
       );
     },
+    setCreateActivityModal: (state, action) => {
+      state.createActivityModal = action.payload;
+    }
   },
 });
 
@@ -65,6 +70,7 @@ export const {
   setDeleteActivityModal,
   removeActivityFromList,
   addActivityToList,
+  setCreateActivityModal
 } = activitySlice.actions;
 
 export default activitySlice.reducer;

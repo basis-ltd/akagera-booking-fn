@@ -472,6 +472,8 @@ export const apiSlice = createApi({
           disclaimer,
           numberOfSeats,
           activityId,
+          minNumberOfSeats,
+          maxNumberOfSeats,
         }) => {
           return {
             url: `activity-schedules/${id}`,
@@ -483,6 +485,8 @@ export const apiSlice = createApi({
               disclaimer,
               numberOfSeats,
               activityId,
+              minNumberOfSeats,
+              maxNumberOfSeats,
             },
           };
         },
@@ -497,6 +501,8 @@ export const apiSlice = createApi({
           disclaimer,
           numberOfSeats,
           activityId,
+          minNumberOfSeats,
+          maxNumberOfSeats,
         }) => {
           return {
             url: `activity-schedules`,
@@ -508,6 +514,8 @@ export const apiSlice = createApi({
               disclaimer,
               numberOfSeats,
               activityId,
+              minNumberOfSeats,
+              maxNumberOfSeats,
             },
           };
         },
@@ -675,6 +683,102 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // CREATE PAYMENT
+      createPayment: builder.mutation({
+        query: ({ bookingId, amount, email }) => {
+          return {
+            url: `payments`,
+            method: 'POST',
+            body: {
+              bookingId,
+              amount,
+              email,
+            },
+          };
+        },
+      }),
+
+      // FETCH PAYMENTS
+      fetchPayments: builder.query({
+        query: ({ size = 10, page = 0, bookingId, status, email }) => {
+          let url = `payments?size=${size}&page=${page}`;
+
+          if (bookingId) {
+            url += `&bookingId=${bookingId}`;
+          }
+
+          if (status) {
+            url += `&status=${status}`;
+          }
+
+          if (email) {
+            url += `&email=${email}`;
+          }
+
+          return {
+            url,
+          };
+        },
+      }),
+
+      // UPDATE PAYMENT
+      updatePayment: builder.mutation({
+        query: ({ paymentIntentId, status }) => {
+          return {
+            url: `payments`,
+            method: 'PATCH',
+            body: {
+              status,
+              paymentIntentId,
+            },
+          };
+        },
+      }),
+
+      // CONFIRM PAYMENT
+      confirmPayment: builder.mutation({
+        query: ({ id }) => {
+          return {
+            url: `payments/${id}/confirm`,
+            method: 'PATCH',
+          };
+        },
+      }),
+
+      // CREATE ACTIVITY
+      createActivity: builder.mutation({
+        query: ({ name, description, disclaimer, serviceId }) => {
+          return {
+            url: `activities`,
+            method: 'POST',
+            body: {
+              name,
+              description,
+              disclaimer,
+              serviceId,
+            },
+          };
+        },
+      }),
+
+      // GET TERMS OF SERVICE
+      getTermsOfService: builder.query({
+        query: () => 'terms',
+      }),
+
+      // UPDATE BOOKING CONSENT
+      updateBookingConsent: builder.mutation({
+        query: ({ id, consent }) => {
+          return {
+            url: `bookings/${id}/consent`,
+            method: 'PATCH',
+            body: {
+              consent,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -720,6 +824,13 @@ export const {
   useRequestOtpMutation,
   useLazyGetUserByIdQuery,
   useUpdateUserMutation,
+  useCreatePaymentMutation,
+  useLazyFetchPaymentsQuery,
+  useUpdatePaymentMutation,
+  useConfirmPaymentMutation,
+  useCreateActivityMutation,
+  useLazyGetTermsOfServiceQuery,
+  useUpdateBookingConsentMutation
 } = apiSlice;
 
 export default apiSlice;

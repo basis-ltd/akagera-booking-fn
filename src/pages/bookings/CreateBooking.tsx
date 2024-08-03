@@ -20,6 +20,7 @@ import {
   entryGateOptions,
   exitGateOptions,
 } from '@/constants/bookings.constants';
+import { dayHoursArray } from '@/helpers/activity.helper';
 
 const CreateBooking = () => {
   // STATE VARIABLES
@@ -228,31 +229,64 @@ const CreateBooking = () => {
               }}
             />
             {watch('entryGate') && (
-              <Controller
-                name="startDate"
-                rules={{ required: 'Enter your entrance date' }}
-                control={control}
-                render={({ field }) => {
-                  return (
-                    <label className="flex flex-col gap-1 w-full">
-                      <Input
-                        type="date"
-                        {...field}
-                        label="Entrance date"
-                        required
-                        fromDate={
-                          watch('entryGate') === 'mutumbaGate'
-                            ? moment().add(1, 'd').toDate()
-                            : moment().toDate()
-                        }
-                      />
-                      {errors.startDate && (
-                        <InputErrorMessage message={errors.startDate.message} />
-                      )}
-                    </label>
-                  );
-                }}
-              />
+              <>
+                <Controller
+                  name="startDate"
+                  rules={{ required: 'Enter your entrance date' }}
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <label className="flex flex-col gap-1 w-full">
+                        <Input
+                          type="date"
+                          {...field}
+                          label="Entrance date"
+                          required
+                          fromDate={
+                            watch('entryGate') === 'mutumbaGate'
+                              ? Number(moment().add(1, 'd').format('HH')) >= 15
+                                ? moment().add(2, 'd').toDate()
+                                : moment().add(1, 'd').toDate()
+                              : moment().toDate()
+                          }
+                        />
+                        {errors.startDate && (
+                          <InputErrorMessage
+                            message={errors.startDate.message}
+                          />
+                        )}
+                      </label>
+                    );
+                  }}
+                />
+                {watch('entryGate') === 'mutumbaGate' && (
+                  <Controller
+                    name="startTime"
+                    control={control}
+                    rules={{ required: 'Entrance time is required' }}
+                    render={({ field }) => {
+                      return (
+                        <label className="flex flex-col gap-1 w-full">
+                          <Select
+                            options={dayHoursArray?.filter(
+                              (time) =>
+                                Number(time?.value?.split(':')?.[0]) >= 6 &&
+                                Number(time?.value?.split(':')?.[0]) <= 17
+                            )}
+                            {...field}
+                            label="Entrance time"
+                          />
+                          {errors?.startTime && (
+                            <InputErrorMessage
+                              message={errors?.startTime?.message}
+                            />
+                          )}
+                        </label>
+                      );
+                    }}
+                  />
+                )}
+              </>
             )}
             <Controller
               name="numberOfDays"
@@ -281,7 +315,6 @@ const CreateBooking = () => {
             {watch('numberOfDays') === '0' && (
               <Controller
                 name="exitGate"
-                rules={{ required: 'Select exit gate' }}
                 control={control}
                 render={({ field }) => {
                   return (
@@ -290,15 +323,11 @@ const CreateBooking = () => {
                         {...field}
                         label="Select exit gate"
                         placeholder="Select exit gate"
-                        required
                         options={exitGateOptions}
                         onChange={(e) => {
                           field.onChange(e);
                         }}
                       />
-                      {errors?.exitGate && (
-                        <InputErrorMessage message={errors.exitGate.message} />
-                      )}
                     </label>
                   );
                 }}

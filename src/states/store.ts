@@ -12,6 +12,7 @@ import sidebarSlice from './features/sidebarSlice';
 import bookingActivityPersonSlice from './features/bookingActivityPersonSlice';
 import dashboardSlice from './features/dashboardSlice';
 import activityScheduleSlice from './features/activityScheduleSlice';
+import paymentSlice from './features/paymentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     bookingActivityPerson: bookingActivityPersonSlice,
     dashboard: dashboardSlice,
     activitySchedule: activityScheduleSlice,
+    payment: paymentSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware);

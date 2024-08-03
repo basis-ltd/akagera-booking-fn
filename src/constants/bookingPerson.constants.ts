@@ -15,9 +15,4 @@ export const bookingPeopleColumns = [
     header: 'Residence',
     accessorKey: 'residence',
   },
-
-  {
-    header: 'Entry fee',
-    accessorKey: 'price',
-  },
 ];

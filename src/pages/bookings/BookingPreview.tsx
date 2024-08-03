@@ -1,25 +1,27 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
-import Select from '@/components/inputs/Select';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
-import { bookingPaymentMethods } from '@/constants/bookings.constants';
 import { bookingVehicleColumns } from '@/constants/bookingVehicle.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
+import { paymentColumns } from '@/constants/payment.constants';
 import { vehicleTypes } from '@/constants/vehicles.constants';
 import PublicLayout from '@/containers/PublicLayout';
 import {
   calculateActivityPrice,
   calculateBookingPersonPrice,
   calculateVehiclePrice,
+  getBookingStatusColor,
 } from '@/helpers/booking.helper';
 import { formatDate, formatCurrency, capitalizeString } from '@/helpers/strings.helper';
 import {
+  useCreatePaymentMutation,
   useLazyFetchBookingActivitiesQuery,
   useLazyFetchBookingPeopleQuery,
   useLazyFetchBookingVehiclesQuery,
+  useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
   useSubmitBookingMutation,
 } from '@/states/apiSlice';
@@ -36,12 +38,20 @@ import {
 import {
   addBookingTotalAmountUsd,
   setBooking,
+  setBookingPaymentsList,
 } from '@/states/features/bookingSlice';
 import {
   setBookingVehiclesList,
   setDeleteBookingVehicleModal,
   setSelectedBookingVehicle,
 } from '@/states/features/bookingVehicleSlice';
+import {
+  setApplicationLink,
+  setCreatePaymentModal,
+  setPayment,
+  setPaymentIntent,
+  setStripeKeys,
+} from '@/states/features/paymentSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
@@ -58,7 +68,9 @@ import { toast } from 'react-toastify';
 const BookingPreview = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { booking } = useSelector((state: RootState) => state.booking);
+  const { booking, bookingPaymentsList } = useSelector(
+    (state: RootState) => state.booking
+  );
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
   );
@@ -68,7 +80,17 @@ const BookingPreview = () => {
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
-  const [bookingStatus, setBookingStatus] = useState('pending');
+  const [bookingPaid, setBookingPaid] = useState(false);
+
+  // MANAGE BOOKING PAYMENT STATUS
+  useEffect(() => {
+    if (bookingPaymentsList?.length > 0) {
+      const bookingPaid =
+        bookingPaymentsList?.find((payment) => payment?.status === 'PAID') !==
+        undefined;
+      setBookingPaid(bookingPaid);
+    }
+  }, [bookingPaymentsList]);
 
   // NAVIGATION
   const { id } = useParams();
@@ -175,7 +197,7 @@ const BookingPreview = () => {
         );
         navigate('/');
       } else {
-        toast.error((bookingDetailsError as ErrorResponse).data.message);
+        toast.error((bookingDetailsError as ErrorResponse)?.data?.message);
         navigate('/');
       }
     } else if (bookingDetailsIsSuccess) {
@@ -237,7 +259,7 @@ const BookingPreview = () => {
           'An error occured while fetching booking people. Please try again later.'
         );
       } else {
-        toast.error((bookingPeopleError as ErrorResponse).data.message);
+        toast.error((bookingPeopleError as ErrorResponse)?.data?.message);
       }
     } else if (bookingPeopleIsSuccess) {
       dispatch(setBookingPeopleList(bookingPeopleData?.data?.rows));
@@ -293,6 +315,86 @@ const BookingPreview = () => {
     booking?.id,
   ]);
 
+  // INITIALIZE CREATE PAYMENT MUTATION
+  const [
+    createPayment,
+    {
+      isLoading: createPaymentIsLoading,
+      error: createPaymentError,
+      isSuccess: createPaymentIsSuccess,
+      isError: createPaymentIsError,
+      data: createPaymentData,
+    },
+  ] = useCreatePaymentMutation();
+
+  // HANDLE CREATE PAYMENT RESPONSE
+  useEffect(() => {
+    if (createPaymentIsError) {
+      if ((createPaymentError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while creating payment. Please try again later.'
+        );
+      } else {
+        toast.error((createPaymentError as ErrorResponse).data.message);
+      }
+    } else if (createPaymentIsSuccess) {
+      toast.success('Payment created successfully');
+      dispatch(setCreatePaymentModal(true));
+      dispatch(setPayment(createPaymentData?.data?.payment));
+      dispatch(setPaymentIntent(createPaymentData?.data?.paymentIntent));
+      dispatch(setStripeKeys(createPaymentData?.data?.stripeKeys));
+      dispatch(setApplicationLink(createPaymentData?.data?.applicationLink));
+    }
+  }, [
+    createPaymentIsError,
+    createPaymentIsSuccess,
+    createPaymentError,
+    navigate,
+    booking.id,
+    dispatch,
+    createPaymentData,
+  ]);
+
+  // INITIALIZE FETCH PAYMENTS QUERY
+  const [
+    fetchPayments,
+    {
+      data: paymentsData,
+      error: paymentsError,
+      isSuccess: paymentsIsSuccess,
+      isError: paymentsIsError,
+      isFetching: paymentsIsFetching,
+    },
+  ] = useLazyFetchPaymentsQuery();
+
+  // FETCH BOOKING PAYMENTS
+  useEffect(() => {
+    if (booking?.id) {
+      fetchPayments({ bookingId: booking?.id, size: 100 });
+    }
+  }, [fetchPayments, booking]);
+
+  // HANDLE FETCH PAYMENTS RESPONSE
+  useEffect(() => {
+    if (paymentsIsError) {
+      if ((paymentsError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while fetching booking payments. Please try again later.'
+        );
+      } else {
+        toast.error((paymentsError as ErrorResponse).data.message);
+      }
+    } else if (paymentsIsSuccess) {
+      dispatch(setBookingPaymentsList(paymentsData?.data?.rows));
+    }
+  }, [
+    paymentsIsSuccess,
+    paymentsIsError,
+    paymentsData,
+    paymentsError,
+    dispatch,
+  ]);
+
   // BOOKING ACTIVITIES COLUMNS
   const bookingActivitiesExtendedColumns = [
     ...bookingActivitiesColumns,
@@ -320,6 +422,10 @@ const BookingPreview = () => {
   // BOOKING PEOPLE COLUMNS
   const bookingPeopleExtendedColumns = [
     ...bookingPeopleColumns,
+    {
+      header: 'Entry fee',
+      accessorKey: 'price',
+    },
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -448,7 +554,19 @@ const BookingPreview = () => {
           </ul>
           <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
             <p>Accomodation:</p>
-            <p className="font-bold">{capitalizeString(booking?.accomodation) || 'N/A'}</p>
+            <p className="font-bold">
+              {capitalizeString(booking?.accomodation) || 'N/A'}
+            </p>
+          </ul>
+          <ul className="flex items-center gap-2 max-[700px]:flex-col max-[700px]:gap-1">
+            <p>Status:</p>
+            <p
+              className={`font-medium p-1 rounded-md text-[14px] ${getBookingStatusColor(
+                booking?.status
+              )}`}
+            >
+              {capitalizeString(booking?.status)}
+            </p>
           </ul>
         </menu>
         {booking?.type !== 'registration' &&
@@ -516,7 +634,9 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingPeopleExtendedColumns as ColumnDef<BookingPerson>[]}
+                columns={
+                  bookingPeopleExtendedColumns as ColumnDef<BookingPerson>[]
+                }
                 data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
                   return {
                     ...bookingPerson,
@@ -570,7 +690,9 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={bookingVehicleExtendedColumns as ColumnDef<BookingVehicle>[]}
+                columns={
+                  bookingVehicleExtendedColumns as ColumnDef<BookingVehicle>[]
+                }
                 data={bookingVehiclesList?.map((bookingVehicle, index) => {
                   return {
                     ...bookingVehicle,
@@ -592,6 +714,34 @@ const BookingPreview = () => {
             </menu>
           )
         )}
+        {paymentsIsFetching ? (
+          <figure className="w-full flex items-center justify-center min-h-[10vh]">
+            <Loader className="text-primary" />
+          </figure>
+        ) : bookingPaymentsList?.length > 0 && (
+          paymentsIsSuccess && (
+            <menu className="flex flex-col gap-2 w-full">
+              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
+                <h1 className="font-bold text-xl uppercase">Payments</h1>
+              </ul>
+              <Table
+                showFilter={false}
+                showPagination={false}
+                columns={paymentColumns}
+                data={bookingPaymentsList?.map((payment, index) => {
+                  return {
+                    ...payment,
+                    no: index + 1,
+                    amount: formatCurrency(payment?.amount),
+                    currency: payment?.currency,
+                    status: payment?.status,
+                    createdAt: formatDate(payment?.createdAt),
+                  };
+                })}
+              />
+            </menu>
+          )
+        )}
         <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
           <h1 className="text-primary font-bold uppercase">Total</h1>
           <ul className="flex flex-col items-start gap-2">
@@ -603,25 +753,7 @@ const BookingPreview = () => {
             </p>
           </ul>
         </menu>
-        <menu className="w-full flex items-center gap-3 justify-end">
-          <Select
-            label="Payment method"
-            required
-            placeholder="Select payment method"
-            value={bookingStatus}
-            labelClassName="!w-[50%] self-end"
-            options={bookingPaymentMethods?.map((method) => {
-              return {
-                ...method,
-                disabled: method?.value !== 'pending_contact',
-              };
-            })}
-            onChange={(e) => {
-              if (e === 'pending_contact') setBookingStatus(e);
-            }}
-          />
-        </menu>
-        <menu className="flex items-center gap-3 justify-between mb-6">
+        <menu className="flex items-start gap-3 justify-between mb-6">
           <Button
             onClick={(e) => {
               e.preventDefault();
@@ -630,20 +762,44 @@ const BookingPreview = () => {
           >
             Back
           </Button>
-          <Button
-            primary
-            onClick={(e) => {
-              e.preventDefault();
-              updateBooking({
-                id: booking?.id,
-                status: bookingStatus,
-                totalAmountRwf: Number(booking?.totalAmountUsd) * 1303,
-                totalAmountUsd: Number(booking?.totalAmountUsd),
-              });
-            }}
-          >
-            {updateBookingIsLoading ? <Loader /> : 'Submit'}
-          </Button>
+          <menu className="flex flex-col gap-1">
+            {!bookingPaid && (
+              <Button
+                primary
+                onClick={(e) => {
+                  e.preventDefault();
+                  createPayment({
+                    bookingId: booking?.id,
+                    amount: Number(String(booking?.totalAmountUsd)?.split('.')[0]),
+                    currency: 'usd',
+                    email: booking?.email,
+                  });
+                }}
+              >
+                {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
+              </Button>
+            )}
+            <Button
+              styled={bookingPaid}
+              primary={bookingPaid}
+              className={
+                !bookingPaid ? `!text-[12px] underline text-primary` : ''
+              }
+              onClick={(e) => {
+                e.preventDefault();
+                updateBooking({
+                  id: booking?.id,
+                  status: 'pending',
+                  totalAmountRwf: Number(booking?.totalAmountUsd) * 1303,
+                  totalAmountUsd: Number(booking?.totalAmountUsd),
+                });
+              }}
+            >
+              {updateBookingIsLoading
+                ? '...'
+                : `Submit ${!bookingPaid ? 'and pay later' : ''}`}
+            </Button>
+          </menu>
         </menu>
       </main>
     </PublicLayout>

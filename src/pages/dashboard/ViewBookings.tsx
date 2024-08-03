@@ -285,7 +285,9 @@ const ViewBookings = () => {
               setPage={setPage}
               setSize={setSize}
               showFilter={false}
-              data={bookingsList}
+              data={bookingsList?.filter((booking) =>
+                !['in_progress', 'cancelled'].includes(booking?.status)
+              )}
               columns={bookingExtendedColumns}
             />
           </section>
