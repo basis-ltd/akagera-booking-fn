@@ -106,7 +106,7 @@ const CreateBookingGuidesActivity = () => {
           }
           onClick={(e) => {
             e.preventDefault();
-            navigate(`/bookings/${booking?.id}/preview`);
+            navigate(`/bookings/${booking?.id}/consent`);
           }}
         >
           Next
