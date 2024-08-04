@@ -4,10 +4,14 @@ import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import moment from 'moment';
 
-// ENTRY FEES PRICING STRUCTURE
-const pricingStructure: {
+type PriceType = 'adults' | 'children';
+
+interface PricingStructure {
   [key: string]: { adults: number[]; children: number[] };
-} = {
+}
+
+// ENTRY FEES PRICING STRUCTURE
+const pricingStructure: PricingStructure = {
   'Rwandan/EAC Citizen': {
     adults: [16, 24, 32],
     children: [11, 16, 21],
@@ -81,63 +85,11 @@ export function countryBelongsToEAC(country: string | undefined) {
 
 export function countryBelongsInAfrica(country: string | undefined) {
   const africanCountries = [
-    'AO',
-    'BJ',
-    'BW',
-    'BF',
-    'BI',
-    'CM',
-    'CV',
-    'CF',
-    'TD',
-    'KM',
-    'CD',
-    'DJ',
-    'EG',
-    'GQ',
-    'ER',
-    'SZ',
-    'ET',
-    'GA',
-    'GM',
-    'GH',
-    'GN',
-    'GW',
-    'CI',
-    'KE',
-    'LS',
-    'LR',
-    'LY',
-    'MG',
-    'MW',
-    'ML',
-    'MR',
-    'MU',
-    'MA',
-    'MZ',
-    'NA',
-    'NE',
-    'NG',
-    'CG',
-    'RE',
-    'RW',
-    'SH',
-    'ST',
-    'SN',
-    'SC',
-    'SL',
-    'SO',
-    'ZA',
-    'SS',
-    'SD',
-    'SZ',
-    'TZ',
-    'TG',
-    'TN',
-    'UG',
-    'CD',
-    'ZM',
-    'ZW',
+    'AO', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD', 'KM', 'CD', 'DJ', 
+    'EG', 'GQ', 'ER', 'SZ', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'CI', 'KE', 
+    'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ', 'NA', 'NE', 
+    'NG', 'CG', 'RE', 'RW', 'SH', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 
+    'SD', 'SZ', 'TZ', 'TG', 'TN', 'UG', 'CD', 'ZM', 'ZW'
   ];
   return africanCountries.includes(String(country));
 }
@@ -170,7 +122,7 @@ export const calculateBookingPersonPrice = (person: BookingPerson) => {
     String(person?.residence)
   );
 
-  let priceType = 'adults';
+  let priceType: PriceType = 'adults';
   if (age < 6) {
     return 0;
   } else if (age >= 6 && age <= 12) {
@@ -202,6 +154,7 @@ export function getPriceCategory(nationality: string, residence: string) {
 export function calculateNights(startDate: Date, endDate: Date) {
   return moment(endDate).diff(moment(startDate), 'days');
 }
+
 
 export const getBookingStatusColor = (status: string) => {
   return ['pending', 'pending_contact', 'in_progress'].includes(status)

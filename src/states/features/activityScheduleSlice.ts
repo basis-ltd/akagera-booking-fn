@@ -1,5 +1,8 @@
 import { ActivitySchedule } from '@/types/models/activitySchedule.types';
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import apiSlice from '../apiSlice';
+import { UUID } from 'crypto';
+import { AppDispatch } from '../store';
 
 const initialState: {
   activityScheduleDetailsModal: boolean;
@@ -11,6 +14,8 @@ const initialState: {
   size: number;
   totalCount: number;
   totalPages: number;
+  remainingSeatsIsFetching: boolean;
+  remainingSeats: number | boolean;
 } = {
   activityScheduleDetailsModal: false,
   selectedActivitySchedule: undefined,
@@ -21,7 +26,28 @@ const initialState: {
   size: 10,
   totalCount: 0,
   totalPages: 1,
+  remainingSeatsIsFetching: false,
+  remainingSeats: 0,
 };
+
+// CALCULATE REMAINING SEATS THUNK
+export const calculateRemainingSeatsThunk = createAsyncThunk<
+  number,
+  { id: UUID; date: string | Date },
+  { dispatch: AppDispatch }
+>(
+  'activitySchedule/calculateRemainingSeats',
+  async ({ id, date }, { dispatch }) => {
+    const response = await dispatch(
+      apiSlice.endpoints.getRemainingSeats.initiate({
+        id,
+        date,
+      })
+    );
+    dispatch(setRemainingSeats(response.data?.data));
+    return response.data;
+  }
+);
 
 const activityScheduleSlice = createSlice({
   name: 'activitySchedule',
@@ -62,6 +88,20 @@ const activityScheduleSlice = createSlice({
     setTotalPages: (state, action) => {
       state.totalPages = action.payload;
     },
+    setRemainingSeats: (state, action) => {
+      state.remainingSeats = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(calculateRemainingSeatsThunk.pending, (state) => {
+      state.remainingSeatsIsFetching = true;
+    });
+    builder.addCase(calculateRemainingSeatsThunk.fulfilled, (state) => {
+      state.remainingSeatsIsFetching = false;
+    });
+    builder.addCase(calculateRemainingSeatsThunk.rejected, (state) => {
+      state.remainingSeatsIsFetching = false;
+    });
   },
 });
 
@@ -77,6 +117,7 @@ export const {
   setPage,
   setTotalCount,
   setTotalPages,
+  setRemainingSeats
 } = activityScheduleSlice.actions;
 
 export default activityScheduleSlice.reducer;

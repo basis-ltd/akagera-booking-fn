@@ -779,6 +779,17 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // GET REMAINING SEATS
+      getRemainingSeats: builder.query({
+        query: ({ id, date }) =>
+          `activity-schedules/${id}/seats/remaining?date=${date}`,
+      }),
+
+      // GET BOOKING AMOUNT
+      getBookingAmount: builder.query({
+        query: ({ id }) => `bookings/${id}/amount`,
+      }),
     };
   },
 });
@@ -830,7 +841,9 @@ export const {
   useConfirmPaymentMutation,
   useCreateActivityMutation,
   useLazyGetTermsOfServiceQuery,
-  useUpdateBookingConsentMutation
+  useUpdateBookingConsentMutation,
+  useLazyGetBookingAmountQuery,
+  useLazyGetRemainingSeatsQuery,
 } = apiSlice;
 
 export default apiSlice;

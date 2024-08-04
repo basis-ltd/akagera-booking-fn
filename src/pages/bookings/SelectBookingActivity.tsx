@@ -7,13 +7,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { UUID } from 'crypto';
 import { toast } from 'react-toastify';
-import {
-  useCreateBookingActivityMutation,
-  useLazyFetchBookingActivitiesQuery,
-} from '@/states/apiSlice';
+import { useCreateBookingActivityMutation } from '@/states/apiSlice';
 import { ErrorResponse } from 'react-router-dom';
 import {
   addBookingActivity,
+  fetchBookingActivitiesThunk,
   setDeleteBookingActivityModal,
   setExistingBookingActivitiesList,
   setSelectedBookingActivity,
@@ -35,6 +33,8 @@ import { ColumnDef, Row } from '@tanstack/react-table';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ActivityRate } from '@/types/models/activityRate.types';
 import { calculateBehindTheScenesPrice } from '@/helpers/bookingActivity.helper';
+import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
+import { calculateRemainingSeatsThunk, setRemainingSeats } from '@/states/features/activityScheduleSlice';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -42,8 +42,10 @@ const SelectBookingActivity = () => {
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
-  const { existingBookingActivitiesList } = useSelector(
-    (state: RootState) => state.bookingActivity
+  const { existingBookingActivitiesList, existingBookingActivitiesIsFetching } =
+    useSelector((state: RootState) => state.bookingActivity);
+  const { remainingSeats, remainingSeatsIsFetching } = useSelector(
+    (state: RootState) => state.activitySchedule
   );
   const { booking } = useSelector((state: RootState) => state.booking);
   const [bookingActivity, setBookingActivity] = useState<{
@@ -62,6 +64,8 @@ const SelectBookingActivity = () => {
   >(undefined);
   const [transportationsLabel, setTransportationsLabel] =
     useState<string>('seats');
+  const [minNumberOfSeatsDisclaimer, setMinNumberOfSeatsDisclaimer] =
+    useState<string>('');
 
   // REACT HOOK FORM
   const {
@@ -88,57 +92,19 @@ const SelectBookingActivity = () => {
     },
   ] = useCreateBookingActivityMutation();
 
-  // INITIALIZE FETCHING BOOKING ACTIVITIES QUERY
-  const [
-    fetchBookingActivities,
-    {
-      data: bookingActivitiesData,
-      error: bookingActivitiesError,
-      isSuccess: bookingActivitiesIsSuccess,
-      isError: bookingActivitiesIsError,
-      isFetching: bookingActivitiesIsFetching,
-    },
-  ] = useLazyFetchBookingActivitiesQuery();
-
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
-    if (booking) {
-      fetchBookingActivities({
-        bookingId: booking?.id,
-        size: 100,
-        page: 0,
-        activityId: selectedActivity?.id,
-      });
-    }
-  }, [
-    booking,
-    fetchBookingActivities,
-    selectedActivity,
-    selectBookingActivityModal,
-  ]);
-
-  // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
-  useEffect(() => {
-    if (bookingActivitiesIsError) {
-      if ((bookingActivitiesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching booking activities. Please try again later.'
-        );
-      } else {
-        toast.error((bookingActivitiesError as ErrorResponse).data.message);
-      }
-    } else if (bookingActivitiesIsSuccess) {
+    if (booking && selectedActivity) {
       dispatch(
-        setExistingBookingActivitiesList(bookingActivitiesData?.data?.rows)
+        fetchBookingActivitiesThunk({
+          bookingId: booking?.id,
+          size: 100,
+          page: 0,
+          activityId: selectedActivity?.id,
+        })
       );
     }
-  }, [
-    bookingActivitiesIsSuccess,
-    bookingActivitiesIsError,
-    bookingActivitiesData,
-    bookingActivitiesError,
-    dispatch,
-  ]);
+  }, [booking, selectedActivity, dispatch]);
 
   // HANDLE CREATE BOOKING ACTIVITY RESPONSE
   useEffect(() => {
@@ -159,10 +125,14 @@ const SelectBookingActivity = () => {
       });
       dispatch(setSelectBookingActivityModal(false));
       setSelectedActivitySchedule(undefined);
+      dispatch(setRemainingSeats(0));
       reset({
         activitySchedule: '',
         numberOfAdults: '',
         numberOfChildren: '',
+        numberOfParticipants: '',
+        defaultRate: '',
+        numberOfSeats: 0,
       });
     }
   }, [
@@ -189,7 +159,7 @@ const SelectBookingActivity = () => {
       numberOfChildren: data?.numberOfChildren
         ? Number(data?.numberOfChildren)
         : 0,
-      numberOfSeats: data?.numberOfSeats && Number(data?.numberOfSeats),
+      numberOfSeats: data?.numberOfSeats ? Number(data?.numberOfSeats) : 0,
       defaultRate: selectedActivity?.name
         ?.toUpperCase()
         ?.includes('BEHIND THE SCENES TOUR')
@@ -205,26 +175,7 @@ const SelectBookingActivity = () => {
 
   // EXISTING BOOKING ACTIVITIES COLUMNS
   const existingBookingActivitiesColumns = [
-    {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
-      header: 'Date',
-      accessorKey: 'date',
-    },
-    {
-      header: 'Time',
-      accessorKey: 'time',
-    },
-    {
-      header: 'Number of adults',
-      accessorKey: 'numberOfAdults',
-    },
-    {
-      header: 'Number of children',
-      accessorKey: 'numberOfChildren',
-    },
+    ...bookingActivitiesColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -245,6 +196,18 @@ const SelectBookingActivity = () => {
       },
     },
   ];
+
+  // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
+  useEffect(() => {
+    if (selectedActivitySchedule) {
+      dispatch(
+        calculateRemainingSeatsThunk({
+          id: selectedActivitySchedule?.id,
+          date: watch('startDate') || booking?.startDate,
+        })
+      );
+    }
+  }, [selectedActivitySchedule, dispatch, booking?.startDate, watch, watch('startDate')]);
 
   useEffect(() => {
     switch (selectedActivity?.name?.toUpperCase()) {
@@ -273,24 +236,51 @@ const SelectBookingActivity = () => {
   // VALIDATE NUMBER OF PARTICIPANTS AGAINST MIN AND MAX
   useEffect(() => {
     clearErrors('numberOfParticipants');
+    setMinNumberOfSeatsDisclaimer('');
     if (selectedActivitySchedule?.minNumberOfSeats) {
       if (
         Number(watch('numberOfParticipants')) <
         selectedActivitySchedule?.minNumberOfSeats
       ) {
-        setError('numberOfParticipants', {
-          type: 'manual',
-          message: `Number of participants must be greater than or equal to ${selectedActivitySchedule?.minNumberOfSeats}`,
-        });
+        setMinNumberOfSeatsDisclaimer(
+          'For this activity, minimum number of participants is ' +
+            selectedActivitySchedule?.minNumberOfSeats +
+            '. If you enter a number less than this, you will be charged for the minimum number of participants.'
+        );
       }
       if (
         Number(watch('numberOfAdults') || 0) +
           Number(watch('numberOfChildren') || 0) <
         selectedActivitySchedule?.minNumberOfSeats
       ) {
+        setMinNumberOfSeatsDisclaimer(
+          'For this activity, minimum number of participants is ' +
+            selectedActivitySchedule?.minNumberOfSeats +
+            '. If you enter a number less than this, you will be charged for the minimum number of participants.'
+        );
+      }
+    }
+    if (remainingSeats && remainingSeats !== true) {
+      if (Number(watch('numberOfParticipants')) > remainingSeats) {
         setError('numberOfParticipants', {
           type: 'manual',
-          message: `Number of participants must be greater than or equal to ${selectedActivitySchedule?.minNumberOfSeats}`,
+          message: `Number of participants must be less than or equal to ${remainingSeats}`,
+        });
+      }
+      if (Number(watch('numberOfSeats')) > remainingSeats) {
+        setError('numberOfParticipants', {
+          type: 'manual',
+          message: `Number of ${transportationsLabel} must be less than or equal to ${remainingSeats}`,
+        });
+      }
+      if (
+        Number(watch('numberOfAdults') || 0) +
+          Number(watch('numberOfChildren') || 0) >
+        remainingSeats
+      ) {
+        setError('numberOfParticipants', {
+          type: 'manual',
+          message: `Number of participants must be less than or equal to ${remainingSeats}`,
         });
       }
     }
@@ -301,9 +291,19 @@ const SelectBookingActivity = () => {
     watch('numberOfChildren'),
     watch('numberOfAdults'),
     watch('numberOfParticipants'),
+    watch('numberOfSeats'),
+    transportationsLabel,
     setError,
     clearErrors,
+    remainingSeats,
   ]);
+
+  // SET DEFAULT VALUES
+  useEffect(() => {
+    if (selectedActivity?.name?.toUpperCase() === 'BOAT TRIP – PRIVATE, NON-SCHEDULED') {
+      setValue('defaultRate', 200);
+    }
+  }, [selectedActivity?.name, setValue]);
 
   return (
     <Modal
@@ -311,20 +311,21 @@ const SelectBookingActivity = () => {
       onClose={() => {
         dispatch(setSelectBookingActivityModal(false));
         setSelectedActivitySchedule(undefined);
+        dispatch(setRemainingSeats(0));
         reset({
           activitySchedule: '',
           numberOfAdults: '',
           numberOfChildren: '',
           numberOfParticipants: '',
           defaultRate: '',
-          numberOfSeats: 1,
+          numberOfSeats: 0,
         });
       }}
       heading={`Confirm adding ${selectedActivity.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
     >
-      {bookingActivitiesIsFetching ? (
+      {existingBookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
           <Loader className="text-primary" />
           <p className="text-[15px]">
@@ -337,7 +338,6 @@ const SelectBookingActivity = () => {
             <Controller
               name="startDate"
               control={control}
-              defaultValue={booking?.startDate as Date}
               render={({ field }) => {
                 return (
                   <label className="w-full flex flex-col gap-1">
@@ -414,13 +414,6 @@ const SelectBookingActivity = () => {
                           required
                           onChange={(e) => {
                             field.onChange(e);
-                            setSelectedActivitySchedule(
-                              selectedActivity?.activitySchedules?.find(
-                                (activitySchedule: ActivitySchedule) =>
-                                  `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
-                                  e
-                              )
-                            );
                             setBookingActivity({
                               ...bookingActivity,
                               startTime: moment(
@@ -434,6 +427,14 @@ const SelectBookingActivity = () => {
                                 }`
                               ).format(),
                             });
+                            setSelectedActivitySchedule(
+                              selectedActivity?.activitySchedules?.find(
+                                (activitySchedule: ActivitySchedule) =>
+                                  `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
+                                  e
+                              )
+                            );
+                            console.log(bookingActivity, e?.split('-')[0]);
                           }}
                           options={selectedActivity?.activitySchedules?.map(
                             (activitySchedule: ActivitySchedule) => {
@@ -451,6 +452,26 @@ const SelectBookingActivity = () => {
                             }
                           )}
                         />
+                        {selectedActivitySchedule &&
+                        remainingSeatsIsFetching ? (
+                          <figure className="flex items-center gap-2">
+                            <p className="text-[12px]">
+                              Calculating available seats
+                            </p>
+                            <Loader className="text-primary" />
+                          </figure>
+                        ) : (
+                          remainingSeats &&
+                          (remainingSeats as boolean) !== true ? (
+                            <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                              Number of {transportationsLabel} available for
+                              this period: {remainingSeats}
+                            </p>
+                          ) : selectedActivitySchedule && (
+                          <p className='text-[13px] my-1 px-1 font-medium text-primary'>
+                            This period is available bookings.
+                          </p>
+                        ))}
                         {errors?.activitySchedule && (
                           <InputErrorMessage
                             message={errors?.activitySchedule?.message}
@@ -495,9 +516,14 @@ const SelectBookingActivity = () => {
                           }}
                         />
                         {errors?.numberOfAdults && (
-                          <InputErrorMessage
-                            message={errors?.numberOfAdults?.message}
-                          />
+                          <>
+                            <p className="text-[12px] text-slate-400">
+                              Enter 0 if none
+                            </p>
+                            <InputErrorMessage
+                              message={errors?.numberOfAdults?.message}
+                            />
+                          </>
                         )}
                       </label>
                     );
@@ -533,9 +559,15 @@ const SelectBookingActivity = () => {
                           }}
                         />
                         {errors?.numberOfChildren && (
-                          <InputErrorMessage
-                            message={errors?.numberOfChildren?.message}
-                          />
+                          <>
+                            <p className="text-[12px] text-slate-400">
+                              Enter 0 if none
+                            </p>
+
+                            <InputErrorMessage
+                              message={errors?.numberOfChildren?.message}
+                            />
+                          </>
                         )}
                       </label>
                     );
@@ -586,7 +618,7 @@ const SelectBookingActivity = () => {
               <>
                 <Controller
                   name="numberOfSeats"
-                  defaultValue={1}
+                  defaultValue={0}
                   control={control}
                   rules={{
                     required: `Specify the number of ${transportationsLabel} available for this activity`,
@@ -645,13 +677,6 @@ const SelectBookingActivity = () => {
           </fieldset>
           <menu className="flex flex-col gap-2 w-[90%]">
             {selectedActivitySchedule &&
-              selectedActivitySchedule?.numberOfSeats !== 1000 && (
-                <p className="text-slate-900 text-[15px]">
-                  Number of {transportationsLabel} available for this period:{' '}
-                  {selectedActivitySchedule?.numberOfSeats}
-                </p>
-              )}
-            {selectedActivitySchedule &&
               selectedActivitySchedule?.disclaimer && (
                 <p className="text-slate-900 text-[15px]">
                   Disclaimer: {selectedActivitySchedule?.disclaimer}
@@ -682,6 +707,11 @@ const SelectBookingActivity = () => {
                   message={errors?.numberOfParticipants?.message}
                 />
               </>
+            )}
+            {minNumberOfSeatsDisclaimer && (
+              <p className="text-slate-900 text-[15px]">
+                {minNumberOfSeatsDisclaimer}
+              </p>
             )}
           </menu>
 
@@ -739,13 +769,14 @@ const SelectBookingActivity = () => {
                 e.preventDefault();
                 dispatch(setSelectBookingActivityModal(false));
                 setSelectedActivitySchedule(undefined);
+                dispatch(setRemainingSeats(0));
                 reset({
                   activitySchedule: '',
                   numberOfAdults: '',
                   numberOfChildren: '',
                   numberOfParticipants: '',
                   defaultRate: '',
-                  numberOfSeats: 1,
+                  numberOfSeats: 0,
                 });
               }}
             >
