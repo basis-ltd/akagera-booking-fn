@@ -31,33 +31,21 @@ import {
   useLazyGetBookingDetailsQuery,
   useUpdateBookingMutation,
 } from '@/states/apiSlice';
-import {
-  setBookingActivitiesList,
-  setDeleteBookingActivityModal,
-  setSelectedBookingActivity,
-} from '@/states/features/bookingActivitySlice';
-import {
-  setBookingPeopleList,
-  setDeleteBookingPersonModal,
-  setSelectedBookingPerson,
-} from '@/states/features/bookingPeopleSlice';
+import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
+import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
 import {
   addBookingTotalAmountUsd,
   setBooking,
   setBookingPaymentsList,
   updateBookingPayment,
 } from '@/states/features/bookingSlice';
-import {
-  setBookingVehiclesList,
-  setDeleteBookingVehicleModal,
-  setSelectedBookingVehicle,
-} from '@/states/features/bookingVehicleSlice';
+import { setBookingVehiclesList } from '@/states/features/bookingVehicleSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import { Payment } from '@/types/models/payment.types';
-import { faCircleCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -375,76 +363,13 @@ const BookingDetails = () => {
   ]);
 
   // BOOKING ACTIVITIES COLUMNS
-  const bookingActivitiesExtendedColumns = [
-    ...bookingActivitiesColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingActivity> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingActivity(row?.original));
-                dispatch(setDeleteBookingActivityModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
+  const bookingActivitiesExtendedColumns = [...bookingActivitiesColumns];
 
   // BOOKING PEOPLE COLUMNS
-  const bookingPeopleExtendedColumns = [
-    ...bookingPeopleColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingPerson> }) => {
-        return (
-          <menu className="flex items-center gap-3">
-            <FontAwesomeIcon
-              icon={faTrash}
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingPerson(row?.original));
-                dispatch(setDeleteBookingPersonModal(true));
-              }}
-              className="bg-red-600 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
-            />
-          </menu>
-        );
-      },
-    },
-  ];
+  const bookingPeopleExtendedColumns = [...bookingPeopleColumns];
 
   // BOOKING VEHICLES COLUMNS
-  const bookingVehiclesExtendedColumns = [
-    ...bookingVehicleColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingVehicle> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingVehicle(row?.original));
-                dispatch(setDeleteBookingVehicleModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
+  const bookingVehiclesExtendedColumns = [...bookingVehicleColumns];
 
   // BOOKING PAYMENTS COLUMNS
   const paymentExtendedColumns = [
@@ -476,49 +401,6 @@ const BookingDetails = () => {
       },
     },
   ];
-
-  // SET ACTIVITIES TOTAL AMOUNT
-  useEffect(() => {
-    dispatch(
-      addBookingTotalAmountUsd(
-        bookingActivitiesList?.reduce(
-          (acc, curr) => acc + Number(String(curr?.price)?.split(' ')[1]),
-          0
-        )
-      )
-    );
-  }, [bookingActivitiesList, dispatch]);
-
-  // SET PEOPLE TOTAL AMOUNT
-  useEffect(() => {
-    dispatch(
-      addBookingTotalAmountUsd(
-        bookingPeopleList?.reduce(
-          (acc, curr) => acc + Number(calculateBookingPersonPrice(curr)),
-          0
-        )
-      )
-    );
-  }, [bookingPeopleList, dispatch]);
-
-  // SET VEHICLES TOTAL AMOUNT
-  useEffect(() => {
-    dispatch(
-      addBookingTotalAmountUsd(
-        bookingVehiclesList?.reduce(
-          (acc, curr) => acc + Number(calculateVehiclePrice(curr)),
-          0
-        )
-      )
-    );
-  }, [bookingVehiclesList, dispatch]);
-
-  // SET DOCUMENT TITLE
-  useEffect(() => {
-    document.title = `Booking Details for ${
-      booking?.name
-    } scheduled on ${formatDate(booking?.startDate)}`;
-  }, [booking]);
 
   // BREADCRUMB LINKS
   const breadcrumbLinks = [
@@ -594,16 +476,6 @@ const BookingDetails = () => {
               <menu className="flex flex-col gap-2 w-full">
                 <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
                   <h1 className="font-bold text-xl uppercase">Activities</h1>
-                  <Button
-                    className="!py-[2px] underline !text-[12px]"
-                    styled={false}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(`/bookings/${booking?.id}/create`);
-                    }}
-                  >
-                    Update
-                  </Button>
                 </ul>
                 {bookingActivitiesList?.length > 0 ? (
                   <Table
@@ -635,16 +507,6 @@ const BookingDetails = () => {
             <menu className="flex flex-col gap-2 w-full">
               <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
                 <h1 className="font-bold text-xl uppercase">People</h1>
-                <Button
-                  className="!py-[2px] underline !text-[12px]"
-                  styled={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/bookings/${booking?.id}/create`);
-                  }}
-                >
-                  Update
-                </Button>
               </ul>
               <Table
                 showFilter={false}
@@ -689,16 +551,6 @@ const BookingDetails = () => {
             <menu className="flex flex-col gap-2 w-full">
               <ul className="flex items-center gap-6 my-2">
                 <h1 className="font-bold text-xl uppercase">Vehicles</h1>
-                <Button
-                  className="!py-[2px] underline !text-[12px]"
-                  styled={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/bookings/${booking?.id}/create`);
-                  }}
-                >
-                  Update
-                </Button>
               </ul>
               <Table
                 showFilter={false}
@@ -762,7 +614,7 @@ const BookingDetails = () => {
               {formatCurrency(Number(booking?.totalAmountUsd))}
             </p>
             <p className="uppercase font-medium underline">
-              {formatCurrency(Number(booking?.totalAmountUsd) * 1303, 'RWF')}
+              {formatCurrency(Number(booking?.totalAmountUsd) * 1343, 'RWF')}
             </p>
           </ul>
         </menu>
@@ -781,6 +633,11 @@ const BookingDetails = () => {
           ) : (
             <Button
               primary
+              disabled={
+                !bookingPaymentsList?.every(
+                  (payment) => payment?.status === 'CONFIRMED'
+                )
+              }
               onClick={(e) => {
                 e.preventDefault();
                 updateBooking({ id: booking?.id, status: 'confirmed' });

@@ -11,13 +11,15 @@ import {
   setSelectedService,
   setServicesList,
 } from '../../states/features/serviceSlice';
-import ServiceCard from '../../containers/ServiceCard';
 import Loader from '../../components/inputs/Loader';
 import { Service } from '@/types/models/service.types';
 import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
-import { setBooking } from '@/states/features/bookingSlice';
-import { formatDate } from '@/helpers/strings.helper';
+import {
+  getBookingAmountThunk,
+  setBooking,
+} from '@/states/features/bookingSlice';
+import { formatCurrency, formatDate } from '@/helpers/strings.helper';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
 import SelectBookingActivity from './SelectBookingActivity';
 import PublicLayout from '@/containers/PublicLayout';
@@ -28,7 +30,21 @@ const CreateBookingActivities = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const { booking } = useSelector((state: RootState) => state.booking);
+  const {
+    booking,
+    bookingAmount,
+    bookingAmountIsSuccess,
+    bookingAmountIsFetching,
+  } = useSelector((state: RootState) => state.booking);
+  const { bookingVehiclesList } = useSelector(
+    (state: RootState) => state.bookingVehicle
+  );
+  const { bookingPeopleList } = useSelector(
+    (state: RootState) => state.bookingPeople
+  );
+  const { bookingActivitiesList } = useSelector(
+    (state: RootState) => state.bookingActivity
+  );
 
   // NAVIGATION
   const { id } = useParams();
@@ -122,12 +138,24 @@ const CreateBookingActivities = () => {
     dispatch,
   ]);
 
+  // FETCH BOOKING AMOUNT
+  useEffect(() => {
+    dispatch(getBookingAmountThunk({ id: booking.id }));
+  }, [
+    booking,
+    dispatch,
+    bookingVehiclesList,
+    bookingActivitiesList,
+    bookingPeopleList,
+    bookingVehiclesList,
+  ]);
+
   if (servicesIsFetching || bookingDetailsIsFetching) {
     return (
       <PublicLayout>
         <figure className="flex flex-col items-center justify-center gap-4 w-full min-h-[80vh]">
-        <Loader className="text-primary" />
-      </figure>
+          <Loader className="text-primary" />
+        </figure>
       </PublicLayout>
     );
   }
@@ -143,19 +171,36 @@ const CreateBookingActivities = () => {
         {bookingDetailsIsSuccess && servicesIsSuccess && (
           <form className="flex flex-col gap-4 w-[80%] mx-auto">
             <fieldset className="flex flex-col gap-3 w-full">
-              <section className="flex flex-col gap-5 w-full">
+              <section className="flex flex-col gap-4 w-full">
                 <h1 className="text-lg text-center font-medium">
                   Select a service to view available activities, schedules, and
                   their respective prices.
                 </h1>
-                <menu className="flex items-center w-full gap-4">
+                <menu className="flex justify-between items-center w-full gap-4">
                   {servicesList.map((service) => {
                     return (
                       selectedService.id === service.id && (
-                        <ServiceCard service={service} key={service.id} />
+                        <h1
+                          key={service?.id}
+                          className="p-1 px-2 text-[15px] rounded-md text-white bg-primary"
+                        >
+                          {service.name}
+                        </h1>
                       )
                     );
                   })}
+                  {bookingAmountIsFetching ? (
+                    <ul className="flex items-center gap-1 text-[15px] bg-primary text-white p-1 px-2 rounded-md shadow-sm">
+                      <Loader className="text-primary" />
+                    </ul>
+                  ) : (
+                    bookingAmountIsSuccess && (
+                      <ul className="flex items-center gap-1 text-[15px] bg-primary text-white p-1 px-2 rounded-md shadow-sm">
+                        <p className="uppercase">Current Total:</p>
+                        <p>{formatCurrency(bookingAmount)}</p>
+                      </ul>
+                    )
+                  )}
                 </menu>
                 {servicesList.indexOf(selectedService) === 0 && (
                   <CreateBookingEntryActivity />

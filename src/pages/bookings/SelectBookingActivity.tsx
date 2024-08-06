@@ -34,7 +34,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ActivityRate } from '@/types/models/activityRate.types';
 import { calculateBehindTheScenesPrice } from '@/helpers/bookingActivity.helper';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
-import { calculateRemainingSeatsThunk, setRemainingSeats } from '@/states/features/activityScheduleSlice';
+import {
+  calculateRemainingSeatsThunk,
+  setRemainingSeats,
+} from '@/states/features/activityScheduleSlice';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -128,10 +131,10 @@ const SelectBookingActivity = () => {
       dispatch(setRemainingSeats(0));
       reset({
         activitySchedule: '',
+        defaultRate: '',
         numberOfAdults: '',
         numberOfChildren: '',
         numberOfParticipants: '',
-        defaultRate: '',
         numberOfSeats: 0,
       });
     }
@@ -160,15 +163,15 @@ const SelectBookingActivity = () => {
         ? Number(data?.numberOfChildren)
         : 0,
       numberOfSeats: data?.numberOfSeats ? Number(data?.numberOfSeats) : 0,
-      defaultRate: selectedActivity?.name
-        ?.toUpperCase()
-        ?.includes('BEHIND THE SCENES TOUR')
+      defaultRate: data?.defaultRate
+        ? Number(data?.defaultRate)
+        : selectedActivity?.name
+            ?.toUpperCase()
+            ?.includes('BEHIND THE SCENES TOUR')
         ? calculateBehindTheScenesPrice(
             Number(data?.numberOfAdults) || 0,
             Number(data?.numberOfChildren) || 0
           )
-        : data?.defaultRate
-        ? Number(data?.defaultRate)
         : null,
     });
   };
@@ -207,7 +210,13 @@ const SelectBookingActivity = () => {
         })
       );
     }
-  }, [selectedActivitySchedule, dispatch, booking?.startDate, watch, watch('startDate')]);
+  }, [
+    selectedActivitySchedule,
+    dispatch,
+    booking?.startDate,
+    watch,
+    watch('startDate'),
+  ]);
 
   useEffect(() => {
     switch (selectedActivity?.name?.toUpperCase()) {
@@ -298,9 +307,59 @@ const SelectBookingActivity = () => {
     remainingSeats,
   ]);
 
+  // HANDLE MINIMUM SEATS COST CALCULATION
+  useEffect(() => {
+    if (selectedActivitySchedule) {
+      if (
+        Number(watch('numberOfParticipants')) <
+        Number(selectedActivitySchedule?.minNumberOfSeats)
+      ) {
+        setValue(
+          'defaultRate',
+          Number(selectedActivitySchedule?.minNumberOfSeats) *
+            Number(
+              selectedActivity?.activityRates?.find(
+                (rate) => rate?.ageRange === 'adults'
+              )?.amountUsd
+            )
+        );
+      }
+    } else {
+      setValue('defaultRate', '');
+    }
+    if (
+      Number(watch('numberOfAdults') || 0) +
+        Number(watch('numberOfChildren') || 0) <
+      (selectedActivitySchedule?.minNumberOfSeats ?? 0)
+    ) {
+      setValue(
+        'defaultRate',
+        Number(selectedActivitySchedule?.minNumberOfSeats) *
+          Number(
+            selectedActivity?.activityRates?.find(
+              (rate) => rate?.ageRange === 'adults'
+            )?.amountUsd
+          )
+      );
+    } else {
+      setValue('defaultRate', '');
+    }
+  }, [
+    selectedActivitySchedule,
+    selectedActivity,
+    watch('numberOfAdults'),
+    watch('numberOfChildren'),
+    watch('numberOfParticipants'),
+    setValue,
+    watch,
+  ]);
+
   // SET DEFAULT VALUES
   useEffect(() => {
-    if (selectedActivity?.name?.toUpperCase() === 'BOAT TRIP – PRIVATE, NON-SCHEDULED') {
+    if (
+      selectedActivity?.name?.toUpperCase() ===
+      'BOAT TRIP – PRIVATE, NON-SCHEDULED'
+    ) {
       setValue('defaultRate', 200);
     }
   }, [selectedActivity?.name, setValue]);
@@ -314,13 +373,13 @@ const SelectBookingActivity = () => {
         dispatch(setRemainingSeats(0));
         reset({
           activitySchedule: '',
+          defaultRate: '',
           numberOfAdults: '',
           numberOfChildren: '',
           numberOfParticipants: '',
-          defaultRate: '',
           numberOfSeats: 0,
         });
-      }}
+        }}
       heading={`Confirm adding ${selectedActivity.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
@@ -434,7 +493,6 @@ const SelectBookingActivity = () => {
                                   e
                               )
                             );
-                            console.log(bookingActivity, e?.split('-')[0]);
                           }}
                           options={selectedActivity?.activitySchedules?.map(
                             (activitySchedule: ActivitySchedule) => {
@@ -460,18 +518,19 @@ const SelectBookingActivity = () => {
                             </p>
                             <Loader className="text-primary" />
                           </figure>
-                        ) : (
-                          remainingSeats &&
+                        ) : remainingSeats &&
                           (remainingSeats as boolean) !== true ? (
-                            <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                              Number of {transportationsLabel} available for
-                              this period: {remainingSeats}
-                            </p>
-                          ) : selectedActivitySchedule && (
-                          <p className='text-[13px] my-1 px-1 font-medium text-primary'>
-                            This period is available bookings.
+                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                            Number of {transportationsLabel} available for this
+                            period: {remainingSeats}
                           </p>
-                        ))}
+                        ) : (
+                          selectedActivitySchedule && (
+                            <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                              This period is available bookings.
+                            </p>
+                          )
+                        )}
                         {errors?.activitySchedule && (
                           <InputErrorMessage
                             message={errors?.activitySchedule?.message}
@@ -677,30 +736,36 @@ const SelectBookingActivity = () => {
           </fieldset>
           <menu className="flex flex-col gap-2 w-[90%]">
             {selectedActivitySchedule &&
-              selectedActivitySchedule?.disclaimer && (
-                <p className="text-slate-900 text-[15px]">
-                  Disclaimer: {selectedActivitySchedule?.disclaimer}
-                </p>
-              )}
-            {watch('numberOfParticipants') &&
+            selectedActivitySchedule?.disclaimer ? (
+              <p className="text-slate-900 text-[15px]">
+                Disclaimer: {selectedActivitySchedule?.disclaimer}
+              </p>
+            ) : null}
+            {watch('numberOfParticipants') ? (
               Number(watch('numberOfParticipants')) >= 1 &&
-              Number(watch('numberOfParticipants')) <= 29 && (
+              Number(watch('numberOfParticipants')) <= 29 ? (
                 <p className="text-slate-900 text-[15px]">
                   Price: ${watch('defaultRate')} USD
                 </p>
-              )}
+              ) : null
+            ) : null}
             {selectedActivity?.name
               ?.toUpperCase()
-              ?.includes('BEHIND THE SCENES TOUR') && (
+              ?.includes('BEHIND THE SCENES TOUR') && !watch('defaultRate') ? (
               <p className="text-slate-900 text-[15px]">
-                Price: $
+                Price:{' '}
                 {calculateBehindTheScenesPrice(
                   Number(watch('numberOfAdults')) || 0,
                   Number(watch('numberOfChildren')) || 0
                 )}{' '}
                 USD
               </p>
-            )}
+            ) : null}
+            {watch('defaultRate') ? (
+              <p className="text-slate-900 text-[15px]">
+                Minimum cost: {watch('defaultRate')} USD
+              </p>
+            ) : null}
             {errors?.numberOfParticipants && (
               <>
                 <InputErrorMessage
@@ -772,13 +837,13 @@ const SelectBookingActivity = () => {
                 dispatch(setRemainingSeats(0));
                 reset({
                   activitySchedule: '',
+                  defaultRate: '',
                   numberOfAdults: '',
                   numberOfChildren: '',
                   numberOfParticipants: '',
-                  defaultRate: '',
                   numberOfSeats: 0,
                 });
-              }}
+                        }}
             >
               Close
             </Button>

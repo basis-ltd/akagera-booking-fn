@@ -1,16 +1,22 @@
 import Loader from '@/components/inputs/Loader';
 import AdminLayout from '@/containers/AdminLayout';
 import { useUpdatePaymentMutation } from '@/states/apiSlice';
+import { submitBookingThunk } from '@/states/features/bookingSlice';
+import { AppDispatch, RootState } from '@/states/store';
 import queryString, { ParsedQuery } from 'query-string';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const PaymentSuccess = () => {
   // STATE VARIABLES
+  const dispatch: AppDispatch = useDispatch();
   const [queryParams, setQueryParams] = useState<ParsedQuery<string | number>>(
     {}
   );
+  const { submitBookingIsSuccess, submitBookingIsLoading } =
+    useSelector((state: RootState) => state.booking);
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -43,11 +49,27 @@ const PaymentSuccess = () => {
     }
   }, [queryParams, updatePayment]);
 
+  useEffect(() => {
+    if (submitBookingIsSuccess) {
+      navigate(`/bookings/${updatePaymentData?.data?.bookingId}/success`);
+    }
+  }, [
+    dispatch,
+    navigate,
+    submitBookingIsSuccess,
+    updatePaymentData?.data?.bookingId,
+  ]);
+
   // HANDLE UPDATE PAYMENT SUCCESS RESPONSE
   useEffect(() => {
     if (updatePaymentIsSuccess) {
       toast.success('Payment received successfully');
-      navigate(`/bookings/${updatePaymentData?.data?.bookingId}/preview`);
+      dispatch(
+        submitBookingThunk({
+          id: updatePaymentData?.data?.bookingId,
+          status: 'pending',
+        })
+      );
     } else if (updatePaymentIsError) {
       toast.error(
         (updatePaymentError as ErrorResponse)?.data?.message ||
@@ -55,8 +77,9 @@ const PaymentSuccess = () => {
       );
     }
   }, [
-    navigate,
     updatePaymentData?.data?.bookingId,
+    dispatch,
+    navigate,
     updatePaymentError,
     updatePaymentIsError,
     updatePaymentIsSuccess,
@@ -65,7 +88,9 @@ const PaymentSuccess = () => {
   return (
     <AdminLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-5 p-6 min-h-[80vh] items-center justify-center">
-        {updatePaymentIsLoading && <Loader className="text-primary" />}
+        {(updatePaymentIsLoading || submitBookingIsLoading) && (
+          <Loader className="text-primary" />
+        )}
       </main>
     </AdminLayout>
   );

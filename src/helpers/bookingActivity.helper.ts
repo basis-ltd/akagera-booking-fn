@@ -5,7 +5,7 @@ export const calculateBehindTheScenesPrice = (
   const totalPeople = numberOfAdults + numberOfChildren;
 
   if (totalPeople < 8) {
-    return 30 * numberOfAdults + 20 * numberOfChildren;
+    return 25 * numberOfAdults + 20 * numberOfChildren;
   } else if (totalPeople <= 14) {
     return 200;
   } else {
@@ -18,7 +18,7 @@ export const calculateBehindTheScenesPrice = (
       const remainingAdults = Math.min(numberOfAdults, remainingPeople);
       const remainingChildren = remainingPeople - remainingAdults;
 
-      basePrice += 30 * remainingAdults + 20 * remainingChildren;
+      basePrice += 25 * remainingAdults + 20 * remainingChildren;
     }
 
     return basePrice;

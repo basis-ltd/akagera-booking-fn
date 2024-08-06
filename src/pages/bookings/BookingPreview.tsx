@@ -15,7 +15,11 @@ import {
   calculateVehiclePrice,
   getBookingStatusColor,
 } from '@/helpers/booking.helper';
-import { formatDate, formatCurrency, capitalizeString } from '@/helpers/strings.helper';
+import {
+  formatDate,
+  formatCurrency,
+  capitalizeString,
+} from '@/helpers/strings.helper';
 import {
   useCreatePaymentMutation,
   useLazyFetchBookingActivitiesQuery,
@@ -23,7 +27,6 @@ import {
   useLazyFetchBookingVehiclesQuery,
   useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
-  useSubmitBookingMutation,
 } from '@/states/apiSlice';
 import {
   setBookingActivitiesList,
@@ -37,6 +40,7 @@ import {
 } from '@/states/features/bookingPeopleSlice';
 import {
   addBookingTotalAmountUsd,
+  getBookingAmountThunk,
   setBooking,
   setBookingPaymentsList,
 } from '@/states/features/bookingSlice';
@@ -68,9 +72,13 @@ import { toast } from 'react-toastify';
 const BookingPreview = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { booking, bookingPaymentsList } = useSelector(
-    (state: RootState) => state.booking
-  );
+  const {
+    booking,
+    bookingPaymentsList,
+    bookingAmount,
+    bookingAmountIsFetching,
+    bookingAmountIsSuccess,
+  } = useSelector((state: RootState) => state.booking);
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
   );
@@ -95,6 +103,13 @@ const BookingPreview = () => {
   // NAVIGATION
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // FETCH BOOKING AMOUNT
+  useEffect(() => {
+    if (booking?.id) {
+      dispatch(getBookingAmountThunk({ id: booking?.id }));
+    }
+  }, [booking, dispatch]);
 
   // RESET TOTAL AMOUNT ON INITIAL LOAD
   useEffect(() => {
@@ -148,17 +163,6 @@ const BookingPreview = () => {
       isFetching: bookingVehiclesIsFetching,
     },
   ] = useLazyFetchBookingVehiclesQuery();
-
-  // INITIALIZE UPDATE BOOKING MUTATION
-  const [
-    updateBooking,
-    {
-      isLoading: updateBookingIsLoading,
-      error: updateBookingError,
-      isSuccess: updateBookingIsSuccess,
-      isError: updateBookingIsError,
-    },
-  ] = useSubmitBookingMutation();
 
   // FETCH BOOKING VEHICLES
   useEffect(() => {
@@ -231,8 +235,11 @@ const BookingPreview = () => {
             activity: bookingActivity?.activity,
             price: bookingActivity?.defaultRate
               ? formatCurrency(
-                  bookingActivity?.defaultRate *
-                    Number(bookingActivity?.numberOfSeats)
+                  Number(bookingActivity?.defaultRate) *
+                    Number(
+                      bookingActivity?.numberOfSeats ||
+                        bookingActivity?.numberOfAdults
+                    )
                 )
               : `${formatCurrency(calculateActivityPrice(bookingActivity))}`,
             numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
@@ -293,28 +300,6 @@ const BookingPreview = () => {
     dispatch,
   ]);
 
-  // HANDLE UPDATE BOOKING RESPONSE
-  useEffect(() => {
-    if (updateBookingIsError) {
-      if ((updateBookingError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while updating booking. Please try again later.'
-        );
-      } else {
-        toast.error((updateBookingError as ErrorResponse).data.message);
-      }
-    } else if (updateBookingIsSuccess) {
-      toast.success('Booking submitted successfully');
-      navigate(`/bookings/${booking?.id}/success`);
-    }
-  }, [
-    updateBookingIsError,
-    updateBookingIsSuccess,
-    updateBookingError,
-    navigate,
-    booking?.id,
-  ]);
-
   // INITIALIZE CREATE PAYMENT MUTATION
   const [
     createPayment,
@@ -338,7 +323,6 @@ const BookingPreview = () => {
         toast.error((createPaymentError as ErrorResponse).data.message);
       }
     } else if (createPaymentIsSuccess) {
-      toast.success('Payment created successfully');
       dispatch(setCreatePaymentModal(true));
       dispatch(setPayment(createPaymentData?.data?.payment));
       dispatch(setPaymentIntent(createPaymentData?.data?.paymentIntent));
@@ -350,7 +334,7 @@ const BookingPreview = () => {
     createPaymentIsSuccess,
     createPaymentError,
     navigate,
-    booking.id,
+    booking,
     dispatch,
     createPaymentData,
   ]);
@@ -718,7 +702,8 @@ const BookingPreview = () => {
           <figure className="w-full flex items-center justify-center min-h-[10vh]">
             <Loader className="text-primary" />
           </figure>
-        ) : bookingPaymentsList?.length > 0 && (
+        ) : (
+          bookingPaymentsList?.length > 0 &&
           paymentsIsSuccess && (
             <menu className="flex flex-col gap-2 w-full">
               <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
@@ -744,14 +729,22 @@ const BookingPreview = () => {
         )}
         <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
           <h1 className="text-primary font-bold uppercase">Total</h1>
-          <ul className="flex flex-col items-start gap-2">
-            <p className="uppercase font-medium underline">
-              {formatCurrency(Number(booking?.totalAmountUsd))}
-            </p>
-            <p className="uppercase font-medium underline">
-              {formatCurrency(Number(booking?.totalAmountUsd) * 1303, 'RWF')}
-            </p>
-          </ul>
+          {bookingAmountIsFetching ? (
+            <figure className="flex items-center justify-center">
+              <Loader />
+            </figure>
+          ) : (
+            bookingAmountIsSuccess && (
+              <ul className="flex flex-col items-start gap-2">
+                <p className="uppercase font-bold text-primary">
+                  {formatCurrency(Number(bookingAmount))}
+                </p>
+                <p className="uppercase font-bold text-primary">
+                  {formatCurrency(Number(bookingAmount) * 1343, 'RWF')}
+                </p>
+              </ul>
+            )
+          )}
         </menu>
         <menu className="flex items-start gap-3 justify-between mb-6">
           <Button
@@ -770,7 +763,7 @@ const BookingPreview = () => {
                   e.preventDefault();
                   createPayment({
                     bookingId: booking?.id,
-                    amount: Number(String(booking?.totalAmountUsd)?.split('.')[0]),
+                    amount: Number(String(bookingAmount)?.split('.')[0]),
                     currency: 'usd',
                     email: booking?.email,
                   });
@@ -779,26 +772,6 @@ const BookingPreview = () => {
                 {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
               </Button>
             )}
-            <Button
-              styled={bookingPaid}
-              primary={bookingPaid}
-              className={
-                !bookingPaid ? `!text-[12px] underline text-primary` : ''
-              }
-              onClick={(e) => {
-                e.preventDefault();
-                updateBooking({
-                  id: booking?.id,
-                  status: 'pending',
-                  totalAmountRwf: Number(booking?.totalAmountUsd) * 1303,
-                  totalAmountUsd: Number(booking?.totalAmountUsd),
-                });
-              }}
-            >
-              {updateBookingIsLoading
-                ? '...'
-                : `Submit ${!bookingPaid ? 'and pay later' : ''}`}
-            </Button>
           </menu>
         </menu>
       </main>
