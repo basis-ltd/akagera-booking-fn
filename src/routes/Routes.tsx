@@ -34,6 +34,7 @@ import PaymentModal from '@/containers/PaymentModal.tsx';
 import PaymentSuccess from '@/pages/payments/PaymentSuccess.tsx';
 import CreateActivity from '@/pages/activities/CreateActivity.tsx';
 import BookingConsent from '@/pages/bookings/BookingConsent.tsx';
+import TermsOfService from '@/pages/terms-conditions/TermsOfService.tsx';
 
 const Router = () => {
   return (
@@ -65,6 +66,7 @@ const Router = () => {
         <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/payments/:id/success" element={<PaymentSuccess />} />
+        <Route path="/dashboard/terms-of-services" element={<TermsOfService />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />

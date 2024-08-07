@@ -790,6 +790,19 @@ export const apiSlice = createApi({
       getBookingAmount: builder.query({
         query: ({ id }) => `bookings/${id}/amount`,
       }),
+
+      // UPDATE TERMS OF SERVICE
+      updateTermsOfService: builder.mutation({
+        query: ({ id, termsOfService }) => {
+          return {
+            url: `terms/${id}`,
+            method: 'PATCH',
+            body: {
+              termsOfService,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -844,6 +857,7 @@ export const {
   useUpdateBookingConsentMutation,
   useLazyGetBookingAmountQuery,
   useLazyGetRemainingSeatsQuery,
+  useUpdateTermsOfServiceMutation,
 } = apiSlice;
 
 export default apiSlice;

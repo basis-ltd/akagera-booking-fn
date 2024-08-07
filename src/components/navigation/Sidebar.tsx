@@ -10,6 +10,7 @@ import {
   faChevronCircleLeft,
   faChevronCircleRight,
   faDashboard,
+  faFileContract,
   faUserGroup,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -54,6 +55,12 @@ const Sidebar = () => {
       icon: faDashboard,
       role: 'admin',
     },
+    {
+      label: 'Terms & Conditions',
+      path: '/dashboard/terms-of-services',
+      icon: faFileContract,
+      role: 'admin',
+    },
   ];
 
   return (
@@ -82,7 +89,7 @@ const Sidebar = () => {
       </figure>
       <menu className="flex flex-col gap-2">
         {sidebarLinks.map((link, index) => {
-          if (link?.role === 'admin' && user?.role !== 'admin') return null
+          if (link?.role === 'admin' && user?.role !== 'admin') return null;
           return (
             <Link
               key={index}

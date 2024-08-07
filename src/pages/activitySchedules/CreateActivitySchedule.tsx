@@ -83,21 +83,24 @@ const CreateActivitySchedule = () => {
   useEffect(() => {
     switch (selectedActivity?.name?.toUpperCase()) {
       case 'BOAT TRIP – PRIVATE, NON-SCHEDULED':
-        setTransportationsLabel('participants');
-        break;
+      setTransportationsLabel('participants');
+      break;
       case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
-      case 'BOAT TRIP – SCHEDULED SUNSET TRIP':
-        setTransportationsLabel('guides');
-        break;
+      case 'NIGHT DRIVE (OPERATED BY AMC)':
+      setTransportationsLabel('cars');
+      break;
+      case 'BOAT TRIP (SUNSET TRIP)':
+      setTransportationsLabel('boats');
+      break;
       case 'GAME DRIVE DAY (AMC OPERATED)':
-        setTransportationsLabel('cars');
-        break;
+      setTransportationsLabel('cars');
+      break;
       case 'BOAT TRIP – SCHEDULED MORNING/DAY':
-        setTransportationsLabel('seats');
-        break;
+      setTransportationsLabel('seats');
+      break;
       default:
-        setTransportationsLabel('seats');
-        break;
+      setTransportationsLabel('seats');
+      break;
     }
     if (selectedActivity?.name?.toUpperCase()?.includes('CAMPING')) {
       setTransportationsLabel('tents');
@@ -221,7 +224,7 @@ const CreateActivitySchedule = () => {
               );
             }}
           />
-          
+
           <Controller
             name="maxNumberOfSeats"
             control={control}
@@ -238,7 +241,7 @@ const CreateActivitySchedule = () => {
               );
             }}
           />
-                    <Controller
+          <Controller
             name="numberOfSeats"
             control={control}
             rules={{
