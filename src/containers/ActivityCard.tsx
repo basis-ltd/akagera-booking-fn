@@ -3,6 +3,10 @@ import Button from '../components/inputs/Button';
 import { Activity } from '../types/models/activity.types';
 import { AppDispatch, RootState } from '@/states/store';
 import {
+  setAddBehindTheScenesActivityModal,
+  setAddBoatTripMorningDayActivityModal,
+  setAddCampingActivitiesModal,
+  setAddGameDayDriveActivityModal,
   setSelectBookingActivityModal,
   setSelectedActivity,
 } from '@/states/features/activitySlice';
@@ -33,6 +37,35 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
       );
     }
   }, [bookingActivitiesList, activity, selectBookingActivityModal]);
+
+  // HANDLE SELECT BOOKING ACTIVITY MODAL
+  const handleSelectBookingActivityModal = ({
+    activity,
+  }: {
+    activity: Activity;
+  }) => {
+    dispatch(setSelectedActivity(activity));
+    switch (activity?.slug) {
+      case 'behind-the-scenes-tour':
+        dispatch(setAddBehindTheScenesActivityModal(true));
+        break;
+      case 'boat-trip-morning-day':
+        dispatch(setAddBoatTripMorningDayActivityModal(true));
+        break;
+      case 'camping':
+      case 'camping-at-mihindi-campsite':
+      case 'camping-at-mihindi-for-rwanda-nationals':
+      case 'camping-for-rwandan-nationals':
+        dispatch(setAddCampingActivitiesModal(true));
+        break;
+      case 'game-drive-day-amc-operated':
+        dispatch(setAddGameDayDriveActivityModal(true));
+        break;
+      default:
+        dispatch(setSelectBookingActivityModal(true));
+        break;
+    }
+  };
 
   return (
     <section className="flex flex-col gap-6 items-start justify-between w-full p-4 rounded-lg shadow-md min-h-[15vh]">
@@ -107,7 +140,7 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
           onClick={(e) => {
             e.preventDefault();
             dispatch(setSelectedActivity(activity));
-            dispatch(setSelectBookingActivityModal(true));
+            handleSelectBookingActivityModal({ activity });
           }}
         >
           {activityBooked ? 'View Booking' : 'Book Activity'}

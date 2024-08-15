@@ -4,6 +4,10 @@ export const calculateBehindTheScenesPrice = (
 ): number => {
   const totalPeople = numberOfAdults + numberOfChildren;
 
+  if (totalPeople < 4) {
+    return 100;
+  }
+
   if (totalPeople < 8) {
     return 25 * numberOfAdults + 20 * numberOfChildren;
   } else if (totalPeople <= 14) {

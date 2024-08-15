@@ -24,9 +24,13 @@ const CreateBookingActivitiesActivity = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const { activitiesList, selectBookingActivityModal } = useSelector(
-    (state: RootState) => state.activity
-  );
+  const {
+    activitiesList,
+    selectBookingActivityModal,
+    addBehindTheScenesActivityModal,
+    addBoatTripMorningDayActivityModal,
+    addGameDayDriveActivityModal,
+  } = useSelector((state: RootState) => state.activity);
   const { booking } = useSelector((state: RootState) => state.booking);
 
   // INITIALIZE FETCH BOOKING PEOPLE
@@ -98,7 +102,14 @@ const CreateBookingActivitiesActivity = () => {
     if (booking && !selectBookingActivityModal) {
       fetchBookingActivities({ bookingId: booking?.id, size: 100, page: 0 });
     }
-  }, [booking, fetchBookingActivities, selectBookingActivityModal]);
+  }, [
+    booking,
+    fetchBookingActivities,
+    selectBookingActivityModal,
+    addBehindTheScenesActivityModal,
+    addBoatTripMorningDayActivityModal,
+    addGameDayDriveActivityModal,
+  ]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
   useEffect(() => {
@@ -187,6 +198,9 @@ const CreateBookingActivitiesActivity = () => {
           disabled={servicesList.indexOf(selectedService) - 1 < 0}
         >
           Back
+        </Button>
+        <Button primary route={`/bookings/${booking?.id}/consent`}>
+          Complete booking
         </Button>
         <Button
           primary

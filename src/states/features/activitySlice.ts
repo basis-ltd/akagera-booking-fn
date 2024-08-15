@@ -10,6 +10,10 @@ const initialState: {
   updateActivityModal: boolean;
   deleteActivityModal: boolean;
   createActivityModal: boolean;
+  addBehindTheScenesActivityModal: boolean;
+  addBoatTripMorningDayActivityModal: boolean;
+  addCampingActivitiesModal: boolean;
+  addGameDayDriveActivityModal: boolean;
 } = {
   activitiesList: [],
   selectedActivity: {} as Activity,
@@ -19,6 +23,10 @@ const initialState: {
   updateActivityModal: false,
   deleteActivityModal: false,
   createActivityModal: false,
+  addBehindTheScenesActivityModal: false,
+  addBoatTripMorningDayActivityModal: false,
+  addCampingActivitiesModal: false,
+  addGameDayDriveActivityModal: false,
 };
 
 export const activitySlice = createSlice({
@@ -56,7 +64,19 @@ export const activitySlice = createSlice({
     },
     setCreateActivityModal: (state, action) => {
       state.createActivityModal = action.payload;
-    }
+    },
+    setAddBehindTheScenesActivityModal: (state, action) => {
+      state.addBehindTheScenesActivityModal = action.payload;
+    },
+    setAddBoatTripMorningDayActivityModal: (state, action) => {
+      state.addBoatTripMorningDayActivityModal = action.payload;
+    },
+    setAddCampingActivitiesModal: (state, action) => {
+      state.addCampingActivitiesModal = action.payload;
+    },
+    setAddGameDayDriveActivityModal: (state, action) => {
+      state.addGameDayDriveActivityModal = action.payload;
+    },
   },
 });
 
@@ -70,7 +90,11 @@ export const {
   setDeleteActivityModal,
   removeActivityFromList,
   addActivityToList,
-  setCreateActivityModal
+  setCreateActivityModal,
+  setAddBehindTheScenesActivityModal,
+  setAddBoatTripMorningDayActivityModal,
+  setAddCampingActivitiesModal,
+  setAddGameDayDriveActivityModal,
 } = activitySlice.actions;
 
 export default activitySlice.reducer;

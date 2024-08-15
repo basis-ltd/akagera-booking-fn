@@ -5,5 +5,5 @@ export const InputErrorMessage = ({
 }: {
   message: string | FieldError | Merge<FieldError, FieldErrorsImpl<FieldValues>> | undefined;
 }) => {
-  return <p className="text-red-600 text-[13px]">{String(message)}</p>;
+  return <p className="text-red-600 text-[14px]">{String(message)}</p>;
 };

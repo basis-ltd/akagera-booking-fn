@@ -692,7 +692,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: {
               bookingId,
-              amount,
+              amount: amount,
               email,
             },
           };

@@ -13,6 +13,7 @@ export type Activity = {
   updatedAt: Date;
   startTime: Date;
   endTime?: Date;
+  slug?: string;
   service: Service;
   activityRates: ActivityRate[];
   activitySchedules: ActivitySchedule[];

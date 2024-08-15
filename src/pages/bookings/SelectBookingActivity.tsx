@@ -148,6 +148,17 @@ const SelectBookingActivity = () => {
   ]);
 
   const onSubmit = (data: FieldValues) => {
+    if (
+      !data?.numberOfAdults &&
+      !data?.numberOfChildren &&
+      !data?.numberOfSeats
+    ) {
+      setError('numberOfParticipants', {
+        type: 'manual',
+        message: 'Please add at least one participant.',
+      });
+      return;
+    }
     createBookingActivity({
       bookingId: booking?.id,
       activityId: selectedActivity?.id,
@@ -162,7 +173,11 @@ const SelectBookingActivity = () => {
       numberOfChildren: data?.numberOfChildren
         ? Number(data?.numberOfChildren)
         : 0,
-      numberOfSeats: data?.numberOfSeats ? Number(data?.numberOfSeats) : 0,
+      numberOfSeats: data?.numberOfSeats
+        ? Number(data?.numberOfSeats)
+        : data?.numberOfParticipants
+        ? Number(data?.numberOfParticipants)
+        : 0,
       defaultRate: data?.defaultRate
         ? Number(data?.defaultRate)
         : selectedActivity?.name
@@ -379,7 +394,7 @@ const SelectBookingActivity = () => {
           numberOfParticipants: '',
           numberOfSeats: 0,
         });
-        }}
+      }}
       heading={`Confirm adding ${selectedActivity.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
@@ -550,8 +565,8 @@ const SelectBookingActivity = () => {
                   name="numberOfAdults"
                   control={control}
                   rules={{
-                    required: 'Enter number of adult participants',
                     validate: (value) => {
+                      if (!value) return true;
                       return (
                         validatePersonAgeRange(
                           Number(value),
@@ -572,29 +587,24 @@ const SelectBookingActivity = () => {
                           onChange={async (e) => {
                             field.onChange(e.target.value);
                             await trigger('numberOfAdults');
+                            clearErrors('numberOfParticipants');
                           }}
                         />
                         {errors?.numberOfAdults && (
-                          <>
-                            <p className="text-[12px] text-slate-400">
-                              Enter 0 if none
-                            </p>
-                            <InputErrorMessage
-                              message={errors?.numberOfAdults?.message}
-                            />
-                          </>
+                          <InputErrorMessage
+                            message={errors?.numberOfAdults?.message}
+                          />
                         )}
                       </label>
                     );
                   }}
                 />
-
                 <Controller
                   name="numberOfChildren"
                   control={control}
                   rules={{
-                    required: 'Enter number of children participants',
                     validate: (value) => {
+                      if (!value) return true;
                       return (
                         validatePersonAgeRange(
                           Number(value),
@@ -615,18 +625,13 @@ const SelectBookingActivity = () => {
                           onChange={async (e) => {
                             field.onChange(e.target.value);
                             await trigger('numberOfChildren');
+                            clearErrors('numberOfParticipants');
                           }}
                         />
                         {errors?.numberOfChildren && (
-                          <>
-                            <p className="text-[12px] text-slate-400">
-                              Enter 0 if none
-                            </p>
-
-                            <InputErrorMessage
-                              message={errors?.numberOfChildren?.message}
-                            />
-                          </>
+                          <InputErrorMessage
+                            message={errors?.numberOfChildren?.message}
+                          />
                         )}
                       </label>
                     );
@@ -735,6 +740,13 @@ const SelectBookingActivity = () => {
             )}
           </fieldset>
           <menu className="flex flex-col gap-2 w-[90%]">
+          {errors?.numberOfParticipants && (
+              <>
+                <InputErrorMessage
+                  message={errors?.numberOfParticipants?.message}
+                />
+              </>
+            )}
             {selectedActivitySchedule &&
             selectedActivitySchedule?.disclaimer ? (
               <p className="text-slate-900 text-[15px]">
@@ -766,13 +778,6 @@ const SelectBookingActivity = () => {
                 Minimum cost: {watch('defaultRate')} USD
               </p>
             ) : null}
-            {errors?.numberOfParticipants && (
-              <>
-                <InputErrorMessage
-                  message={errors?.numberOfParticipants?.message}
-                />
-              </>
-            )}
             {minNumberOfSeatsDisclaimer && (
               <p className="text-slate-900 text-[15px]">
                 {minNumberOfSeatsDisclaimer}
@@ -843,7 +848,7 @@ const SelectBookingActivity = () => {
                   numberOfParticipants: '',
                   numberOfSeats: 0,
                 });
-                        }}
+              }}
             >
               Close
             </Button>

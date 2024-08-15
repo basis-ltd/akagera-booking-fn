@@ -67,6 +67,7 @@ const DeleteBookingActivity = () => {
         dispatch(setDeleteBookingActivityModal(false));
       }}
       heading={`Delete ${selectedBookingActivity?.activity?.name} - ${selectedBookingActivity?.price}`}
+      mainClassName="z-[50000]"
     >
       <section className="flex flex-col gap-4 w-full">
         <h1 className="text-[14px]">

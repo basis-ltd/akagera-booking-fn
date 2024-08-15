@@ -35,6 +35,10 @@ import PaymentSuccess from '@/pages/payments/PaymentSuccess.tsx';
 import CreateActivity from '@/pages/activities/CreateActivity.tsx';
 import BookingConsent from '@/pages/bookings/BookingConsent.tsx';
 import TermsOfService from '@/pages/terms-conditions/TermsOfService.tsx';
+import AddBehindTheScencesActivity from '@/pages/bookings/booking-activities/AddBehindTheScencesActivity.tsx';
+import AddBoatTripMorningDayActivity from '@/pages/bookings/booking-activities/AddBoatTripMorningDayActivity.tsx';
+import AddCampingActivities from '@/pages/bookings/booking-activities/AddCampingActivities.tsx';
+import AddGameDayDriveActivity from '@/pages/bookings/booking-activities/AddGameDayDriveActivity.tsx';
 
 const Router = () => {
   return (
@@ -86,6 +90,12 @@ const Router = () => {
       <UpdateActivityRate />
       <PaymentModal />
       <CreateActivity />
+
+      {/* ACTIVITIES */}
+      <AddBehindTheScencesActivity />
+      <AddBoatTripMorningDayActivity />
+      <AddCampingActivities />
+      <AddGameDayDriveActivity />
     </section>
   );
 };

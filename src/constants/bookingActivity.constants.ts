@@ -1,3 +1,5 @@
+import { calculateActivityPrice } from '@/helpers/booking.helper';
+import { formatCurrency } from '@/helpers/strings.helper';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -15,15 +17,17 @@ export const bookingActivitiesColumns = [
     header: 'Start Time',
     accessorKey: 'startTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      row?.original?.activity?.activitySchedules?.length > 0 ?
-      moment(row?.original?.startTime).format('hh:mm A'): '',
+      row?.original?.activity?.activitySchedules?.length > 0
+        ? moment(row?.original?.startTime).format('hh:mm A')
+        : '',
   },
   {
     header: 'End Time',
     accessorKey: 'endTime',
     cell: ({ row }: { row: Row<BookingActivity> }) =>
-      row?.original?.activity?.activitySchedules?.length > 0 ?
-      moment(row?.original?.endTime).format('hh:mm A'): '',
+      row?.original?.activity?.activitySchedules?.length > 0
+        ? moment(row?.original?.endTime).format('hh:mm A')
+        : '',
   },
   {
     header: 'Number of adults',
@@ -34,15 +38,9 @@ export const bookingActivitiesColumns = [
     accessorKey: 'numberOfChildren',
   },
   {
-    header: 'Number of cars/boats/tents',
-    accessorKey: 'numberOfSeats',
-    cell: ({ row }: { row: Row<BookingActivity> }) =>
-      Number(row?.original?.numberOfSeats) > 1
-        ? `${row?.original?.numberOfSeats}`
-        : ``,
-  },
-  {
     header: 'Price',
     accessorKey: 'price',
+    cell: ({ row }: { row: Row<BookingActivity> }) =>
+      `${formatCurrency(calculateActivityPrice(row.original))}`,
   },
 ];

@@ -45,6 +45,12 @@ const CreateBookingActivities = () => {
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
   );
+  const {
+    selectBookingActivityModal,
+    addBehindTheScenesActivityModal,
+    addBoatTripMorningDayActivityModal,
+    addCampingActivitiesModal,
+  } = useSelector((state: RootState) => state.activity);
 
   // NAVIGATION
   const { id } = useParams();
@@ -78,7 +84,7 @@ const CreateBookingActivities = () => {
         );
         navigate('/');
       } else {
-        toast.error((bookingDetailsError as ErrorResponse).data.message);
+        toast.error((bookingDetailsError as ErrorResponse)?.data?.message);
         navigate('/');
       }
     } else if (bookingDetailsIsSuccess) {
@@ -140,7 +146,9 @@ const CreateBookingActivities = () => {
 
   // FETCH BOOKING AMOUNT
   useEffect(() => {
-    dispatch(getBookingAmountThunk({ id: booking.id }));
+    if (!selectBookingActivityModal) {
+      dispatch(getBookingAmountThunk({ id: booking.id }));
+    }
   }, [
     booking,
     dispatch,
@@ -148,6 +156,10 @@ const CreateBookingActivities = () => {
     bookingActivitiesList,
     bookingPeopleList,
     bookingVehiclesList,
+    selectBookingActivityModal,
+    addBehindTheScenesActivityModal,
+    addBoatTripMorningDayActivityModal,
+    addCampingActivitiesModal,
   ]);
 
   if (servicesIsFetching || bookingDetailsIsFetching) {
@@ -194,7 +206,7 @@ const CreateBookingActivities = () => {
                       <Loader className="text-primary" />
                     </ul>
                   ) : (
-                    bookingAmountIsSuccess && (
+                    bookingAmountIsSuccess && bookingAmount > 0 && (
                       <ul className="flex items-center gap-1 text-[15px] bg-primary text-white p-1 px-2 rounded-md shadow-sm">
                         <p className="uppercase">Current Total:</p>
                         <p>{formatCurrency(bookingAmount)}</p>

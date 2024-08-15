@@ -37,23 +37,30 @@ const pricingStructure: PricingStructure = {
 export const calculateActivityPrice = (bookingActivity: BookingActivity) => {
   if (
     bookingActivity?.numberOfAdults === 0 &&
-    bookingActivity?.numberOfChildren === 0
+    bookingActivity?.numberOfChildren === 0 &&
+    !Number(bookingActivity?.defaultRate) &&
+    bookingActivity?.numberOfSeats === 0
   )
     return 0;
-  const prices = [
-    Number(bookingActivity?.numberOfAdults) *
-      Number(
-        bookingActivity?.activity?.activityRates?.find(
-          (rate: ActivityRate) => rate?.ageRange === 'adults'
-        )?.amountUsd
-      ),
-    Number(bookingActivity?.numberOfChildren) *
-      Number(
-        bookingActivity?.activity?.activityRates?.find(
-          (rate: ActivityRate) => rate?.ageRange === 'children'
-        )?.amountUsd
-      ),
-  ];
+  let prices = [];
+  if (Number(bookingActivity?.defaultRate)) {
+    prices = [Number(bookingActivity?.defaultRate)];
+  } else {
+    prices = [
+      Number(bookingActivity?.numberOfAdults) *
+        Number(
+          bookingActivity?.activity?.activityRates?.find(
+            (rate: ActivityRate) => rate?.ageRange === 'adults'
+          )?.amountUsd
+        ),
+      Number(bookingActivity?.numberOfChildren) *
+        Number(
+          bookingActivity?.activity?.activityRates?.find(
+            (rate: ActivityRate) => rate?.ageRange === 'children'
+          )?.amountUsd
+        ),
+    ];
+  }
 
   return prices?.reduce((acc, curr) => acc + Number(curr), 0);
 };
@@ -85,11 +92,63 @@ export function countryBelongsToEAC(country: string | undefined) {
 
 export function countryBelongsInAfrica(country: string | undefined) {
   const africanCountries = [
-    'AO', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD', 'KM', 'CD', 'DJ', 
-    'EG', 'GQ', 'ER', 'SZ', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'CI', 'KE', 
-    'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ', 'NA', 'NE', 
-    'NG', 'CG', 'RE', 'RW', 'SH', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 
-    'SD', 'SZ', 'TZ', 'TG', 'TN', 'UG', 'CD', 'ZM', 'ZW'
+    'AO',
+    'BJ',
+    'BW',
+    'BF',
+    'BI',
+    'CM',
+    'CV',
+    'CF',
+    'TD',
+    'KM',
+    'CD',
+    'DJ',
+    'EG',
+    'GQ',
+    'ER',
+    'SZ',
+    'ET',
+    'GA',
+    'GM',
+    'GH',
+    'GN',
+    'GW',
+    'CI',
+    'KE',
+    'LS',
+    'LR',
+    'LY',
+    'MG',
+    'MW',
+    'ML',
+    'MR',
+    'MU',
+    'MA',
+    'MZ',
+    'NA',
+    'NE',
+    'NG',
+    'CG',
+    'RE',
+    'RW',
+    'SH',
+    'ST',
+    'SN',
+    'SC',
+    'SL',
+    'SO',
+    'ZA',
+    'SS',
+    'SD',
+    'SZ',
+    'TZ',
+    'TG',
+    'TN',
+    'UG',
+    'CD',
+    'ZM',
+    'ZW',
   ];
   return africanCountries.includes(String(country));
 }
@@ -154,7 +213,6 @@ export function getPriceCategory(nationality: string, residence: string) {
 export function calculateNights(startDate: Date, endDate: Date) {
   return moment(endDate).diff(moment(startDate), 'days');
 }
-
 
 export const getBookingStatusColor = (status: string) => {
   return ['pending', 'pending_contact', 'in_progress'].includes(status)
