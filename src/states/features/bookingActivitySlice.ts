@@ -11,6 +11,7 @@ const initialState: {
   deleteBookingActivityModal: boolean;
   existingBookingActivitiesList: BookingActivity[];
   existingBookingActivitiesIsFetching: boolean;
+  existingBookingActivitiesIsSuccess: boolean;
   createBookingActivityIsLoading: boolean;
   createBookingActivityIsError: boolean;
   createBookingActivityIsSuccess: boolean;
@@ -23,6 +24,7 @@ const initialState: {
   createBookingActivityIsLoading: false,
   createBookingActivityIsError: false,
   createBookingActivityIsSuccess: false,
+  existingBookingActivitiesIsSuccess: false,
 };
 
 // FETCH BOOKING ACTIVITIES THUNK
@@ -151,12 +153,15 @@ const bookingActivitySlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchBookingActivitiesThunk.pending, (state) => {
       state.existingBookingActivitiesIsFetching = true;
+      state.existingBookingActivitiesIsSuccess = false;
     });
     builder.addCase(fetchBookingActivitiesThunk.fulfilled, (state) => {
       state.existingBookingActivitiesIsFetching = false;
+      state.existingBookingActivitiesIsSuccess = true;
     });
     builder.addCase(fetchBookingActivitiesThunk.rejected, (state) => {
       state.existingBookingActivitiesIsFetching = false;
+      state.existingBookingActivitiesIsSuccess = false;
     });
     builder.addCase(createBookingActivityThunk.pending, (state) => {
       state.createBookingActivityIsLoading = true;

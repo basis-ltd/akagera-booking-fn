@@ -45,8 +45,11 @@ const SelectBookingActivity = () => {
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
-  const { existingBookingActivitiesList, existingBookingActivitiesIsFetching } =
-    useSelector((state: RootState) => state.bookingActivity);
+  const {
+    existingBookingActivitiesList,
+    existingBookingActivitiesIsFetching,
+    existingBookingActivitiesIsSuccess,
+  } = useSelector((state: RootState) => state.bookingActivity);
   const { remainingSeats, remainingSeatsIsFetching } = useSelector(
     (state: RootState) => state.activitySchedule
   );
@@ -406,7 +409,7 @@ const SelectBookingActivity = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : existingBookingActivitiesList?.length <= 0 ? (
+      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
         <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
           <fieldset className="grid grid-cols-2 gap-2 w-full">
             <Controller
@@ -740,7 +743,7 @@ const SelectBookingActivity = () => {
             )}
           </fieldset>
           <menu className="flex flex-col gap-2 w-[90%]">
-          {errors?.numberOfParticipants && (
+            {errors?.numberOfParticipants && (
               <>
                 <InputErrorMessage
                   message={errors?.numberOfParticipants?.message}

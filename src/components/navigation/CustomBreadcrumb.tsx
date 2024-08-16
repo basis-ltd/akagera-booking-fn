@@ -27,17 +27,19 @@ const CustomBreadcrumb = ({ navigationLinks }: CustomBreadcrumbProps) => {
       <BreadcrumbList className="flex items-center gap-2">
         {hiddenLinks?.length > 0 && (
           <>
-            <BreadcrumbSeparator />
             <BreadcrumbItem>
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-1">
                   <BreadcrumbEllipsis className="h-4 w-4" />
+                  <BreadcrumbSeparator />
                   <span className="sr-only">Toggle menu</span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   {hiddenLinks?.map((link, index) => (
                     <DropdownMenuItem key={index}>
+                      <Link to={link?.route}>
                       {link.label}
+                      </Link>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

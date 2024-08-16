@@ -56,6 +56,7 @@ const AddBehindTheScencesActivity = () => {
     createBookingActivityIsSuccess,
     existingBookingActivitiesList,
     existingBookingActivitiesIsFetching,
+existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
@@ -184,7 +185,7 @@ const AddBehindTheScencesActivity = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : existingBookingActivitiesList?.length <= 0 ? (
+      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}

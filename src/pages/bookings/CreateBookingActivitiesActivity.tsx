@@ -13,7 +13,7 @@ import { AppDispatch, RootState } from '@/states/store';
 import { Activity } from '@/types/models/activity.types';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse } from 'react-router-dom';
+import { ErrorResponse, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { setBookingActivitiesList } from '@/states/features/bookingActivitySlice';
 import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
@@ -30,8 +30,13 @@ const CreateBookingActivitiesActivity = () => {
     addBehindTheScenesActivityModal,
     addBoatTripMorningDayActivityModal,
     addGameDayDriveActivityModal,
+    addCampingActivitiesModal,
+    addBoatTripPrivateActivityModal,
   } = useSelector((state: RootState) => state.activity);
   const { booking } = useSelector((state: RootState) => state.booking);
+
+  // NAVIGATION
+  const navigate = useNavigate();
 
   // INITIALIZE FETCH BOOKING PEOPLE
   const [
@@ -109,6 +114,8 @@ const CreateBookingActivitiesActivity = () => {
     addBehindTheScenesActivityModal,
     addBoatTripMorningDayActivityModal,
     addGameDayDriveActivityModal,
+    addCampingActivitiesModal,
+    addBoatTripPrivateActivityModal,
   ]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
@@ -199,7 +206,17 @@ const CreateBookingActivitiesActivity = () => {
         >
           Back
         </Button>
-        <Button primary route={`/bookings/${booking?.id}/consent`}>
+        <Button
+          primary
+          onClick={(e) => {
+            e.preventDefault();
+            if (booking?.consent) {
+              navigate(`/bookings/${booking?.id}/preview`);
+            } else {
+              navigate(`/bookings/${booking?.id}/consent`);
+            }
+          }}
+        >
           Complete booking
         </Button>
         <Button

@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from '@/states/store';
 import {
   setAddBehindTheScenesActivityModal,
   setAddBoatTripMorningDayActivityModal,
+  setAddBoatTripPrivateActivityModal,
   setAddCampingActivitiesModal,
   setAddGameDayDriveActivityModal,
   setSelectBookingActivityModal,
@@ -60,6 +61,9 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
         break;
       case 'game-drive-day-amc-operated':
         dispatch(setAddGameDayDriveActivityModal(true));
+        break;
+      case 'boat-trip–private-non-scheduled':
+        dispatch(setAddBoatTripPrivateActivityModal(true));
         break;
       default:
         dispatch(setSelectBookingActivityModal(true));

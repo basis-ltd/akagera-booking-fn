@@ -1,7 +1,6 @@
 import {
   ChangeEvent,
   FC,
-  FormEventHandler,
   LegacyRef,
   MouseEventHandler,
   ReactNode,
@@ -14,11 +13,10 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from 'react-router-dom';
 import DatePicker from './DatePicker';
 import { SelectSingleEventHandler } from 'react-day-picker';
-import { Checkbox } from '../ui/checkbox';
 import MonthPicker from './MonthPicker';
 
 interface InputProps {
-  label?: string;
+  label?: string | ReactNode;
   placeholder?: string;
   className?: string;
   required?: boolean;
@@ -73,7 +71,6 @@ const Input: FC<InputProps> = ({
   multiple = false,
   fromDate,
   toDate,
-  checked,
   selectionType,
   currentMonth = new Date(),
 }) => {
@@ -88,22 +85,6 @@ const Input: FC<InputProps> = ({
   }, [defaultValue, value]);
 
   if (['checkbox', 'radio'].includes(type)) {
-    if (type === 'checkbox') {
-      return (
-        <label className="flex w-fit items-center gap-2 text-[13px]">
-          <Checkbox
-            onChange={
-              onChange as FormEventHandler<HTMLButtonElement> | undefined
-            }
-            name={name}
-            value={value}
-            checked={checked}
-            defaultChecked={defaultChecked}
-          />
-          <p className={`${label ? 'flex' : 'hidden'} text-[13px]`}>{label}</p>
-        </label>
-      );
-    }
     return (
       <label className="flex items-center gap-2 text-[13px]">
         <input

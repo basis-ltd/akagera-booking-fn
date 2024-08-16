@@ -32,4 +32,5 @@ export type Booking = {
     bookingPeople?: BookingPerson[];
     bookingActivities?: BookingActivity[];
     accomodation?: string;
+    consent: boolean;
 };

@@ -5,7 +5,7 @@ import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
-import { calculateActivityPrice } from '@/helpers/booking.helper';
+import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import {
   formatCurrency,
   formatDate,
@@ -15,10 +15,7 @@ import {
   calculateRemainingSeatsThunk,
   setRemainingSeats,
 } from '@/states/features/activityScheduleSlice';
-import {
-  setAddGameDayDriveActivityModal,
-  setSelectBookingActivityModal,
-} from '@/states/features/activitySlice';
+import { setAddBoatTripPrivateActivityModal } from '@/states/features/activitySlice';
 import {
   createBookingActivityThunk,
   fetchBookingActivitiesThunk,
@@ -39,12 +36,15 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
-const AddGameDayDriveActivity = () => {
+const AddBoatTripPrivateActivity = () => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
-  const { addGameDayDriveActivityModal, selectedActivity } = useSelector(
+  const { addBoatTripPrivateActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
+  const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
+    ActivitySchedule | undefined
+  >(undefined);
   const {
     createBookingActivityIsLoading,
     createBookingActivityIsSuccess,
@@ -54,12 +54,6 @@ const AddGameDayDriveActivity = () => {
     existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const { booking } = useSelector((state: RootState) => state.booking);
-  const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
-    ActivitySchedule | undefined
-  >(undefined);
-  const { remainingSeats, remainingSeatsIsFetching } = useSelector(
-    (state: RootState) => state.activitySchedule
-  );
   const [bookingActivity, setBookingActivity] = useState<{
     startTime: Date | undefined | string;
     bookingId: UUID;
@@ -71,59 +65,40 @@ const AddGameDayDriveActivity = () => {
     activityId: selectedActivity?.id,
     endTime: booking?.endDate,
   });
+  const { remainingSeats, remainingSeatsIsFetching } = useSelector(
+    (state: RootState) => state.activitySchedule
+  );
 
   // REACT HOOK FORM
   const {
     control,
     reset,
     handleSubmit,
-    clearErrors,
     setValue,
+    clearErrors,
     watch,
     formState: { errors },
-    setError,
+    trigger,
   } = useForm();
 
-  // EXISTING BOOKING ACTIVITIES COLUMNS
+  // HANDLE FORM SUBMISSION
+  const onSubmit = (data: FieldValues) => {
+    dispatch(
+      createBookingActivityThunk({
+        numberOfSeats: data?.numberOfSeats || 1,
+        numberOfAdults: data?.numberOfAdults || 1,
+        numberOfChildren: data?.numberOfChildren || 0,
+        bookingId: booking?.id,
+        activityId: selectedActivity?.id,
+        defaultRate: data?.defaultRate,
+        startTime: bookingActivity?.startTime,
+        endTime: bookingActivity?.endTime,
+      })
+    );
+  };
+
   const existingBookingActivitiesColumns = [
-    {
-      header: 'No',
-      accessorKey: 'no',
-    },
-    {
-      header: 'Activity',
-      accessorKey: 'activity.name',
-    },
-    {
-      header: 'Start Time',
-      accessorKey: 'startTime',
-      cell: ({ row }: { row: Row<BookingActivity> }) =>
-        row?.original?.activity?.activitySchedules?.length > 0
-          ? moment(row?.original?.startTime).format('hh:mm A')
-          : '',
-    },
-    {
-      header: 'End Time',
-      accessorKey: 'endTime',
-      cell: ({ row }: { row: Row<BookingActivity> }) =>
-        row?.original?.activity?.activitySchedules?.length > 0
-          ? moment(row?.original?.endTime).format('hh:mm A')
-          : '',
-    },
-    {
-      header: 'Number of cars',
-      accessorKey: 'numberOfSeats',
-      cell: ({ row }: { row: Row<BookingActivity> }) =>
-        Number(row?.original?.numberOfSeats) > 0
-          ? `${row?.original?.numberOfSeats}`
-          : ``,
-    },
-    {
-      header: 'Price',
-      accessorKey: 'price',
-      cell: ({ row }: { row: Row<BookingActivity> }) =>
-        `${formatCurrency(calculateActivityPrice(row.original))}`,
-    },
+    ...bookingActivitiesColumns,
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -145,20 +120,6 @@ const AddGameDayDriveActivity = () => {
     },
   ];
 
-  // HANDLE SUBMIT
-  const onSubmit = async (data: FieldValues) => {
-    dispatch(
-      createBookingActivityThunk({
-        numberOfSeats: Number(data?.numberOfSeats),
-        activityId: selectedActivity?.id,
-        defaultRate: data?.defaultRate,
-        startTime: bookingActivity?.startTime,
-        endTime: bookingActivity?.endTime,
-        bookingId: booking?.id,
-      })
-    );
-  };
-
   // HANDLE CREATE BOOKING ACTIVITY RESPONSE
   useEffect(() => {
     if (createBookingActivityIsError) {
@@ -168,7 +129,7 @@ const AddGameDayDriveActivity = () => {
         );
       }
     } else if (createBookingActivityIsSuccess) {
-      dispatch(setAddGameDayDriveActivityModal(false));
+      dispatch(setAddBoatTripPrivateActivityModal(false));
       reset({
         startDate: booking?.startDate,
         activitySchedule: '',
@@ -184,11 +145,6 @@ const AddGameDayDriveActivity = () => {
     reset,
     booking?.startDate,
   ]);
-
-  // SET DEFAULT VALUES
-  useEffect(() => {
-    setValue('startDate', booking?.startDate);
-  }, [booking, selectedActivity, setValue]);
 
   // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
   useEffect(() => {
@@ -210,7 +166,7 @@ const AddGameDayDriveActivity = () => {
 
   // FETCH BOOKING ACTIVITIES
   useEffect(() => {
-    if (booking && selectedActivity && addGameDayDriveActivityModal) {
+    if (booking && selectedActivity) {
       dispatch(
         fetchBookingActivitiesThunk({
           bookingId: booking?.id,
@@ -220,16 +176,16 @@ const AddGameDayDriveActivity = () => {
         })
       );
     }
-  }, [booking, selectedActivity, dispatch, addGameDayDriveActivityModal]);
+  }, [booking, selectedActivity, dispatch]);
 
   return (
     <Modal
-      isOpen={addGameDayDriveActivityModal}
+      isOpen={addBoatTripPrivateActivityModal}
       onClose={() => {
-        dispatch(setAddGameDayDriveActivityModal(false));
+        dispatch(setAddBoatTripPrivateActivityModal(false));
       }}
-      heading={`Add Game Day Drive Activity (AMC Operated)`}
-      className="min-w-[60vw]"
+      heading={`Add Boat Trip Private Activity`}
+      className="min-w-[50%]"
     >
       {existingBookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
@@ -238,8 +194,7 @@ const AddGameDayDriveActivity = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : existingBookingActivitiesList?.length <= 0 &&
-        existingBookingActivitiesIsSuccess ? (
+      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -300,27 +255,6 @@ const AddGameDayDriveActivity = () => {
                                   e
                               )
                             );
-                            const [startTime, endTime] = e.split('-');
-                            console.log(startTime, endTime);
-                            if (
-                              Number(endTime?.split(':')[0]) -
-                                Number(startTime?.split(':')[0]) >
-                              5
-                            ) {
-                              setValue(
-                                'defaultRate',
-                                350 * Number(watch('numberOfSeats'))
-                              );
-                            } else if (
-                              Number(endTime?.split(':')[0]) -
-                                Number(startTime?.split(':')[0]) <=
-                              5
-                            ) {
-                              setValue(
-                                'defaultRate',
-                                250 * Number(watch('numberOfSeats'))
-                              );
-                            }
                           }}
                           options={selectedActivity?.activitySchedules?.map(
                             (activitySchedule: ActivitySchedule) => {
@@ -367,30 +301,66 @@ const AddGameDayDriveActivity = () => {
                 />
               )}
             <Controller
-              name="numberOfSeats"
-              defaultValue={1}
+              name="numberOfParticipants"
               control={control}
               rules={{
-                required: `Specify the number of cars available for this activity`,
+                required: 'Number of participants is required',
+                validate: (value) => {
+                  if (Number(value) > 29) {
+                    return 'Number of participants should not exceed 29';
+                  }
+                },
               }}
               render={({ field }) => {
                 return (
-                  <label className="flex flex-col gap-2">
+                  <label className="w-full flex flex-col gap-1">
                     <Input
-                      {...field}
                       type="number"
-                      label={`Number of cars`}
+                      {...field}
+                      label="Number of participants"
+                      placeholder="Number of participants"
                       required
-                      onChange={(e) => {
-                        field.onChange(e);
-                        clearErrors('numberOfParticipants');
-                        if (Number(e.target.value) > Number(remainingSeats)) {
-                          setError('numberOfParticipants', {
-                            type: 'manual',
-                            message: `Number of selected cars should not exceed available cars`,
-                          });
+                      onChange={async (e) => {
+                        field.onChange(e.target.value);
+                        clearErrors('numberOfSeats');
+                        if (Number(e.target.value) <= 11) {
+                          setValue('defaultRate', 200);
+                          setValue('numberOfSeats', 1);
+                        } else if (Number(e.target.value) <= 18) {
+                          setValue('defaultRate', 360);
+                          setValue('numberOfSeats', 2);
+                        } else if (Number(e.target.value) <= 29) {
+                          setValue('defaultRate', 560);
+                          setValue('numberOfSeats', 3);
+                        } else if (Number(e.target.value) > 29) {
+                          setValue('numberOfSeats', 3);
                         }
+                        await trigger('numberOfParticipants');
                       }}
+                    />
+                    {errors?.numberOfParticipants && (
+                      <InputErrorMessage
+                        message={errors?.numberOfParticipants?.message}
+                      />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="numberOfSeats"
+              control={control}
+              rules={{ required: 'Number of boats is required' }}
+              render={({ field }) => {
+                return (
+                  <label className="w-full flex flex-col gap-1">
+                    <Input
+                      type="number"
+                      {...field}
+                      label="Number of boats"
+                      placeholder="Number of seats"
+                      required
+                      readOnly
                     />
                     {errors?.numberOfSeats && (
                       <InputErrorMessage
@@ -402,28 +372,12 @@ const AddGameDayDriveActivity = () => {
               }}
             />
           </fieldset>
-          <menu className="w-full flex flex-col gap-3">
-            {Object.keys(errors)?.length > 0 && (
-              <menu className="w-full flex flex-col gap-2">
-                {errors?.numberOfParticipants && (
-                  <InputErrorMessage
-                    message={errors?.numberOfParticipants?.message}
-                  />
-                )}
-              </menu>
-            )}
-            {watch('defaultRate') > 0 && (
-              <p className="text-[15px] text-center text-primary">
-                Total amount for this activity:{' '}
-                {formatCurrency(
-                  Number(watch('defaultRate') * Number(watch('numberOfSeats')))
-                )}
-              </p>
-            )}
-            <p className="font-medium text-[14px]">
-              One car cannot exceed 7 passengers in total.
+          {watch('defaultRate') > 0 && (
+            <p className="text-[15px] text-primary">
+              The total amount for this booking is{' '}
+              {formatCurrency(watch('defaultRate'))}
             </p>
-          </menu>
+          )}
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button
               onClick={(e) => {
@@ -432,7 +386,7 @@ const AddGameDayDriveActivity = () => {
                   startDate: booking?.startDate,
                   activitySchedule: '',
                 });
-                dispatch(setAddGameDayDriveActivityModal(false));
+                dispatch(setAddBoatTripPrivateActivityModal(false));
               }}
             >
               Cancel
@@ -472,7 +426,7 @@ const AddGameDayDriveActivity = () => {
               className="btn btn-primary"
               onClick={(e) => {
                 e.preventDefault();
-                dispatch(setSelectBookingActivityModal(false));
+                dispatch(setAddBoatTripPrivateActivityModal(false));
                 dispatch(setRemainingSeats(0));
                 reset({
                   activitySchedule: '',
@@ -502,4 +456,4 @@ const AddGameDayDriveActivity = () => {
   );
 };
 
-export default AddGameDayDriveActivity;
+export default AddBoatTripPrivateActivity;

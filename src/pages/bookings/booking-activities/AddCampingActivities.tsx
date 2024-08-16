@@ -48,6 +48,7 @@ const AddCampingActivities = () => {
     createBookingActivityIsError,
     existingBookingActivitiesList,
     existingBookingActivitiesIsFetching,
+    existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
@@ -77,11 +78,18 @@ const AddCampingActivities = () => {
     setValue,
     watch,
     formState: { errors },
-    setError
+    setError,
   } = useForm();
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
+    if (!data?.numberOfChildren && !data?.numberOfAdults) {
+      setError('numberOfParticipants', {
+        type: 'manual',
+        message: 'Add at least one participant',
+      });
+      return;
+    }
     dispatch(
       createBookingActivityThunk({
         numberOfAdults: data?.numberOfAdults,
@@ -90,6 +98,7 @@ const AddCampingActivities = () => {
         activityId: selectedActivity?.id,
         bookingId: booking?.id,
         startTime: bookingActivity?.startTime,
+        endTime: bookingActivity?.endTime,
       })
     );
   };
@@ -131,7 +140,7 @@ const AddCampingActivities = () => {
           'An error occured while creating booking activity. Please try again later.'
         );
       }
-    } else if (createBookingActivityIsSuccess && selectedActivity?.slug?.includes('camping')) {
+    } else if (createBookingActivityIsSuccess) {
       dispatch(setAddCampingActivitiesModal(false));
       reset({
         startDate: booking?.startDate,
@@ -141,7 +150,14 @@ const AddCampingActivities = () => {
         numberOfSeats: '',
       });
     }
-  }, [createBookingActivityIsSuccess, createBookingActivityIsError, dispatch, reset, booking?.startDate, selectedActivity?.slug]);
+  }, [
+    createBookingActivityIsSuccess,
+    createBookingActivityIsError,
+    dispatch,
+    reset,
+    booking?.startDate,
+    selectedActivity?.slug,
+  ]);
 
   // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
   useEffect(() => {
@@ -149,17 +165,11 @@ const AddCampingActivities = () => {
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate') || booking?.startDate,
+          date: watch('startDate'),
         })
       );
     }
-  }, [
-    selectedActivitySchedule,
-    dispatch,
-    booking?.startDate,
-    watch,
-    watch('startDate'),
-  ]);
+  }, [selectedActivitySchedule, dispatch, watch, watch('startDate')]);
 
   return (
     <Modal
@@ -177,7 +187,8 @@ const AddCampingActivities = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : existingBookingActivitiesList?.length <= 0 ? (
+      ) : existingBookingActivitiesList?.length <= 0 &&
+        existingBookingActivitiesIsSuccess ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -194,7 +205,7 @@ const AddCampingActivities = () => {
                       fromDate={booking?.startDate}
                       toDate={booking?.endDate}
                       type="date"
-                      label="Date for this activity"
+                      label="Start date for this activity"
                       required
                       {...field}
                       defaultValue={booking?.startDate}
@@ -353,6 +364,52 @@ const AddCampingActivities = () => {
                     {errors?.numberOfChildren && (
                       <InputErrorMessage
                         message={errors?.numberOfChildren?.message}
+                      />
+                    )}
+                  </label>
+                );
+              }}
+            />
+            <Controller
+              name="numberOfNights"
+              control={control}
+              rules={{
+                required: 'Enter number of nights',
+                validate: (value) => {
+                  if (value === 0) {
+                    return 'Number of nights cannot be zero';
+                  }
+                  return (
+                    Number(value) <=
+                      moment(booking?.endDate).diff(
+                        booking?.startDate,
+                        'days'
+                      ) || 'Number of nights cannot exceed booking nights'
+                  );
+                },
+              }}
+              render={({ field }) => {
+                return (
+                  <label className="w-full flex flex-col gap-1">
+                    <Input
+                      {...field}
+                      type="number"
+                      label="Number of nights"
+                      required
+                      onChange={async (e) => {
+                        field.onChange(e.target.value);
+                        setBookingActivity({
+                          ...bookingActivity,
+                          endTime: moment(bookingActivity?.startTime)
+                            .add(Number(e?.target?.value), 'days')
+                            .format(),
+                        });
+                        await trigger('numberOfNights');
+                      }}
+                    />
+                    {errors?.numberOfNights && (
+                      <InputErrorMessage
+                        message={errors?.numberOfNights?.message}
                       />
                     )}
                   </label>

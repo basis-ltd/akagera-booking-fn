@@ -1,5 +1,7 @@
 import Button from '@/components/inputs/Button';
+import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
+import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
@@ -43,6 +45,7 @@ import {
   getBookingAmountThunk,
   setBooking,
   setBookingPaymentsList,
+  setCancellationPolicyModal,
 } from '@/states/features/bookingSlice';
 import {
   setBookingVehiclesList,
@@ -65,8 +68,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
+import { ErrorResponse, Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const BookingPreview = () => {
@@ -89,6 +93,9 @@ const BookingPreview = () => {
     (state: RootState) => state.bookingVehicle
   );
   const [bookingPaid, setBookingPaid] = useState(false);
+
+  // REACT HOOK FORM
+  const { watch, control } = useForm();
 
   // MANAGE BOOKING PAYMENT STATUS
   useEffect(() => {
@@ -508,14 +515,35 @@ const BookingPreview = () => {
     );
   }
 
+  // NAVIGATION LINKS
+  const navigationLinks = [
+    {
+      route: `/bookings/${id}/create`,
+      label: `${booking?.name}`,
+    },
+    {
+      route: `/bookings/${id}/create`,
+      label: 'Booking activities',
+    },
+    {
+      route: `/bookings/${id}/consent`,
+      label: 'Consent',
+    },
+    {
+      route: `/bookings/${id}/preview`,
+      label: 'Preview',
+    },
+  ];
+
   return (
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
-        <h1 className="text-xl text-primary text-center font-bold uppercase">
+        <h1 className="text-xl text-primary text-center font-bold uppercase mt-8">
           {booking?.type} Preview for {booking?.name} scheduled on{' '}
           {formatDate(booking?.startDate)}
         </h1>
         <menu className="w-full flex flex-col gap-3 my-6 max-[700px]:gap-6">
+          <CustomBreadcrumb navigationLinks={navigationLinks} />
           <ul className="flex items-center gap-3 w-full justify-between my-2 px-1 max-[700px]:flex-col">
             <h1 className="font-bold text-xl uppercase">Details</h1>
           </ul>
@@ -727,15 +755,17 @@ const BookingPreview = () => {
             </menu>
           )
         )}
-        <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
-          <h1 className="text-primary font-bold uppercase">Total</h1>
+        <menu className="flex items-center flex-col gap-3 justify-between w-full my-4 px-2">
+          <h1 className="text-primary text-lg underline font-bold uppercase text-center">
+            Total
+          </h1>
           {bookingAmountIsFetching ? (
             <figure className="flex items-center justify-center">
               <Loader />
             </figure>
           ) : (
             bookingAmountIsSuccess && (
-              <ul className="flex flex-col items-start gap-2">
+              <ul className="flex flex-col items-center gap-2">
                 <p className="uppercase font-bold text-primary">
                   {formatCurrency(Number(bookingAmount))}
                 </p>
@@ -746,17 +776,40 @@ const BookingPreview = () => {
             )
           )}
         </menu>
-        <menu className="flex items-start gap-3 justify-between mb-6">
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(`/bookings/${booking?.id}/create`);
+        <menu className="flex items-center flex-col gap-3 justify-between mb-6">
+          <Controller
+            name="consent"
+            control={control}
+            render={({ field }) => {
+              return (
+                <Input
+                  type="checkbox"
+                  label={
+                    <p>
+                      I have read and understood the cancellation policy{' '}
+                      <Link
+                        to={'#'}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          dispatch(setCancellationPolicyModal(true));
+                        }}
+                        className="text-primary underline"
+                      >
+                        Learn more
+                      </Link>
+                    </p>
+                  }
+                  className="!p-2"
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                  }}
+                />
+              );
             }}
-          >
-            Back
-          </Button>
+          />
           <menu className="flex flex-col gap-1">
-            {!bookingPaid && (
+            {!bookingPaid && booking?.consent && (
               <Button
                 primary
                 onClick={(e) => {
@@ -768,6 +821,7 @@ const BookingPreview = () => {
                     email: booking?.email,
                   });
                 }}
+                disabled={watch('consent') ? false : true}
               >
                 {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
               </Button>

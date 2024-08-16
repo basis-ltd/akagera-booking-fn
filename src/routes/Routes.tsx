@@ -39,6 +39,8 @@ import AddBehindTheScencesActivity from '@/pages/bookings/booking-activities/Add
 import AddBoatTripMorningDayActivity from '@/pages/bookings/booking-activities/AddBoatTripMorningDayActivity.tsx';
 import AddCampingActivities from '@/pages/bookings/booking-activities/AddCampingActivities.tsx';
 import AddGameDayDriveActivity from '@/pages/bookings/booking-activities/AddGameDayDriveActivity.tsx';
+import AddBoatTripPrivateActivity from '@/pages/bookings/booking-activities/AddBoatTripPrivateActivity.tsx';
+import CancellationPolicy from '@/pages/bookings/CancellationPolicy.tsx';
 
 const Router = () => {
   return (
@@ -96,6 +98,10 @@ const Router = () => {
       <AddBoatTripMorningDayActivity />
       <AddCampingActivities />
       <AddGameDayDriveActivity />
+      <AddBoatTripPrivateActivity />
+
+      { /* CANCELLATION POLICY */ }
+      <CancellationPolicy />
     </section>
   );
 };

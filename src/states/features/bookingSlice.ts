@@ -4,6 +4,7 @@ import { Payment } from '@/types/models/payment.types';
 import apiSlice from '../apiSlice';
 import { UUID } from 'crypto';
 import { AppDispatch } from '../store';
+import { toast } from 'react-toastify';
 
 const initialState: {
   bookingsList: Booking[];
@@ -27,6 +28,10 @@ const initialState: {
   bookingAmountIsSuccess: boolean;
   submitBookingIsLoading: boolean;
   submitBookingIsSuccess: boolean;
+  bookingIsFetching: boolean;
+  bookingIsSuccess: boolean;
+  bookingIsError: boolean;
+  cancellationPolicyModal: boolean;
 } = {
   bookingsList: [],
   selectedBooking: {} as Booking,
@@ -45,6 +50,10 @@ const initialState: {
   bookingAmountIsSuccess: false,
   submitBookingIsLoading: false,
   submitBookingIsSuccess: false,
+  bookingIsFetching: false,
+  bookingIsSuccess: false,
+  bookingIsError: false,
+  cancellationPolicyModal: false,
 };
 
 // GET BOOKING AMOUNT THUNK
@@ -83,6 +92,27 @@ export const submitBookingThunk = createAsyncThunk<
     return response?.data?.data;
   }
 );
+
+// GET BOOKING DETAILS THUNK
+export const getBookingDetailsThunk = createAsyncThunk<
+  Booking,
+  { id: UUID },
+  { dispatch: AppDispatch }
+>('booking/getBookingDetails', async ({ id }, { dispatch }) => {
+  try {
+    const response = await dispatch(
+      apiSlice.endpoints.getBookingDetails.initiate({ id })
+    );
+    if (response?.data?.data === null) {
+      toast.error('Booking not found.');
+      return
+    }
+    dispatch(setBooking(response?.data?.data));
+    return response?.data?.data;
+  } catch (error) {
+    toast.error('An error occured while fetching booking details.');
+  }
+});
 
 export const bookingSlice = createSlice({
   name: 'booking',
@@ -138,6 +168,9 @@ export const bookingSlice = createSlice({
         Object.assign(bookingPayment, action.payload);
       }
     },
+    setCancellationPolicyModal: (state, action) => {
+      state.cancellationPolicyModal = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(getBookingAmountThunk.pending, (state) => {
@@ -164,6 +197,20 @@ export const bookingSlice = createSlice({
       state.submitBookingIsLoading = false;
       state.submitBookingIsSuccess = false;
     });
+    builder.addCase(getBookingDetailsThunk.pending, (state) => {
+      state.bookingIsFetching = true;
+      state.bookingIsSuccess = false;
+      state.bookingIsError = false;
+    });
+    builder.addCase(getBookingDetailsThunk.fulfilled, (state) => {
+      state.bookingIsFetching = false;
+      state.bookingIsSuccess = true;
+    });
+    builder.addCase(getBookingDetailsThunk.rejected, (state) => {
+      state.bookingIsFetching = false;
+      state.bookingIsSuccess = false;
+      state.bookingIsError = true;
+    });
   },
 });
 
@@ -183,6 +230,7 @@ export const {
   setTotalPages,
   setBookingPaymentsList,
   updateBookingPayment,
+  setCancellationPolicyModal
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

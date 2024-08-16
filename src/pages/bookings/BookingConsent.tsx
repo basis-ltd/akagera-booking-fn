@@ -1,6 +1,7 @@
 import Button from '@/components/inputs/Button';
 import Loader from '@/components/inputs/Loader';
 import Modal from '@/components/modals/Modal';
+import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
 import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
@@ -12,9 +13,11 @@ import {
   useUpdateBookingConsentMutation,
 } from '@/states/apiSlice';
 import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
+import { getBookingDetailsThunk } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { ColumnDef } from '@tanstack/react-table';
+import { UUID } from 'crypto';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -90,9 +93,14 @@ const BookingConsent = () => {
       toast.error(errorResponse);
     } else if (updateBookingConsentIsSuccess) {
       toast.success('Terms of service accepted successfully.');
-      navigate(`/bookings/${id}/preview`);
+      if (booking?.consent) {
+        navigate(`/bookings/${id}/create`);
+      } else {
+        navigate(`/bookings/${id}/preview`);
+      }
     }
   }, [
+    booking?.consent,
     id,
     navigate,
     updateBookingConsentError,
@@ -138,6 +146,29 @@ const BookingConsent = () => {
     fetchBookingPeopleError,
   ]);
 
+  // GET BOOKING DETAILS THUNK
+  useEffect(() => {
+    if (id) {
+      dispatch(getBookingDetailsThunk({ id: id as UUID }));
+    }
+  }, [dispatch, id]);
+
+  // NAVIGATION LINKS
+  const navigationLinks = [
+    {
+      route: `/bookings/${id}/create`,
+      label: `${booking?.name}`,
+    },
+    {
+      route: `/bookings/${id}/create`,
+      label: 'Booking activities',
+    },
+    {
+      route: `/bookings/${id}/consent`,
+      label: 'Consent',
+    },
+  ];
+
   return (
     <PublicLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-4 p-6">
@@ -146,10 +177,13 @@ const BookingConsent = () => {
             <Loader className="text-primary" />
           </figure>
         ) : (
-          <article
-            className="w-[90%] mx-auto"
-            dangerouslySetInnerHTML={{ __html: termsOfService }}
-          />
+          <menu className="flex w-[90%] mx-auto flex-col gap-4">
+            <CustomBreadcrumb navigationLinks={navigationLinks} />
+            <article
+              className="w-full"
+              dangerouslySetInnerHTML={{ __html: termsOfService }}
+            />
+          </menu>
         )}
         {fetchBookingPeopleIsFetching && (
           <figure className="min-h-[10vh] flex items-center justify-center">
@@ -157,36 +191,38 @@ const BookingConsent = () => {
           </figure>
         )}
         {bookingPeopleList?.length > 0 ? (
-          <section className='w-[90%] mx-auto flex flex-col gap-4'>
-            <h1 className='text-primary uppercase font-bold'>Booking participants</h1>
+          <section className="w-[90%] mx-auto flex flex-col gap-4">
+            <h1 className="text-primary uppercase font-bold">
+              Booking participants
+            </h1>
             <Table
-            showPagination={false}
-            showFilter={false}
-            data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
-              return {
-                ...bookingPerson,
-                gender: genderOptions?.find(
-                  (gender) => gender.value === bookingPerson?.gender
-                )?.label,
-                nationality: COUNTRIES?.find(
-                  (country) => country.code === bookingPerson?.nationality
-                )?.name,
-                residence: COUNTRIES?.find(
-                  (country) => country.code === bookingPerson?.residence
-                )?.name,
-                age: Number(
-                  moment().diff(bookingPerson?.dateOfBirth, 'years', false)
-                ),
-                numberOfDays: Number(
-                  moment(bookingPerson?.endDate).diff(
-                    bookingPerson?.startDate,
-                    'days'
-                  )
-                ),
-              };
-            })}
-            columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
-          />
+              showPagination={false}
+              showFilter={false}
+              data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
+                return {
+                  ...bookingPerson,
+                  gender: genderOptions?.find(
+                    (gender) => gender.value === bookingPerson?.gender
+                  )?.label,
+                  nationality: COUNTRIES?.find(
+                    (country) => country.code === bookingPerson?.nationality
+                  )?.name,
+                  residence: COUNTRIES?.find(
+                    (country) => country.code === bookingPerson?.residence
+                  )?.name,
+                  age: Number(
+                    moment().diff(bookingPerson?.dateOfBirth, 'years', false)
+                  ),
+                  numberOfDays: Number(
+                    moment(bookingPerson?.endDate).diff(
+                      bookingPerson?.startDate,
+                      'days'
+                    )
+                  ),
+                };
+              })}
+              columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
+            />
           </section>
         ) : (
           fetchBookingPeopleIsSuccess && (
@@ -198,28 +234,62 @@ const BookingConsent = () => {
           )
         )}
         <menu className="w-[90%] mx-auto flex items-center gap-3 justify-between my-4">
-          <Button
-            danger
-            onClick={(e) => {
-              e.preventDefault();
-              setIsDeclining(true);
-            }}
-          >
-            Decline
-          </Button>
-          <Button
-            primary
-            onClick={(e) => {
-              e.preventDefault();
-              updateBookingConsent({ id, consent: true });
-            }}
-          >
-            {updateBookingConsentIsLoading ? (
-              <Loader className="text-white" />
-            ) : (
-              'Accept & Continue'
-            )}
-          </Button>
+          {booking?.consent ? (
+            <menu className="flex flex-col gap-3 w-full items-center">
+              <h3 className="font-medium text-primary">
+                You have agreed to the terms of service outlined above 🎉
+              </h3>
+              <ul className="w-full flex items-center gap-3 justify-between">
+                <Button
+                  danger
+                  onClick={(e) => {
+                    e.preventDefault();
+                    updateBookingConsent({ id, consent: false });
+                  }}
+                >
+                  {updateBookingConsentIsLoading ? (
+                    <Loader />
+                  ) : (
+                    'Revoke consent'
+                  )}
+                </Button>
+                <Button
+                  primary
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/bookings/${id}/preview`);
+                  }}
+                >
+                  Continue
+                </Button>
+              </ul>
+            </menu>
+          ) : (
+            <>
+              <Button
+                danger
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsDeclining(true);
+                }}
+              >
+                Decline
+              </Button>
+              <Button
+                primary
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateBookingConsent({ id, consent: true });
+                }}
+              >
+                {updateBookingConsentIsLoading ? (
+                  <Loader className="text-white" />
+                ) : (
+                  'Accept & Continue'
+                )}
+              </Button>
+            </>
+          )}
         </menu>
       </main>
       <ConfirmDecline
