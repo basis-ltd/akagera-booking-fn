@@ -46,6 +46,7 @@ import {
   setBooking,
   setBookingPaymentsList,
   setCancellationPolicyModal,
+  submitBookingThunk,
 } from '@/states/features/bookingSlice';
 import {
   setBookingVehiclesList,
@@ -82,6 +83,8 @@ const BookingPreview = () => {
     bookingAmount,
     bookingAmountIsFetching,
     bookingAmountIsSuccess,
+    submitBookingIsLoading,
+    submitBookingIsSuccess,
   } = useSelector((state: RootState) => state.booking);
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
@@ -409,6 +412,14 @@ const BookingPreview = () => {
       },
     },
   ];
+
+  // HANDLE SUBMIT BOOKING RESPONSE
+  useEffect(() => {
+    if (submitBookingIsSuccess) {
+      toast.success('Booking submitted successfully.');
+      navigate(`/bookings/${booking?.id}/success`);
+    }
+  }, [submitBookingIsSuccess, navigate, booking?.id]);
 
   // BOOKING PEOPLE COLUMNS
   const bookingPeopleExtendedColumns = [
@@ -777,56 +788,90 @@ const BookingPreview = () => {
           )}
         </menu>
         <menu className="flex items-center flex-col gap-3 justify-between mb-6">
-          <Controller
-            name="consent"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Input
-                  type="checkbox"
-                  label={
-                    <p>
-                      I have read and understood the cancellation policy{' '}
-                      <Link
-                        to={'#'}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          dispatch(setCancellationPolicyModal(true));
-                        }}
-                        className="text-primary underline"
-                      >
-                        Learn more
-                      </Link>
-                    </p>
-                  }
-                  className="!p-2"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e.target.checked);
-                  }}
-                />
-              );
-            }}
-          />
-          <menu className="flex flex-col gap-1">
-            {!bookingPaid && booking?.consent && (
-              <Button
-                primary
-                onClick={(e) => {
-                  e.preventDefault();
-                  createPayment({
-                    bookingId: booking?.id,
-                    amount: Number(String(bookingAmount)?.split('.')[0]),
-                    currency: 'usd',
-                    email: booking?.email,
-                  });
+          {booking?.consent ? (
+            <>
+              <Controller
+                name="consent"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <Input
+                      type="checkbox"
+                      label={
+                        <p>
+                          I have read and understood the cancellation policy{' '}
+                          <Link
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              dispatch(setCancellationPolicyModal(true));
+                            }}
+                            className="text-primary underline"
+                          >
+                            Learn more
+                          </Link>
+                        </p>
+                      }
+                      className="!p-2"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked);
+                      }}
+                    />
+                  );
                 }}
-                disabled={watch('consent') ? false : true}
+              />
+              <menu className="flex items-center gap-6 my-4">
+                {!bookingPaid && (
+                  <Button
+                    primary={booking?.type === 'booking'}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      createPayment({
+                        bookingId: booking?.id,
+                        amount: Number(String(bookingAmount)?.split('.')[0]),
+                        currency: 'usd',
+                        email: booking?.email,
+                      });
+                    }}
+                    disabled={watch('consent') ? false : true}
+                  >
+                    {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
+                  </Button>
+                )}
+                {booking?.type === 'registration' && (
+                  <Button
+                    primary
+                    onClick={(e) => {
+                      e.preventDefault();
+                      dispatch(
+                        submitBookingThunk({
+                          id: booking?.id,
+                          status: 'pending',
+                          totalAmountRwf: Number(bookingAmount) * 1343,
+                          totalAmountUsd: Number(bookingAmount),
+                        })
+                      );
+                    }}
+                    disabled={watch('consent') ? false : true}
+                  >
+                    {submitBookingIsLoading ? <Loader /> : 'Submit and pay later'}
+                  </Button>
+                )}
+              </menu>
+            </>
+          ) : (
+            <p className="text-center text-black font-medium">
+              Please read and accept the cancellation policy to proceed. Click{' '}
+              <Link
+                to={`/bookings/${booking?.id}/consent`}
+                className="text-primary underline"
               >
-                {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
-              </Button>
-            )}
-          </menu>
+                here
+              </Link>{' '}
+              to learn more.
+            </p>
+          )}
         </menu>
       </main>
     </PublicLayout>

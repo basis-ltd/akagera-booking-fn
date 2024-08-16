@@ -174,7 +174,7 @@ const CreateBookingActivities = () => {
 
   return (
     <PublicLayout>
-      <main className="w-[100vw] flex flex-col gap-6 p-4 max-h-[90vh]">
+      <main className="w-[100vw] flex flex-col gap-6 p-4 pt-8 min-h-[90vh]">
         <h1 className="text-primary font-medium uppercase text-lg text-center">
           Complete {booking?.type} for{' '}
           {bookingDetailsIsSuccess ? booking?.name : '...'} scheduled on{' '}

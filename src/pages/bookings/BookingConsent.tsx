@@ -171,13 +171,13 @@ const BookingConsent = () => {
 
   return (
     <PublicLayout>
-      <main className="w-[85%] mx-auto flex flex-col gap-4 p-6">
+      <main className="w-full mx-auto flex flex-col gap-4 p-6">
         {termsOfServiceIsFetching ? (
           <figure className="w-full flex items-center justify-center min-h-[40vh]">
             <Loader className="text-primary" />
           </figure>
         ) : (
-          <menu className="flex w-[90%] mx-auto flex-col gap-4">
+          <menu className="flex w-[80%] mx-auto flex-col gap-4">
             <CustomBreadcrumb navigationLinks={navigationLinks} />
             <article
               className="w-full"
@@ -191,7 +191,7 @@ const BookingConsent = () => {
           </figure>
         )}
         {bookingPeopleList?.length > 0 ? (
-          <section className="w-[90%] mx-auto flex flex-col gap-4">
+          <section className="w-[80%] mx-auto flex flex-col gap-4">
             <h1 className="text-primary uppercase font-bold">
               Booking participants
             </h1>
@@ -233,7 +233,7 @@ const BookingConsent = () => {
             </figure>
           )
         )}
-        <menu className="w-[90%] mx-auto flex items-center gap-3 justify-between my-4">
+        <menu className="w-[80%] mx-auto flex items-center gap-3 justify-between my-4">
           {booking?.consent ? (
             <menu className="flex flex-col gap-3 w-full items-center">
               <h3 className="font-medium text-primary">

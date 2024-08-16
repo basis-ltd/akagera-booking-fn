@@ -370,7 +370,11 @@ const CreateBookingEntryActivity = () => {
                 return;
               }
               if (booking?.type === 'registration') {
-                navigate(`/bookings/${booking?.id}/preview`);
+                if (booking?.consent) {
+                  navigate(`/bookings/${booking?.id}/preview`);
+                } else {
+                  navigate(`/bookings/${booking?.id}/consent`);
+                }
               }
               dispatch(
                 setSelectedService(

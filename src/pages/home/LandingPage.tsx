@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { AppDispatch } from '../../states/store';
 import { useDispatch } from 'react-redux';
 import {
@@ -9,6 +8,7 @@ import {
 import ListDraftBookings from '../bookings/ListDraftBookings';
 import PublicLayout from '@/containers/PublicLayout';
 import { useEffect } from 'react';
+import LandingPageCard from '@/components/cards/LandingPageCard';
 
 const LandingPage = () => {
   // STATE VARIABLES
@@ -21,65 +21,57 @@ const LandingPage = () => {
 
   return (
     <PublicLayout>
-      <main className="p-0 m-0 flex flex-col gap-0 w-full text-white">
-        <figure className="hero-section w-full h-[90vh] flex flex-col items-start justify-center">
-          <section className="w-[85%] mx-auto flex flex-col gap-4">
-            <article className="w-full mx-auto flex flex-col gap-4 text-white">
-              <h1 className="font-semibold text-[60px] max-[1000px]:text-[50px] max-[900px]:text-[45px] max-[800px]:text-[40px] max-[600px]:text-[35px]">
-                Akagera National Park
-              </h1>
-              <p className="font-medium text-xl max-[1000px]:text-[18px] max-[900px]:text-[17px] max-[800px]:text-[16px] max-[600px]:text-[15px]">
-                Akagera lies on the eastern border of Rwanda, making it easy to
-                visit and admire the wildlife – from lion to rhino – that
-                thrives in this beautiful savannah and wetland.
-              </p>
-            </article>
-            <menu className="w-full flex flex-col gap-2 items-center my-4">
-              <ul className="flex gap-3 items-center">
-                <Link
-                  to={'/bookings/create'}
-                  className="bg-white text-black p-2 px-4 w-fit rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    dispatch(
-                      setBooking({
-                        type: 'booking',
-                      })
-                    );
-                    dispatch(setCreateBookingModal(true));
-                  }}
-                >
-                  Book activities
-                </Link>
-                <Link
-                  to={'/bookings/create'}
-                  className="bg-white text-black p-2 px-4 w-fit rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    dispatch(
-                      setBooking({
-                        type: 'registration',
-                      })
-                    );
-                    dispatch(setCreateBookingModal(true));
-                  }}
-                >
-                  Complete the registration form
-                </Link>
-                <Link
-                to={'#'}
-                className="bg-white text-black p-2 px-4 w-fit rounded-md transition-all ease-in-out duration-300 hover:scale-[1.02]"
-                onClick={(e) => {
-                  e.preventDefault();
-                  dispatch(setDraftBookingsModal(true));
-                }}
-              >
-                Find bookings/registrations
-              </Link>
-              </ul>
-            </menu>
-          </section>
-        </figure>
+      <main className="p-0 m-0 flex flex-col gap-0 w-full bg-background">
+        <section className="w-full mx-auto flex flex-col gap-8 min-h-[90vh] justify-center">
+          <article className="w-full flex flex-col gap-3 items-center">
+            <h1 className="text-center text-3xl font-bold text-black">
+              Welcome to{' '}
+              <span className="text-primary text-3xl">
+                Akagera Booking Platform
+              </span>
+              .
+            </h1>
+            <p className="text-center">
+              Choose one of the options below to get started!
+            </p>
+          </article>
+          <ul className="grid grid-cols-3 gap-10 my-5 items-center w-[80%] mx-auto">
+            <LandingPageCard
+              title="Book activities"
+              description="Register for park visit and book your favorite activities ahead of time"
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(
+                  setBooking({
+                    type: 'booking',
+                  })
+                );
+                dispatch(setCreateBookingModal(true));
+              }}
+            />
+            <LandingPageCard
+              title="Complete registration"
+              description="Register for a visit into the park and select your favorite activities on arrival."
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(
+                  setBooking({
+                    type: 'registration',
+                  })
+                );
+                dispatch(setCreateBookingModal(true));
+              }}
+            />
+            <LandingPageCard
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(setDraftBookingsModal(true));
+              }}
+              title="Find bookings/registrations"
+              description="Find a list of all your bookings, including the unfinished."
+            />
+          </ul>
+        </section>
         <ListDraftBookings />
       </main>
     </PublicLayout>

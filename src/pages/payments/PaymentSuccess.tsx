@@ -1,5 +1,5 @@
 import Loader from '@/components/inputs/Loader';
-import AdminLayout from '@/containers/AdminLayout';
+import PublicLayout from '@/containers/PublicLayout';
 import { useUpdatePaymentMutation } from '@/states/apiSlice';
 import { submitBookingThunk } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -86,13 +86,13 @@ const PaymentSuccess = () => {
   ]);
 
   return (
-    <AdminLayout>
+    <PublicLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-5 p-6 min-h-[80vh] items-center justify-center">
         {(updatePaymentIsLoading || submitBookingIsLoading) && (
           <Loader className="text-primary" />
         )}
       </main>
-    </AdminLayout>
+    </PublicLayout>
   );
 };
 
