@@ -241,7 +241,7 @@ const SelectBookingActivity = () => {
       case 'BOAT TRIP – PRIVATE, NON-SCHEDULED':
         setTransportationsLabel('participants');
         break;
-      case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
+      case 'GUIDES FOR SELF-DRIVE':
       case 'BOAT TRIP – SCHEDULED SUNSET TRIP':
         setTransportationsLabel('guides');
         break;
@@ -401,6 +401,7 @@ const SelectBookingActivity = () => {
       heading={`Confirm adding ${selectedActivity.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
+      className='min-w-[65vw]'
     >
       {existingBookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">

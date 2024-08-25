@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import {
   useLazyFetchServicesQuery,
+  useLazyGetBookingAmountQuery,
   useLazyGetBookingDetailsQuery,
 } from '../../states/apiSlice';
 import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
@@ -16,8 +17,8 @@ import { Service } from '@/types/models/service.types';
 import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
 import {
-  getBookingAmountThunk,
   setBooking,
+  setBookingAmount,
 } from '@/states/features/bookingSlice';
 import { formatCurrency, formatDate } from '@/helpers/strings.helper';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
@@ -33,8 +34,6 @@ const CreateBookingActivities = () => {
   const {
     booking,
     bookingAmount,
-    bookingAmountIsSuccess,
-    bookingAmountIsFetching,
   } = useSelector((state: RootState) => state.booking);
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
@@ -130,7 +129,7 @@ const CreateBookingActivities = () => {
           'An error occured while fetching services. Please try again later.'
         );
       } else {
-        toast.error((servicesError as ErrorResponse).data.message);
+        toast.error((servicesError as ErrorResponse)?.data?.message);
       }
     } else if (servicesIsSuccess) {
       dispatch(setServicesList(servicesData?.data?.rows));
@@ -144,13 +143,26 @@ const CreateBookingActivities = () => {
     dispatch,
   ]);
 
-  // FETCH BOOKING AMOUNT
+  // INITIALIZE GET BOOKING AMOUNT QUERY
+  const [
+    getBookingAmount,
+    {
+      data: bookingAmountData,
+      error: bookingAmountError,
+      isFetching: bookingAmountIsFetching,
+      isSuccess: bookingAmountIsSuccess,
+      isError: bookingAmountIsError,
+    },
+  ] = useLazyGetBookingAmountQuery();
+
+  // GET BOOKING AMOUNT
   useEffect(() => {
-    if (!selectBookingActivityModal) {
-      dispatch(getBookingAmountThunk({ id: booking.id }));
+    if (booking?.id) {
+      getBookingAmount({ id: booking.id });
     }
   }, [
     booking,
+    getBookingAmount,
     dispatch,
     bookingVehiclesList,
     bookingActivitiesList,
@@ -160,6 +172,27 @@ const CreateBookingActivities = () => {
     addBehindTheScenesActivityModal,
     addBoatTripMorningDayActivityModal,
     addCampingActivitiesModal,
+  ]);
+
+  // HANDLE GET BOOKING AMOUNT RESPONSE
+  useEffect(() => {
+    if (bookingAmountIsError) {
+      if ((bookingAmountError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while fetching booking amount. Please try again later.'
+        );
+      } else {
+        toast.error((bookingAmountError as ErrorResponse)?.data?.message);
+      }
+    } else if (bookingAmountIsSuccess) {
+      dispatch(setBookingAmount(bookingAmountData?.data));
+    }
+  }, [
+    bookingAmountIsSuccess,
+    bookingAmountIsError,
+    bookingAmountData,
+    bookingAmountError,
+    dispatch,
   ]);
 
   if (servicesIsFetching || bookingDetailsIsFetching) {

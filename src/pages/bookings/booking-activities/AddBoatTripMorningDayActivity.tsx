@@ -15,6 +15,7 @@ import {
 import { setAddBoatTripMorningDayActivityModal } from '@/states/features/activitySlice';
 import {
   createBookingActivityThunk,
+  fetchBookingActivitiesThunk,
   setDeleteBookingActivityModal,
   setExistingBookingActivitiesList,
   setSelectedBookingActivity,
@@ -46,7 +47,7 @@ const AddBoatTripMorningDayActivity = () => {
     createBookingActivityIsSuccess,
     existingBookingActivitiesList,
     existingBookingActivitiesIsFetching,
-existingBookingActivitiesIsSuccess,
+    existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
@@ -68,13 +69,15 @@ existingBookingActivitiesIsSuccess,
     control,
     handleSubmit,
     formState: { errors },
-    watch,
     reset,
     trigger,
     setError,
     clearErrors,
     setValue,
+    getValues,
   } = useForm();
+
+  const { startDate, numberOfAdults, numberOfChildren } = getValues();
 
   // SET DEFAULT VALUES
   useEffect(() => {
@@ -108,17 +111,11 @@ existingBookingActivitiesIsSuccess,
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate') || booking?.startDate,
+          date: startDate || booking?.startDate,
         })
       );
     }
-  }, [
-    selectedActivitySchedule,
-    dispatch,
-    booking?.startDate,
-    watch,
-    watch('startDate'),
-  ]);
+  }, [selectedActivitySchedule, dispatch, booking?.startDate, startDate]);
 
   // HANDLE CREATE BOOKING ACTIVITY RESPONSE
   useEffect(() => {
@@ -160,6 +157,36 @@ existingBookingActivitiesIsSuccess,
     },
   ];
 
+  // FETCH EXISTING BOOKING ACTIVITIES
+  useEffect(() => {
+    if (addBoatTripMorningDayActivityModal) {
+      dispatch(
+        fetchBookingActivitiesThunk({
+          activityId: selectedActivity?.id,
+          page: 0,
+          size: 100,
+          bookingId: booking?.id,
+        })
+      );
+    }
+  }, [booking?.id, dispatch, selectedActivity?.id, addBoatTripMorningDayActivityModal]);
+
+  // VALIDATE PARTICIPANTS AGAINST REMAINING SEATS
+  useEffect(() => {
+    if (remainingSeats && remainingSeats !== true) {
+      const totalParticipants =
+        Number(numberOfAdults || 0) + Number(numberOfChildren || 0);
+      if (totalParticipants > remainingSeats) {
+        setError('remainingSeats', {
+          type: 'manual',
+          message: 'Number of participants exceeds remaining seats.',
+        });
+      } else {
+        clearErrors('remainingSeats');
+      }
+    }
+  }, [remainingSeats, numberOfAdults, numberOfChildren, setError, clearErrors]);
+
   return (
     <Modal
       isOpen={addBoatTripMorningDayActivityModal}
@@ -176,7 +203,8 @@ existingBookingActivitiesIsSuccess,
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
+      ) : existingBookingActivitiesList?.length <= 0 &&
+        existingBookingActivitiesIsSuccess ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -365,6 +393,11 @@ existingBookingActivitiesIsSuccess,
               {errors?.numberOfParticipants && (
                 <InputErrorMessage
                   message={errors?.numberOfParticipants?.message}
+                />
+              )}
+              {errors?.remainingSeats && (
+                <InputErrorMessage
+                  message={errors?.remainingSeats?.message}
                 />
               )}
             </menu>

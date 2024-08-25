@@ -258,8 +258,13 @@ const ViewBookingActivites = () => {
               defaultView="week"
               eventPropGetter={eventStyleGetter}
               localizer={localizer}
-              events={bookingActivitiesList?.map(
-                (bookingActivity: BookingActivity) => {
+              events={bookingActivitiesList
+                ?.filter((bookingActivity: BookingActivity) =>
+                  ['pending', 'confirmed'].includes(
+                    bookingActivity?.booking?.status
+                  )
+                )
+                ?.map((bookingActivity: BookingActivity) => {
                   return {
                     ...bookingActivity,
                     title: bookingActivity?.activity?.name,
@@ -267,8 +272,7 @@ const ViewBookingActivites = () => {
                     end: new Date(String(bookingActivity?.endTime)),
                     booking: bookingActivity?.booking,
                   };
-                }
-              )}
+                })}
               onSelectEvent={(e) => {
                 navigate(`/bookings/${e?.booking?.id}/details`);
               }}

@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: localApiUrl || stagingApiUrl,
+    baseUrl: stagingApiUrl || localApiUrl,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -225,7 +225,7 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING ACTIVITIES
       fetchBookingActivities: builder.query({
-        query: ({ size = 10, page = 0, bookingId, activityId, startTime }) => {
+        query: ({ size = 10, page = 0, bookingId, activityId, startTime, status }) => {
           let url = `booking-activities?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
@@ -235,6 +235,9 @@ export const apiSlice = createApi({
           }
           if (startTime) {
             url += `&startTime=${startTime}`;
+          }
+          if (status) {
+            url += `&status=${status}`;
           }
           return {
             url,

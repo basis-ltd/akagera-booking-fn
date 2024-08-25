@@ -9,10 +9,14 @@ import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants'
 import { calculateBehindTheScenesPrice } from '@/helpers/bookingActivity.helper';
 import { formatDate, formatTime } from '@/helpers/strings.helper';
 import { validatePersonAgeRange } from '@/helpers/validations.helper';
-import { calculateRemainingSeatsThunk, setRemainingSeats } from '@/states/features/activityScheduleSlice';
+import {
+  calculateRemainingSeatsThunk,
+  setRemainingSeats,
+} from '@/states/features/activityScheduleSlice';
 import { setAddBehindTheScenesActivityModal } from '@/states/features/activitySlice';
 import {
   createBookingActivityThunk,
+  fetchBookingActivitiesThunk,
   setCreateBookingActivityIsSuccess,
   setDeleteBookingActivityModal,
   setExistingBookingActivitiesList,
@@ -56,7 +60,7 @@ const AddBehindTheScencesActivity = () => {
     createBookingActivityIsSuccess,
     existingBookingActivitiesList,
     existingBookingActivitiesIsFetching,
-existingBookingActivitiesIsSuccess,
+    existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
@@ -67,13 +71,17 @@ existingBookingActivitiesIsSuccess,
     control,
     handleSubmit,
     formState: { errors },
-    watch,
     reset,
     trigger,
     setError,
     clearErrors,
     setValue,
+    getValues,
   } = useForm();
+
+  // HANDLE FORM CHANGES
+  const { numberOfAdults, numberOfChildren, startDate, activitySchedule } =
+    getValues();
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -100,23 +108,17 @@ existingBookingActivitiesIsSuccess,
     );
   };
 
-    // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
-    useEffect(() => {
-      if (selectedActivitySchedule) {
-        dispatch(
-          calculateRemainingSeatsThunk({
-            id: selectedActivitySchedule?.id,
-            date: watch('startDate') || booking?.startDate,
-          })
-        );
-      }
-    }, [
-      selectedActivitySchedule,
-      dispatch,
-      booking?.startDate,
-      watch,
-      watch('startDate'),
-    ]);
+  // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
+  useEffect(() => {
+    if (selectedActivitySchedule) {
+      dispatch(
+        calculateRemainingSeatsThunk({
+          id: selectedActivitySchedule?.id,
+          date: startDate || booking?.startDate,
+        })
+      );
+    }
+  }, [selectedActivitySchedule, dispatch, booking?.startDate, startDate]);
 
   // SET DEFAULT VALUES
   useEffect(() => {
@@ -129,8 +131,8 @@ existingBookingActivitiesIsSuccess,
       createBookingActivityIsSuccess &&
       selectedActivity?.slug === 'behind-the-scenes-tour'
     ) {
-      dispatch(setAddBehindTheScenesActivityModal(false));
       dispatch(setCreateBookingActivityIsSuccess(false));
+      dispatch(setAddBehindTheScenesActivityModal(false));
       reset({
         activitySchedule: '',
         numberOfAdults: '',
@@ -138,12 +140,7 @@ existingBookingActivitiesIsSuccess,
         numberOfParticipants: '',
       });
     }
-  }, [
-    createBookingActivityIsSuccess,
-    dispatch,
-    reset,
-    selectedActivity?.slug,
-  ]);
+  }, [createBookingActivityIsSuccess, dispatch, reset, selectedActivity?.slug]);
 
   // EXISTING BOOKING ACTIVITIES COLUMNS
   const existingBookingActivitiesColumns = [
@@ -169,6 +166,45 @@ existingBookingActivitiesIsSuccess,
     },
   ];
 
+  // FETCH EXISTING BOOKING ACTIVITIES
+  useEffect(() => {
+    if (addBehindTheScenesActivityModal) {
+      dispatch(
+        fetchBookingActivitiesThunk({
+          activityId: selectedActivity?.id,
+          page: 0,
+          size: 100,
+          bookingId: booking?.id,
+        })
+      );
+    }
+  }, [
+    addBehindTheScenesActivityModal,
+    booking?.id,
+    dispatch,
+    selectedActivity?.id,
+  ]);
+
+  // SET DEFAULT ACTIVITY SCHEDULE
+  useEffect(() => {
+    if (selectedActivity?.activitySchedules) {
+      setValue(
+        'activitySchedule',
+        `${selectedActivity?.activitySchedules[0]?.startTime}-${selectedActivity?.activitySchedules[0]?.endTime}`
+      );
+      setSelectedActivitySchedule(selectedActivity?.activitySchedules[0]);
+    }
+    setBookingActivity((prev) => ({
+      ...prev,
+      startTime: moment(
+        `${formatDate(booking?.startDate)}T${activitySchedule?.split('-')[0]}`
+      ).format(),
+      endTime: moment(
+        `${formatDate(booking?.startDate)}T${activitySchedule?.split('-')[1]}`
+      ).format(),
+    }));
+  }, [activitySchedule, booking?.startDate, selectedActivity, setValue]);
+
   return (
     <Modal
       isOpen={addBehindTheScenesActivityModal}
@@ -185,7 +221,8 @@ existingBookingActivitiesIsSuccess,
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
+      ) : existingBookingActivitiesList?.length <= 0 &&
+        existingBookingActivitiesIsSuccess ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -378,18 +415,18 @@ existingBookingActivitiesIsSuccess,
             </menu>
           )}
           <menu className="flex flex-col gap-2 w-full">
-            {(watch('numberOfAdults') || watch('numberOfChildren')) && (
+            {(numberOfAdults || numberOfChildren) && (
               <p className="text-slate-900 text-[15px] font-bold">
                 Price:{' '}
                 {calculateBehindTheScenesPrice(
-                  Number(watch('numberOfAdults')) || 0,
-                  Number(watch('numberOfChildren')) || 0
+                  Number(numberOfAdults) || 0,
+                  Number(numberOfChildren) || 0
                 )}{' '}
                 USD
               </p>
             )}
             {selectedActivitySchedule?.minNumberOfSeats && (
-              <p className='max-w-[50vw] text-[14px]'>
+              <p className="max-w-[50vw] text-[14px]">
                 For this activity, minimum number of participants is{' '}
                 {selectedActivitySchedule?.minNumberOfSeats}. If you enter a
                 number less than this, you will be charged for the minimum

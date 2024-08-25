@@ -15,12 +15,15 @@ import { RootState } from '@/states/store';
 import { setCreatePaymentModal } from '@/states/features/paymentSlice';
 import { useForm } from 'react-hook-form';
 import Loader from '@/components/inputs/Loader';
+import { formatCurrency } from '@/helpers/strings.helper';
 
 const CheckoutForm = () => {
   // STATE VARIABLES
   const { paymentIntent, applicationLink, payment } = useSelector(
     (state: RootState) => state.payment
   );
+
+  console.log(payment);
 
   // REACT HOOK FORM
   const { handleSubmit } = useForm();
@@ -68,7 +71,7 @@ const CheckoutForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <PaymentElement />
       <Button submit primary>
-        {loading ? <Loader /> : 'Pay'}
+        {loading ? <Loader /> : `Pay ${formatCurrency(payment?.amount)}`}
       </Button>
     </form>
   );

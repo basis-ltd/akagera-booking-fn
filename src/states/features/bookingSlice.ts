@@ -170,7 +170,10 @@ export const bookingSlice = createSlice({
     },
     setCancellationPolicyModal: (state, action) => {
       state.cancellationPolicyModal = action.payload;
-    }
+    },
+    setBookingAmount: (state, action) => {
+      state.bookingAmount = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getBookingAmountThunk.pending, (state) => {
@@ -230,7 +233,8 @@ export const {
   setTotalPages,
   setBookingPaymentsList,
   updateBookingPayment,
-  setCancellationPolicyModal
+  setCancellationPolicyModal,
+  setBookingAmount,
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

@@ -64,8 +64,8 @@ const ActivityScheduleDetails = () => {
   // HANDLE UPDATE ACTIVITY SCHEDULE RESPONSE
   useEffect(() => {
     if (updateActivityScheduleIsSuccess) {
-      dispatch(setActivityScheduleDetailsModal(false));
       toast.success('Activity schedule updated successfully');
+      dispatch(setActivityScheduleDetailsModal(false));
     } else if (updateActivityScheduleIsError) {
       const errorResponse = (updateActivityScheduleError as ErrorResponse)?.data
         ?.message;

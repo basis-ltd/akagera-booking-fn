@@ -766,9 +766,9 @@ const BookingPreview = () => {
             </menu>
           )
         )}
-        <menu className="flex items-center flex-col gap-3 justify-between w-full my-4 px-2">
-          <h1 className="text-primary text-lg underline font-bold uppercase text-center">
-            Total
+        <menu className="flex items-start gap-3 justify-end w-full my-4 px-2">
+          <h1 className="text-primary text-xl font-bold uppercase text-center">
+            Total:
           </h1>
           {bookingAmountIsFetching ? (
             <figure className="flex items-center justify-center">
@@ -776,11 +776,11 @@ const BookingPreview = () => {
             </figure>
           ) : (
             bookingAmountIsSuccess && (
-              <ul className="flex flex-col items-center gap-2">
-                <p className="uppercase font-bold text-primary">
+              <ul className="flex flex-col items-start gap-2">
+                <p className="uppercase font-bold text-xl text-primary">
                   {formatCurrency(Number(bookingAmount))}
                 </p>
-                <p className="uppercase font-bold text-primary">
+                <p className="uppercase font-bold text-xl text-primary">
                   {formatCurrency(Number(bookingAmount) * 1343, 'RWF')}
                 </p>
               </ul>

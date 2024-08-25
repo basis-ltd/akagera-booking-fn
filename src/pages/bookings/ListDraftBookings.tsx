@@ -151,7 +151,7 @@ const ListDraftBookings = () => {
             {Object.values(bookingStatus)
               ?.filter(
                 (status) =>
-                  !['approved', 'cash_received', 'confirmed'].includes(status)
+                  !['approved', 'cash_received', 'confirmed', 'declined'].includes(status)
               )
               ?.includes(row?.original?.status) && (
               <Link
@@ -191,6 +191,7 @@ const ListDraftBookings = () => {
           ? ' List of unfinished bookings/registrations'
           : 'Find bookings/registrations in progress to complete'
       }
+      className='min-w-[80vw]'
     >
       <form
         className={`flex flex-col gap-4 w-full ${

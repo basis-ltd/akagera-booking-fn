@@ -73,16 +73,16 @@ const BookingSuccess = () => {
                 {booking?.type} Successful 🎉
               </h1>
               <p className="mt-4 max-w-[70%] text-center mx-auto">
-                <p>Your booking has been successfully created.</p>
-                <p>
+                <p>Your {booking?.type} has been successfully created.</p>
+                <p className='my-2'>
                   You will receive additional communication on{' '}
                   <span className="font-bold">{booking?.email}</span> or{' '}
                   <span className="font-bold">{booking?.phone}</span>
                 </p>
-                including the booking details. <br /> <br /> Use the Booking
-                Reference ID{' '}
+                including the {booking?.type} details. <br /> <br /> Use the{' '}
+                 Reference ID{' '}
                 <span className="font-bold">{booking?.referenceId}</span> to
-                track and manage your booking.
+                track and manage your submission.
               </p>
             </section>
           )

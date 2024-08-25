@@ -64,7 +64,7 @@ const Select: FC<SelectProps> = ({
             }
           />
         </SelectTrigger>
-        <SelectContent className="z-[1000] w-full">
+        <SelectContent className="z-[50000] w-full">
           <SelectGroup>
             {options.map((option, index: number) => {
               return (

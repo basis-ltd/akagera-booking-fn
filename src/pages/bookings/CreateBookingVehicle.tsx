@@ -70,7 +70,7 @@ const CreateBookingVehicle = () => {
       }
     } else if (createBookingVehicleIsSuccess) {
       toast.success(
-        `Vehicle with plate number ${createBookingVehicleData?.data?.plateNumber} added to booking successfully.`
+        `Vehicle added to booking successfully.`
       );
       dispatch(addBookingVehicle(createBookingVehicleData?.data));
       reset({
@@ -98,6 +98,7 @@ const CreateBookingVehicle = () => {
       heading={`Add Vehicle to "${booking?.name} - ${formatDate(
         booking?.startDate
       )}"`}
+      className='!min-w-[60vw]'
     >
       <form
         className="flex flex-col gap-4 w-full min-w-[50vw]"

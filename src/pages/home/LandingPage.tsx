@@ -21,12 +21,12 @@ const LandingPage = () => {
 
   return (
     <PublicLayout>
-      <main className="p-0 m-0 flex flex-col gap-0 w-full bg-background">
-        <section className="w-full mx-auto flex flex-col gap-8 min-h-[90vh] justify-center">
+      <main className="hero-section p-0 m-0 flex flex-col gap-0 w-full bg-background">
+        <section className="w-full mx-auto flex flex-col gap-8 min-h-[65vh] justify-center">
           <article className="w-full flex flex-col gap-3 items-center">
-            <h1 className="text-center text-3xl font-bold text-black">
+            <h1 className="text-center text-3xl font-bold text-white">
               Welcome to{' '}
-              <span className="text-primary text-3xl">
+              <span className="text-white text-3xl">
                 Akagera Booking Platform
               </span>
               .

@@ -67,7 +67,9 @@ const PaymentSuccess = () => {
       dispatch(
         submitBookingThunk({
           id: updatePaymentData?.data?.bookingId,
-          status: 'pending',
+          status: 'cash_received',
+          totalAmountUsd: updatePaymentData?.data?.amount,
+          totalAmountRwf: updatePaymentData?.data?.amount * 1343,
         })
       );
     } else if (updatePaymentIsError) {
@@ -77,7 +79,7 @@ const PaymentSuccess = () => {
       );
     }
   }, [
-    updatePaymentData?.data?.bookingId,
+    updatePaymentData,
     dispatch,
     navigate,
     updatePaymentError,

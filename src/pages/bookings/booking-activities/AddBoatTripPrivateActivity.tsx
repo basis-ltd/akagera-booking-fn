@@ -328,12 +328,12 @@ const AddBoatTripPrivateActivity = () => {
                           setValue('numberOfSeats', 1);
                         } else if (Number(e.target.value) <= 18) {
                           setValue('defaultRate', 360);
-                          setValue('numberOfSeats', 2);
+                          setValue('numberOfSeats', 1);
                         } else if (Number(e.target.value) <= 29) {
                           setValue('defaultRate', 560);
-                          setValue('numberOfSeats', 3);
+                          setValue('numberOfSeats', 2);
                         } else if (Number(e.target.value) > 29) {
-                          setValue('numberOfSeats', 3);
+                          setValue('numberOfSeats', 2);
                         }
                         await trigger('numberOfParticipants');
                       }}
