@@ -236,7 +236,7 @@ const CreateBookingActivities = () => {
                   })}
                   {bookingAmountIsFetching ? (
                     <ul className="flex items-center gap-1 text-[15px] bg-primary text-white p-1 px-2 rounded-md shadow-sm">
-                      <Loader className="text-primary" />
+                      <Loader className="text-white" />
                     </ul>
                   ) : (
                     bookingAmountIsSuccess && bookingAmount > 0 && (

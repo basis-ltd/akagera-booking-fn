@@ -266,28 +266,47 @@ const CreateBooking = () => {
                     control={control}
                     rules={{ required: 'Entrance time is required' }}
                     render={({ field }) => {
-                      let startTimeHours = dayHoursArray?.filter(
-                        (time) =>
-                          Number(time?.value?.split(':')?.[0]) >= 6 &&
-                          Number(time?.value?.split(':')?.[0]) <= 17
-                      );
-                      if (
-                        watch('entryGate') === 'mutumbaGate' &&
-                        Number(moment().add(1, 'd').format('HH')) < 15
-                      ) {
-                        startTimeHours = dayHoursArray?.filter(
-                          (time) =>
-                            Number(time?.value?.split(':')?.[0]) >=
-                              Number(moment().format('HH')) &&
-                            Number(time?.value?.split(':')?.[0]) <= 15
-                        );
-                      } else {
-                        startTimeHours = dayHoursArray?.filter(
+                        let startTimeHours = dayHoursArray?.filter(
                           (time) =>
                             Number(time?.value?.split(':')?.[0]) >= 6 &&
                             Number(time?.value?.split(':')?.[0]) <= 17
                         );
-                      }
+
+                        if (watch('entryGate') === 'mutumbaGate') {
+                          const selectedDate = moment(
+                            watch('startDate')
+                          ).format('YYYY-MM-DD');
+                          const tomorrow = moment()
+                            .add(1, 'd')
+                            .format('YYYY-MM-DD');
+                          const isPast15 = Number(moment().format('HH')) >= 15;
+
+                          if (selectedDate === tomorrow && !isPast15) {
+                            startTimeHours = dayHoursArray?.filter(
+                              (time) =>
+                                Number(time?.value?.split(':')?.[0]) >=
+                                  Number(moment().format('HH')) &&
+                                Number(time?.value?.split(':')?.[0]) <= 15
+                            );
+                          } else {
+                            const selectedDateIsGreaterTomorrow =
+                              selectedDate > tomorrow;
+
+                            if (selectedDateIsGreaterTomorrow) {
+                              startTimeHours = dayHoursArray?.filter(
+                                (time) =>
+                                  Number(time?.value?.split(':')?.[0]) >= 6 &&
+                                  Number(time?.value?.split(':')?.[0]) <= 15
+                              );
+                            } else {
+                              startTimeHours = dayHoursArray?.filter(
+                                (time) =>
+                                  Number(time?.value?.split(':')?.[0]) >= 6 &&
+                                  Number(time?.value?.split(':')?.[0]) <= 17
+                              );
+                            }
+                          }
+                        }
                       return (
                         <label className="flex flex-col gap-1 w-full">
                           <Select

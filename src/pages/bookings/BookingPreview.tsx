@@ -3,16 +3,9 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
-import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
-import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
-import { bookingVehicleColumns } from '@/constants/bookingVehicle.constants';
-import { COUNTRIES } from '@/constants/countries.constants';
-import { genderOptions } from '@/constants/inputs.constants';
 import { paymentColumns } from '@/constants/payment.constants';
-import { vehicleTypes } from '@/constants/vehicles.constants';
 import PublicLayout from '@/containers/PublicLayout';
 import {
-  calculateActivityPrice,
   calculateBookingPersonPrice,
   calculateVehiclePrice,
   getBookingStatusColor,
@@ -24,22 +17,9 @@ import {
 } from '@/helpers/strings.helper';
 import {
   useCreatePaymentMutation,
-  useLazyFetchBookingActivitiesQuery,
-  useLazyFetchBookingPeopleQuery,
-  useLazyFetchBookingVehiclesQuery,
   useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
 } from '@/states/apiSlice';
-import {
-  setBookingActivitiesList,
-  setDeleteBookingActivityModal,
-  setSelectedBookingActivity,
-} from '@/states/features/bookingActivitySlice';
-import {
-  setBookingPeopleList,
-  setDeleteBookingPersonModal,
-  setSelectedBookingPerson,
-} from '@/states/features/bookingPeopleSlice';
 import {
   addBookingTotalAmountUsd,
   getBookingAmountThunk,
@@ -49,11 +29,6 @@ import {
   submitBookingThunk,
 } from '@/states/features/bookingSlice';
 import {
-  setBookingVehiclesList,
-  setDeleteBookingVehicleModal,
-  setSelectedBookingVehicle,
-} from '@/states/features/bookingVehicleSlice';
-import {
   setApplicationLink,
   setCreatePaymentModal,
   setPayment,
@@ -61,18 +36,14 @@ import {
   setStripeKeys,
 } from '@/states/features/paymentSlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { BookingActivity } from '@/types/models/bookingActivity.types';
-import { BookingPerson } from '@/types/models/bookingPerson.types';
-import { BookingVehicle } from '@/types/models/bookingVehicle.types';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ColumnDef, Row } from '@tanstack/react-table';
-import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import BookingActivitiesPreview from './booking-preview/BookingActivitiesPreview';
+import BookingPeoplePreview from './booking-preview/BookingPeoplePreview';
+import BookingVehiclesPreview from './booking-preview/BookingVehiclesPreview';
 
 const BookingPreview = () => {
   // STATE VARIABLES
@@ -138,69 +109,12 @@ const BookingPreview = () => {
     },
   ] = useLazyGetBookingDetailsQuery();
 
-  // INITIALIZE FETCH BOOKING ACTIVITIES QUERY
-  const [
-    fetchBookingActivities,
-    {
-      data: bookingActivitiesData,
-      error: bookingActivitiesError,
-      isSuccess: bookingActivitiesIsSuccess,
-      isError: bookingActivitiesIsError,
-      isFetching: bookingActivitiesIsFetching,
-    },
-  ] = useLazyFetchBookingActivitiesQuery();
-
-  // INITIALIZE FETCH BOOKING PEOPLE QUERY
-  const [
-    fetchBookingPeople,
-    {
-      data: bookingPeopleData,
-      error: bookingPeopleError,
-      isSuccess: bookingPeopleIsSuccess,
-      isError: bookingPeopleIsError,
-      isFetching: bookingPeopleIsFetching,
-    },
-  ] = useLazyFetchBookingPeopleQuery();
-
-  // INITIALIZE FETCH BOOKING VEHICLES QUERY
-  const [
-    fetchBookingVehicles,
-    {
-      data: bookingVehiclesData,
-      error: bookingVehiclesError,
-      isSuccess: bookingVehiclesIsSuccess,
-      isError: bookingVehiclesIsError,
-      isFetching: bookingVehiclesIsFetching,
-    },
-  ] = useLazyFetchBookingVehiclesQuery();
-
-  // FETCH BOOKING VEHICLES
-  useEffect(() => {
-    if (booking?.id) {
-      fetchBookingVehicles({ bookingId: booking?.id, size: 100 });
-    }
-  }, [fetchBookingVehicles, booking]);
-
-  // FETCH BOOKING PEOPLE
-  useEffect(() => {
-    if (booking?.id) {
-      fetchBookingPeople({ bookingId: booking?.id, size: 100 });
-    }
-  }, [fetchBookingPeople, booking]);
-
   // GET BOOKING DETAILS
   useEffect(() => {
     if (id) {
       getBookingDetails({ id });
     }
   }, [getBookingDetails, id]);
-
-  // FETCH BOOKING ACTIVITIES
-  useEffect(() => {
-    if (booking?.id) {
-      fetchBookingActivities({ bookingId: booking?.id, size: 100 });
-    }
-  }, [fetchBookingActivities, booking]);
 
   // HANDLE GET BOOKING DETAILS RESPONSE
   useEffect(() => {
@@ -224,90 +138,6 @@ const BookingPreview = () => {
     bookingDetailsError,
     dispatch,
     navigate,
-  ]);
-
-  // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
-  useEffect(() => {
-    if (bookingActivitiesIsError) {
-      if ((bookingActivitiesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching booking activities. Please try again later.'
-        );
-      } else {
-        toast.error((bookingActivitiesError as ErrorResponse).data.message);
-      }
-    } else if (bookingActivitiesIsSuccess) {
-      const formattedBookingActivities = bookingActivitiesData?.data?.rows.map(
-        (bookingActivity: BookingActivity, index: number) => {
-          return {
-            ...bookingActivity,
-            no: index + 1,
-            activity: bookingActivity?.activity,
-            price: bookingActivity?.defaultRate
-              ? formatCurrency(
-                  Number(bookingActivity?.defaultRate) *
-                    Number(
-                      bookingActivity?.numberOfSeats ||
-                        bookingActivity?.numberOfAdults
-                    )
-                )
-              : `${formatCurrency(calculateActivityPrice(bookingActivity))}`,
-            numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
-            numberOfAdults: bookingActivity?.numberOfAdults || '',
-            numberOfChildren: bookingActivity?.numberOfChildren || '',
-          };
-        }
-      );
-      dispatch(setBookingActivitiesList(formattedBookingActivities));
-    }
-  }, [
-    bookingActivitiesIsSuccess,
-    bookingActivitiesIsError,
-    bookingActivitiesData,
-    bookingActivitiesError,
-    dispatch,
-  ]);
-
-  // HANDLE FETCH BOOKING PEOPLE RESPONSE
-  useEffect(() => {
-    if (bookingPeopleIsError) {
-      if ((bookingPeopleError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching booking people. Please try again later.'
-        );
-      } else {
-        toast.error((bookingPeopleError as ErrorResponse)?.data?.message);
-      }
-    } else if (bookingPeopleIsSuccess) {
-      dispatch(setBookingPeopleList(bookingPeopleData?.data?.rows));
-    }
-  }, [
-    bookingPeopleIsSuccess,
-    bookingPeopleIsError,
-    bookingPeopleData,
-    bookingPeopleError,
-    dispatch,
-  ]);
-
-  // HANDLE FETCH BOOKING VEHICLES RESPONSE
-  useEffect(() => {
-    if (bookingVehiclesIsError) {
-      if ((bookingVehiclesError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while fetching booking vehicles. Please try again later.'
-        );
-      } else {
-        toast.error((bookingVehiclesError as ErrorResponse).data.message);
-      }
-    } else if (bookingVehiclesIsSuccess) {
-      dispatch(setBookingVehiclesList(bookingVehiclesData?.data?.rows));
-    }
-  }, [
-    bookingVehiclesIsSuccess,
-    bookingVehiclesIsError,
-    bookingVehiclesData,
-    bookingVehiclesError,
-    dispatch,
   ]);
 
   // INITIALIZE CREATE PAYMENT MUTATION
@@ -389,30 +219,6 @@ const BookingPreview = () => {
     dispatch,
   ]);
 
-  // BOOKING ACTIVITIES COLUMNS
-  const bookingActivitiesExtendedColumns = [
-    ...bookingActivitiesColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingActivity> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingActivity(row?.original));
-                dispatch(setDeleteBookingActivityModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
-
   // HANDLE SUBMIT BOOKING RESPONSE
   useEffect(() => {
     if (submitBookingIsSuccess) {
@@ -420,58 +226,6 @@ const BookingPreview = () => {
       navigate(`/bookings/${booking?.id}/success`);
     }
   }, [submitBookingIsSuccess, navigate, booking?.id]);
-
-  // BOOKING PEOPLE COLUMNS
-  const bookingPeopleExtendedColumns = [
-    ...bookingPeopleColumns,
-    {
-      header: 'Entry fee',
-      accessorKey: 'price',
-    },
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingPerson> }) => {
-        return (
-          <menu className="flex items-center gap-3">
-            <FontAwesomeIcon
-              icon={faTrash}
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingPerson(row?.original));
-                dispatch(setDeleteBookingPersonModal(true));
-              }}
-              className="bg-red-600 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
-            />
-          </menu>
-        );
-      },
-    },
-  ];
-
-  // BOOKING VEHICLES COLUMNS
-  const bookingVehicleExtendedColumns = [
-    ...bookingVehicleColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingVehicle> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingVehicle(row?.original));
-                dispatch(setDeleteBookingVehicleModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
 
   // SET ACTIVITIES TOTAL AMOUNT
   useEffect(() => {
@@ -534,7 +288,7 @@ const BookingPreview = () => {
     },
     {
       route: `/bookings/${id}/create`,
-      label: 'Booking activities',
+      label: `${capitalizeString(booking?.type)} activities`,
     },
     {
       route: `/bookings/${id}/consent`,
@@ -592,151 +346,9 @@ const BookingPreview = () => {
             </p>
           </ul>
         </menu>
-        {booking?.type !== 'registration' &&
-          (bookingActivitiesIsFetching ? (
-            <figure className="w-full flex items-center justify-center min-h-[50vh]">
-              <Loader className="text-primary" />
-            </figure>
-          ) : (
-            bookingActivitiesIsSuccess && (
-              <menu className="flex flex-col gap-2 w-full">
-                <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
-                  <h1 className="font-bold text-xl uppercase">Activities</h1>
-                  <Button
-                    className="!py-[2px] underline !text-[12px]"
-                    styled={false}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(`/bookings/${booking?.id}/create`);
-                    }}
-                  >
-                    Update
-                  </Button>
-                </ul>
-                {bookingActivitiesList?.length > 0 ? (
-                  <Table
-                    showFilter={false}
-                    showPagination={false}
-                    columns={bookingActivitiesExtendedColumns}
-                    data={bookingActivitiesList}
-                  />
-                ) : (
-                  <article className="flex w-full flex-col items-center gap-4 my-6">
-                    <p className="text-center text-primary font-medium">
-                      No activities added to this booking. Click the button
-                      below to add them now.
-                    </p>
-                    <Button primary route={`/bookings/${booking?.id}/create`}>
-                      Add activities
-                    </Button>
-                  </article>
-                )}
-              </menu>
-            )
-          ))}
-        {bookingPeopleIsFetching ? (
-          <figure className="w-full flex items-center justify-center min-h-[50vh]">
-            <Loader className="text-primary" />
-          </figure>
-        ) : (
-          bookingPeopleIsSuccess && (
-            <menu className="flex flex-col gap-2 w-full">
-              <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
-                <h1 className="font-bold text-xl uppercase">People</h1>
-                <Button
-                  className="!py-[2px] underline !text-[12px]"
-                  styled={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/bookings/${booking?.id}/create`);
-                  }}
-                >
-                  Update
-                </Button>
-              </ul>
-              <Table
-                showFilter={false}
-                showPagination={false}
-                columns={
-                  bookingPeopleExtendedColumns as ColumnDef<BookingPerson>[]
-                }
-                data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
-                  return {
-                    ...bookingPerson,
-                    gender: genderOptions?.find(
-                      (gender) => gender.value === bookingPerson?.gender
-                    )?.label,
-                    nationality: COUNTRIES?.find(
-                      (country) => country.code === bookingPerson?.nationality
-                    )?.name,
-                    residence: COUNTRIES?.find(
-                      (country) => country.code === bookingPerson?.residence
-                    )?.name,
-                    age: Number(
-                      moment().diff(bookingPerson?.dateOfBirth, 'years', false)
-                    ),
-                    numberOfDays: Number(
-                      moment(bookingPerson?.endDate).diff(
-                        bookingPerson?.startDate,
-                        'days'
-                      )
-                    ),
-                    price: `${formatCurrency(
-                      calculateBookingPersonPrice(bookingPerson)
-                    )}`,
-                  };
-                })}
-              />
-            </menu>
-          )
-        )}
-        {bookingVehiclesIsFetching ? (
-          <figure className="w-full flex items-center justify-center min-h-[50vh]">
-            <Loader className="text-primary" />
-          </figure>
-        ) : (
-          bookingVehiclesIsSuccess && (
-            <menu className="flex flex-col gap-2 w-full">
-              <ul className="flex items-center gap-6 my-2">
-                <h1 className="font-bold text-xl uppercase">Vehicles</h1>
-                <Button
-                  className="!py-[2px] underline !text-[12px]"
-                  styled={false}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/bookings/${booking?.id}/create`);
-                  }}
-                >
-                  Update
-                </Button>
-              </ul>
-              <Table
-                showFilter={false}
-                showPagination={false}
-                columns={
-                  bookingVehicleExtendedColumns as ColumnDef<BookingVehicle>[]
-                }
-                data={bookingVehiclesList?.map((bookingVehicle, index) => {
-                  return {
-                    ...bookingVehicle,
-                    no: index + 1,
-                    vehicleType: vehicleTypes.find(
-                      (vehicleType) =>
-                        vehicleType?.value === bookingVehicle?.vehicleType
-                    )?.label,
-                    registrationCountry: COUNTRIES.find(
-                      (country) =>
-                        country?.code === bookingVehicle?.registrationCountry
-                    )?.name,
-                    vehiclePrice: `${formatCurrency(
-                      calculateVehiclePrice(bookingVehicle)
-                    )}`,
-                  };
-                })}
-              />
-            </menu>
-          )
-        )}
+        <BookingActivitiesPreview />
+        <BookingPeoplePreview />
+        <BookingVehiclesPreview />
         {paymentsIsFetching ? (
           <figure className="w-full flex items-center justify-center min-h-[10vh]">
             <Loader className="text-primary" />
@@ -790,75 +402,114 @@ const BookingPreview = () => {
         <menu className="flex items-center flex-col gap-3 justify-between mb-6">
           {booking?.consent ? (
             <>
-              <Controller
-                name="consent"
-                control={control}
-                render={({ field }) => {
-                  return (
-                    <Input
-                      type="checkbox"
-                      label={
-                        <p>
-                          I have read and understood the cancellation policy{' '}
-                          <Link
-                            to={'#'}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              dispatch(setCancellationPolicyModal(true));
-                            }}
-                            className="text-primary underline"
-                          >
-                            Learn more
-                          </Link>
-                        </p>
-                      }
-                      className="!p-2"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e.target.checked);
-                      }}
-                    />
-                  );
-                }}
-              />
-              <menu className="flex items-center gap-6 my-4">
-                {!bookingPaid && (
-                  <Button
-                    primary={booking?.type === 'booking'}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      createPayment({
-                        bookingId: booking?.id,
-                        amount: Number(String(bookingAmount)?.split('.')[0]),
-                        currency: 'usd',
-                        email: booking?.email,
-                      });
+              {!bookingPaid ? (
+                <>
+                  <Controller
+                    name="consent"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <Input
+                          type="checkbox"
+                          label={
+                            <p>
+                              I have read and understood the cancellation
+                              policy.{' '}
+                              <Link
+                                to={'#'}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  dispatch(setCancellationPolicyModal(true));
+                                }}
+                                className="text-primary underline"
+                              >
+                                Learn more
+                              </Link>
+                            </p>
+                          }
+                          className="!p-2"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                          }}
+                        />
+                      );
                     }}
-                    disabled={watch('consent') ? false : true}
-                  >
-                    {createPaymentIsLoading ? <Loader /> : 'Complete payment'}
-                  </Button>
-                )}
-                {booking?.type === 'registration' && (
+                  />
+                  <menu className="flex items-center gap-6 my-4">
+                    {!bookingPaid && (
+                      <Button
+                        primary={booking?.type === 'booking'}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          createPayment({
+                            bookingId: booking?.id,
+                            amount: Number(
+                              String(bookingAmount)?.split('.')[0]
+                            ),
+                            currency: 'usd',
+                            email: booking?.email,
+                          });
+                        }}
+                        disabled={watch('consent') ? false : true}
+                      >
+                        {createPaymentIsLoading ? (
+                          <Loader />
+                        ) : (
+                          'Complete payment'
+                        )}
+                      </Button>
+                    )}
+                    {booking?.type === 'registration' && (
+                      <Button
+                        primary
+                        onClick={(e) => {
+                          e.preventDefault();
+                          dispatch(
+                            submitBookingThunk({
+                              id: booking?.id,
+                              status: 'pending',
+                              totalAmountRwf: Number(bookingAmount) * 1343,
+                              totalAmountUsd: Number(bookingAmount),
+                            })
+                          );
+                        }}
+                        disabled={watch('consent') ? false : true}
+                      >
+                        {submitBookingIsLoading ? (
+                          <Loader />
+                        ) : (
+                          'Submit and pay later'
+                        )}
+                      </Button>
+                    )}
+                  </menu>
+                </>
+              ) : (
+                <menu className="w-full flex flex-col gap-4">
+                  <p className="text-center text-black font-medium">
+                    All payments have been completed for this booking. You can
+                    now proceed to the next step.
+                  </p>
                   <Button
                     primary
+                    className="flex w-fit mx-auto"
                     onClick={(e) => {
                       e.preventDefault();
                       dispatch(
                         submitBookingThunk({
                           id: booking?.id,
-                          status: 'pending',
-                          totalAmountRwf: Number(bookingAmount) * 1343,
-                          totalAmountUsd: Number(bookingAmount),
+                          status: 'cash_received',
+                          totalAmountUsd: bookingAmount,
+                          totalAmountRwf: bookingAmount * 1343,
                         })
                       );
                     }}
-                    disabled={watch('consent') ? false : true}
                   >
-                    {submitBookingIsLoading ? <Loader /> : 'Submit and pay later'}
+                    {submitBookingIsLoading ? <Loader /> : 'Continue'}
                   </Button>
-                )}
-              </menu>
+                </menu>
+              )}
             </>
           ) : (
             <p className="text-center text-black font-medium">

@@ -191,7 +191,7 @@ const ListDraftBookings = () => {
           ? ' List of unfinished bookings/registrations'
           : 'Find bookings/registrations in progress to complete'
       }
-      className='min-w-[80vw]'
+      className='min-w-[60vw]'
     >
       <form
         className={`flex flex-col gap-4 w-full ${

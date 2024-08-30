@@ -73,7 +73,7 @@ const CreateBookingGuidesActivity = () => {
     <section className="flex flex-col gap-6 w-full">
       {activitiesIsFetching ? (
         <figure className="flex items-center justify-center w-full min-h-[40vh]">
-          <Loader className='text-primary' />
+          <Loader className="text-primary" />
         </figure>
       ) : (
         <menu className="w-full grid grid-cols-2 gap-6 max-[700px]:grid-cols-1">
@@ -106,10 +106,14 @@ const CreateBookingGuidesActivity = () => {
           }
           onClick={(e) => {
             e.preventDefault();
-            navigate(`/bookings/${booking?.id}/consent`);
+            if (booking?.consent) {
+              navigate(`/bookings/${booking?.id}/preview`);
+            } else {
+              navigate(`/bookings/${booking?.id}/consent`);
+            }
           }}
         >
-          Next
+          Complete booking
         </Button>
       </menu>
     </section>
