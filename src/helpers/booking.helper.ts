@@ -175,7 +175,10 @@ export const calculateVehiclePrice = (vehicle: BookingVehicle) => {
 
 export const calculateBookingPersonPrice = (person: BookingPerson) => {
   const age = calculateAge(person.dateOfBirth);
-  const nights = calculateNights(person.startDate, person.endDate);
+  const nights = calculateNights(
+    person.booking.startDate,
+    person.booking.endDate
+  );
   const category = getPriceCategory(
     String(person?.nationality),
     String(person?.residence)

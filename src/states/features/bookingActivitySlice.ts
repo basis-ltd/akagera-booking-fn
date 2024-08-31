@@ -51,7 +51,8 @@ export const fetchBookingActivitiesThunk = createAsyncThunk<
       })
     );
     dispatch(setExistingBookingActivitiesList(response.data?.data?.rows));
-    return response.data;
+
+    return response.data.data?.rows;
   }
 );
 
@@ -192,5 +193,4 @@ export const {
   setCreateBookingActivityIsError,
   setCreateBookingActivityIsSuccess,
 } = bookingActivitySlice.actions;
-
 export default bookingActivitySlice.reducer;

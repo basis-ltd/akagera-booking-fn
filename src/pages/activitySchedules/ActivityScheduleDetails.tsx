@@ -93,22 +93,32 @@ const ActivityScheduleDetails = () => {
 
   // SET TRANSPORTATIONS LABEL
   useEffect(() => {
-    switch (selectedActivity?.name?.toUpperCase()) {
-      case 'BOAT TRIP – PRIVATE, NON-SCHEDULED':
+    switch (selectedActivity?.slug) {
+      case 'behind-the-scenes-tour':
         setTransportationsLabel('participants');
         break;
-      case 'GUIDE FOR SELF-DRIVE GAME DRIVE':
-        setTransportationsLabel('guides');
-        break;
-      case 'BOAT TRIP – SCHEDULED MORNING/DAY':
-      case 'BOAT TRIP – SCHEDULED SUNSET':
+      case 'boat-trip-morning-day':
+      case 'boat-trip-morning-day-amc-operated':
         setTransportationsLabel('boats');
+        break;
+      case 'camping':
+      case 'camping-at-mihindi-campsite':
+      case 'camping-at-mihindi-for-rwanda-nationals':
+      case 'camping-for-rwandan-nationals':
+        setTransportationsLabel('tents');
+        break;
+      case 'game-drive-day-amc-operated':
+      case 'night-drive-operated-by-amc':
+        setTransportationsLabel('cars');
+        break;
+      case 'boat-trip–private-non-scheduled':
+        setTransportationsLabel('participants');
         break;
       default:
         setTransportationsLabel('transportations');
         break;
     }
-  }, [selectedActivity?.name, selectedActivitySchedule]);
+  }, [selectedActivity, selectedActivitySchedule]);
 
   return (
     <Modal

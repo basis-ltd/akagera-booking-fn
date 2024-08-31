@@ -84,6 +84,8 @@ const AddGameDayDriveActivity = () => {
     setError,
   } = useForm();
 
+  const { startDate } = watch();
+
   // EXISTING BOOKING ACTIVITIES COLUMNS
   const existingBookingActivitiesColumns = [
     {
@@ -196,7 +198,7 @@ const AddGameDayDriveActivity = () => {
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate') || booking?.startDate,
+          date: startDate || booking?.startDate,
         })
       );
     }
@@ -204,8 +206,7 @@ const AddGameDayDriveActivity = () => {
     selectedActivitySchedule,
     dispatch,
     booking?.startDate,
-    watch,
-    watch('startDate'),
+    startDate,
   ]);
 
   // FETCH BOOKING ACTIVITIES

@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import Button from '@/components/inputs/Button';
 import { useState } from 'react';
-import { RootState } from '@/states/store';
+import { AppDispatch, RootState } from '@/states/store';
 import { setCreatePaymentModal } from '@/states/features/paymentSlice';
 import { useForm } from 'react-hook-form';
 import Loader from '@/components/inputs/Loader';
@@ -19,11 +19,10 @@ import { formatCurrency } from '@/helpers/strings.helper';
 
 const CheckoutForm = () => {
   // STATE VARIABLES
+  const dispatch: AppDispatch = useDispatch();
   const { paymentIntent, applicationLink, payment } = useSelector(
     (state: RootState) => state.payment
   );
-
-  console.log(payment);
 
   // REACT HOOK FORM
   const { handleSubmit } = useForm();
@@ -63,6 +62,7 @@ const CheckoutForm = () => {
     } catch (error) {
       setLoading(false);
       toast.error('Error while creating payment. Please try again');
+      dispatch(setCreatePaymentModal(false));
       console.log(error);
     }
   };

@@ -81,6 +81,8 @@ const AddCampingActivities = () => {
     setError,
   } = useForm();
 
+  const { startDate } = watch();
+
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
     if (!data?.numberOfChildren && !data?.numberOfAdults) {
@@ -165,11 +167,11 @@ const AddCampingActivities = () => {
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate'),
+          date: startDate,
         })
       );
     }
-  }, [selectedActivitySchedule, dispatch, watch, watch('startDate')]);
+  }, [selectedActivitySchedule, dispatch, startDate]);
 
   return (
     <Modal

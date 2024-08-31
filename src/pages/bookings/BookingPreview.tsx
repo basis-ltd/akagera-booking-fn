@@ -19,6 +19,7 @@ import {
   useCreatePaymentMutation,
   useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
+  useUpdateBookingMutation,
 } from '@/states/apiSlice';
 import {
   addBookingTotalAmountUsd,
@@ -44,6 +45,7 @@ import { toast } from 'react-toastify';
 import BookingActivitiesPreview from './booking-preview/BookingActivitiesPreview';
 import BookingPeoplePreview from './booking-preview/BookingPeoplePreview';
 import BookingVehiclesPreview from './booking-preview/BookingVehiclesPreview';
+import TextArea from '@/components/inputs/TextArea';
 
 const BookingPreview = () => {
   // STATE VARIABLES
@@ -70,6 +72,7 @@ const BookingPreview = () => {
 
   // REACT HOOK FORM
   const { watch, control } = useForm();
+  const { notes } = watch();
 
   // MANAGE BOOKING PAYMENT STATUS
   useEffect(() => {
@@ -80,6 +83,42 @@ const BookingPreview = () => {
       setBookingPaid(bookingPaid);
     }
   }, [bookingPaymentsList]);
+
+  // INITIALIZE UPDATE BOOKING MUTATION
+  const [
+    updateBooking,
+    {
+      isLoading: updateBookingIsLoading,
+      error: updateBookingError,
+      isSuccess: updateBookingIsSuccess,
+      isError: updateBookingIsError,
+      reset: resetUpdateBooking,
+    },
+  ] = useUpdateBookingMutation();
+
+  // HANDLE UDPATE BOOKING RESPONSE
+  useEffect(() => {
+    if (updateBookingIsError) {
+      if ((updateBookingError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while updating booking. Please try again later.'
+        );
+      } else {
+        toast.error((updateBookingError as ErrorResponse).data.message);
+      }
+    } else if (updateBookingIsSuccess) {
+      toast.success('Booking updated successfully.');
+      resetUpdateBooking();
+      dispatch(setBooking({ ...booking, notes }));
+    }
+  }, [
+    updateBookingIsError,
+    updateBookingIsSuccess,
+    updateBookingError,
+    dispatch,
+    notes,
+    resetUpdateBooking,
+  ]);
 
   // NAVIGATION
   const { id } = useParams();
@@ -378,6 +417,43 @@ const BookingPreview = () => {
             </menu>
           )
         )}
+        <form className="w-[50%] flex flex-col gap-3 my-4">
+          <Controller
+            name="notes"
+            defaultValue={booking?.notes}
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextArea
+                  label="Additional notes"
+                  placeholder="Add any notes or comments here"
+                  {...field}
+                  resize
+                />
+              );
+            }}
+          />
+          {notes && (
+            <menu className="w-full flex items-center justify-end">
+              <Button
+                primary
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateBooking({
+                    id: booking?.id,
+                    notes,
+                  });
+                }}
+              >
+                {updateBookingIsLoading ? (
+                  <Loader />
+                ) : (
+                  `${booking?.notes ? 'Update' : 'Add'} notes`
+                )}
+              </Button>
+            </menu>
+          )}
+        </form>
         <menu className="flex items-start gap-3 justify-end w-full my-4 px-2">
           <h1 className="text-primary text-xl font-bold uppercase text-center">
             Total:

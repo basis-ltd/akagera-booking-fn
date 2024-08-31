@@ -36,10 +36,12 @@ const Dashboard = () => {
   const [startDate, setStartDate] = useState(
     moment().startOf('month').format('YYYY-MM-DD')
   );
-  const [endDate, setEndDate] = useState(moment().endOf('month').format('YYYY-MM-DD'));
+  const [endDate, setEndDate] = useState(
+    moment().endOf('month').format('YYYY-MM-DD')
+  );
   const [type, setType] = useState(``);
   const [metric, setMetric] = useState(`registrations`);
-  const [showFilter, setShowFilter] = useState(false);
+  const [showFilter, setShowFilter] = useState(true);
 
   // REACT HOOK FORM
   const { control, setValue, reset } = useForm();
@@ -286,8 +288,18 @@ const Dashboard = () => {
           )}
         </section>
         <section className="grid grid-cols-2 w-full gap-[5%]">
-         {type !== 'registration' && <PopularActivites startDate={startDate} endDate={endDate} />}
-          <PopularBookingPeople startDate={startDate} endDate={endDate} />
+          {type !== 'registration' && (
+            <PopularActivites
+              startDate={startDate}
+              endDate={endDate}
+              type={type}
+            />
+          )}
+          <PopularBookingPeople
+            startDate={startDate}
+            endDate={endDate}
+            type={type}
+          />
         </section>
       </main>
     </AdminLayout>

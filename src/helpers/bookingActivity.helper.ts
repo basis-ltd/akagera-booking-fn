@@ -3,28 +3,45 @@ export const calculateBehindTheScenesPrice = (
   numberOfChildren: number
 ): number => {
   const totalPeople = numberOfAdults + numberOfChildren;
+  const ADULT_RATE = 25;
+  const CHILD_RATE = 15;
+  const GROUP_RATE = 180;
+  const GROUP_SIZE = 14;
 
   if (totalPeople < 4) {
     return 100;
   }
 
   if (totalPeople < 8) {
-    return 25 * numberOfAdults + 20 * numberOfChildren;
-  } else if (totalPeople <= 14) {
-    return 200;
-  } else {
-    const fullGroups = Math.floor((totalPeople - 14) / 8);
-    const remainingPeople = (totalPeople - 14) % 8;
-
-    let basePrice = 200 * (fullGroups + 1);
-
-    if (remainingPeople > 0) {
-      const remainingAdults = Math.min(numberOfAdults, remainingPeople);
-      const remainingChildren = remainingPeople - remainingAdults;
-
-      basePrice += 25 * remainingAdults + 20 * remainingChildren;
-    }
-
-    return basePrice;
+    return ADULT_RATE * numberOfAdults + CHILD_RATE * numberOfChildren;
   }
+
+  if (totalPeople <= GROUP_SIZE) {
+    return GROUP_RATE;
+  }
+
+  const fullGroups = Math.floor(totalPeople / GROUP_SIZE);
+  const remainingPeople = totalPeople % GROUP_SIZE;
+
+  let totalCost = fullGroups * GROUP_RATE;
+
+  if (remainingPeople >= 8) {
+    totalCost += GROUP_RATE;
+  } else if (remainingPeople > 0) {
+    const adultsInFullGroups = Math.min(
+      numberOfAdults,
+      fullGroups * GROUP_SIZE
+    );
+    const childrenInFullGroups = Math.min(
+      numberOfChildren,
+      fullGroups * GROUP_SIZE - adultsInFullGroups
+    );
+
+    const remainingAdults = numberOfAdults - adultsInFullGroups;
+    const remainingChildren = numberOfChildren - childrenInFullGroups;
+
+    totalCost += ADULT_RATE * remainingAdults + CHILD_RATE * remainingChildren;
+  }
+
+  return totalCost;
 };

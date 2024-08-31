@@ -68,6 +68,9 @@ const AddBoatTripPrivateActivity = () => {
   const { remainingSeats, remainingSeatsIsFetching } = useSelector(
     (state: RootState) => state.activitySchedule
   );
+  const { bookingPeopleList } = useSelector(
+    (state: RootState) => state.bookingPeople
+  );
 
   // REACT HOOK FORM
   const {
@@ -80,6 +83,7 @@ const AddBoatTripPrivateActivity = () => {
     formState: { errors },
     trigger,
   } = useForm();
+  const { startDate, defaultRate } = watch();
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -152,7 +156,7 @@ const AddBoatTripPrivateActivity = () => {
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate') || booking?.startDate,
+          date: startDate || booking?.startDate,
         })
       );
     }
@@ -161,7 +165,7 @@ const AddBoatTripPrivateActivity = () => {
     dispatch,
     booking?.startDate,
     watch,
-    watch('startDate'),
+    startDate,
   ]);
 
   // FETCH BOOKING ACTIVITIES
@@ -194,7 +198,8 @@ const AddBoatTripPrivateActivity = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
+      ) : existingBookingActivitiesList?.length <= 0 &&
+        existingBookingActivitiesIsSuccess ? (
         <form
           className="w-full flex flex-col gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -273,14 +278,14 @@ const AddBoatTripPrivateActivity = () => {
                         {field?.value && remainingSeatsIsFetching ? (
                           <figure className="flex items-center gap-2">
                             <p className="text-[12px]">
-                              Calculating available cars
+                              Calculating available boats
                             </p>
                             <Loader className="text-primary" />
                           </figure>
                         ) : remainingSeats &&
                           (remainingSeats as boolean) !== true ? (
                           <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                            Number of cars available for this period:{' '}
+                            Number of boats available for this period:{' '}
                             {remainingSeats}
                           </p>
                         ) : (
@@ -308,6 +313,9 @@ const AddBoatTripPrivateActivity = () => {
                 validate: (value) => {
                   if (Number(value) > 29) {
                     return 'Number of participants should not exceed 29';
+                  }
+                  if (Number(value) > bookingPeopleList?.length) {
+                    return 'Number of participants exceed the number of people in the booking';
                   }
                 },
               }}
@@ -372,10 +380,9 @@ const AddBoatTripPrivateActivity = () => {
               }}
             />
           </fieldset>
-          {watch('defaultRate') > 0 && (
+          {defaultRate > 0 && Object.keys(errors)?.length <= 0 && (
             <p className="text-[15px] text-primary">
-              The total amount for this booking is{' '}
-              {formatCurrency(watch('defaultRate'))}
+              The total amount for this booking is {formatCurrency(defaultRate)}
             </p>
           )}
           <menu className="w-full flex items-center gap-3 justify-between">

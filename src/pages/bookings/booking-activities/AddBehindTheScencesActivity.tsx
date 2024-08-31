@@ -180,7 +180,7 @@ const AddBehindTheScencesActivity = () => {
     }
   }, [
     addBehindTheScenesActivityModal,
-    booking?.id,
+    booking,
     dispatch,
     selectedActivity?.id,
   ]);

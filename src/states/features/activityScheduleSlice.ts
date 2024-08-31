@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import apiSlice from '../apiSlice';
 import { UUID } from 'crypto';
 import { AppDispatch } from '../store';
+import { formatDate } from '@/helpers/strings.helper';
 
 const initialState: {
   activityScheduleDetailsModal: boolean;
@@ -41,7 +42,7 @@ export const calculateRemainingSeatsThunk = createAsyncThunk<
     const response = await dispatch(
       apiSlice.endpoints.getRemainingSeats.initiate({
         id,
-        date,
+        date: formatDate(date),
       })
     );
     dispatch(setRemainingSeats(response.data?.data));

@@ -1,8 +1,10 @@
 import { localApiUrl, stagingApiUrl } from '@/constants/environments.constants';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { UUID } from 'crypto';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
+  tagTypes: ['BookingActivities'],
   baseQuery: fetchBaseQuery({
     baseUrl: stagingApiUrl || localApiUrl,
     prepareHeaders: (headers) => {
@@ -239,10 +241,17 @@ export const apiSlice = createApi({
           if (status) {
             url += `&status=${status}`;
           }
-          return {
-            url,
-          };
+          return { url };
         },
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.data.rows.map(({ id }: {
+                  id: UUID;
+                }) => ({ type: 'BookingActivities' as const, id })),
+                { type: 'BookingActivities', id: 'LIST' },
+              ]
+            : [{ type: 'BookingActivities', id: 'LIST' }],
       }),
 
       // UPDATE BOOKING

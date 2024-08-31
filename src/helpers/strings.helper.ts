@@ -36,6 +36,7 @@ export const formatCurrency = (
   amount: string | number | undefined,
   currency = 'USD'
 ) => {
+  if (amount === 0) return Intl.NumberFormat('en-US', { style: 'currency', currency }).format(0);
   if (!amount) return '';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

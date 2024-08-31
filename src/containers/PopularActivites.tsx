@@ -14,9 +14,10 @@ import { toast } from 'react-toastify';
 type PopularActivitesProps = {
   startDate?: Date | string;
   endDate?: Date | string;
+  type?: string;
 };
 
-const PopularActivites = ({ startDate, endDate }: PopularActivitesProps) => {
+const PopularActivites = ({ startDate, endDate, type }: PopularActivitesProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
 
@@ -42,8 +43,9 @@ const PopularActivites = ({ startDate, endDate }: PopularActivitesProps) => {
       page: 0,
       startDate,
       endDate,
+      type,
     });
-  }, [endDate, fetchPopularActivities, startDate]);
+  }, [endDate, fetchPopularActivities, startDate, type]);
 
   // HANDLE POPULAR ACTIVITIES RESPONSE
   useEffect(() => {

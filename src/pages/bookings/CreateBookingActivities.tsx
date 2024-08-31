@@ -211,7 +211,11 @@ const CreateBookingActivities = () => {
         <h1 className="text-primary font-medium uppercase text-lg text-center">
           Complete {booking?.type} for{' '}
           {bookingDetailsIsSuccess ? booking?.name : '...'} scheduled on{' '}
-          {bookingDetailsIsSuccess ? formatDate(booking?.startDate) : '...'}
+          {bookingDetailsIsSuccess
+            ? `${formatDate(booking?.startDate)} - ${formatDate(
+                booking?.endDate
+              )}`
+            : '...'}
         </h1>
         {bookingDetailsIsSuccess && servicesIsSuccess && (
           <form className="flex flex-col gap-4 w-[80%] mx-auto">
@@ -239,7 +243,8 @@ const CreateBookingActivities = () => {
                       <Loader className="text-white" />
                     </ul>
                   ) : (
-                    bookingAmountIsSuccess && bookingAmount > 0 && (
+                    bookingAmountIsSuccess &&
+                    bookingAmount > 0 && (
                       <ul className="flex items-center gap-1 text-[15px] bg-primary text-white p-1 px-2 rounded-md shadow-sm">
                         <p className="uppercase">Current Total:</p>
                         <p>{formatCurrency(bookingAmount)}</p>

@@ -57,7 +57,7 @@ const CreateBookingPerson = () => {
       nationality: data?.nationality,
       residence: data?.residence,
       bookingId: booking?.id,
-      gender: data?.gender
+      gender: data?.gender,
     });
   };
 
@@ -132,7 +132,7 @@ const CreateBookingPerson = () => {
               );
             }}
           />
-                    <Controller
+          <Controller
             name="nationality"
             control={control}
             rules={{ required: `Select ${watch('name')}'s nationality` }}
@@ -209,7 +209,7 @@ const CreateBookingPerson = () => {
                 <label className="flex flex-col gap-1">
                   <Select
                     label="Sex"
-                    placeholder='Select sex'
+                    placeholder="Select sex"
                     options={genderOptions}
                     required
                     {...field}

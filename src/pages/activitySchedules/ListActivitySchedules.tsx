@@ -104,6 +104,7 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
                 icon={faPenToSquare}
                 onClick={(e) => {
                   e.preventDefault();
+                  dispatch(setSelectedActivity(activity));
                   dispatch(setSelectedActivitySchedule(row?.original));
                   dispatch(setActivityScheduleDetailsModal(true));
                 }}

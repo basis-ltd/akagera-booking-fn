@@ -17,11 +17,13 @@ import { toast } from 'react-toastify';
 type PopularBookingPeopleProps = {
   startDate?: Date | string;
   endDate?: Date | string;
+  type?: string;
 };
 
 const PopularBookingPeople = ({
   startDate,
   endDate,
+  type
 }: PopularBookingPeopleProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
@@ -53,8 +55,9 @@ const PopularBookingPeople = ({
       criteria,
       startDate,
       endDate,
+      type,
     });
-  }, [criteria, endDate, fetchPopularBookingPeople, startDate]);
+  }, [criteria, endDate, fetchPopularBookingPeople, startDate, type]);
 
   // HANDLE POPULAR BOOKING PEOPLE RESPONSE
   useEffect(() => {
