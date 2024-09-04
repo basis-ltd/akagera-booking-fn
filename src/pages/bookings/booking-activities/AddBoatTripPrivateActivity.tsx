@@ -381,7 +381,7 @@ const AddBoatTripPrivateActivity = () => {
             />
           </fieldset>
           {defaultRate > 0 && Object.keys(errors)?.length <= 0 && (
-            <p className="text-[15px] text-primary">
+            <p className="text-[15px] uppercase font-medium text-primary">
               The total amount for this booking is {formatCurrency(defaultRate)}
             </p>
           )}

@@ -105,10 +105,13 @@ const ListActivities = () => {
           <h1 className="text-primary font-semibold text-lg uppercase">
             Activities
           </h1>
-          <Button primary onClick={(e) => {
-            e.preventDefault();
-            dispatch(setCreateActivityModal(true));
-          }}>
+          <Button
+            primary
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setCreateActivityModal(true));
+            }}
+          >
             <menu className="flex items-center gap-2">
               <FontAwesomeIcon className="text-[13px]" icon={faPlus} />
               <p className="text-[13px]">Add Activity</p>
@@ -122,20 +125,24 @@ const ListActivities = () => {
         ) : (
           <section className="w-full flex flex-col gap-6">
             <Table
-            size={100}
+              size={100}
               showFilter={false}
-              data={activitiesList?.map((activity: Activity, index: number) => {
-                return {
-                  ...activity,
-                  no: index + 1,
-                  description:
-                    activity?.description !== 'NULL'
-                      ? activity?.description
-                      : '',
-                  disclaimer:
-                    activity?.disclaimer !== 'NULL' ? activity?.disclaimer : '',
-                };
-              })}
+              data={activitiesList
+                ?.slice()
+                .map((activity: Activity, index: number) => {
+                  return {
+                    ...activity,
+                    no: index + 1,
+                    description:
+                      activity?.description !== 'NULL'
+                        ? activity?.description
+                        : '',
+                    disclaimer:
+                      activity?.disclaimer !== 'NULL'
+                        ? activity?.disclaimer
+                        : '',
+                  };
+                })}
               columns={activitiesExtendedColumns as ColumnDef<Activity>[]}
             />
           </section>

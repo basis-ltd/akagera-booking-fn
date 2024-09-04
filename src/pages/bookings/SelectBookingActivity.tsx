@@ -38,6 +38,7 @@ import {
   calculateRemainingSeatsThunk,
   setRemainingSeats,
 } from '@/states/features/activityScheduleSlice';
+import { calculateActivityPrice } from '@/helpers/booking.helper';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -45,6 +46,7 @@ const SelectBookingActivity = () => {
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
+  const { bookingPeopleList } = useSelector((state: RootState) => state.bookingPeople);
   const {
     existingBookingActivitiesList,
     existingBookingActivitiesIsFetching,
@@ -72,6 +74,7 @@ const SelectBookingActivity = () => {
     useState<string>('seats');
   const [minNumberOfSeatsDisclaimer, setMinNumberOfSeatsDisclaimer] =
     useState<string>('');
+    const [estimatedCost, setEstimatedCost] = useState<number>(0);
 
   // REACT HOOK FORM
   const {
@@ -85,6 +88,14 @@ const SelectBookingActivity = () => {
     setValue,
     formState: { errors },
   } = useForm();
+
+  const {
+    numberOfChildren,
+    numberOfAdults,
+    numberOfParticipants,
+    numberOfSeats,
+    startDate,
+  } = watch();
 
   // INITIALIZE CREATE BOOKING ACTIVITY MUTATION
   const [
@@ -224,7 +235,7 @@ const SelectBookingActivity = () => {
       dispatch(
         calculateRemainingSeatsThunk({
           id: selectedActivitySchedule?.id,
-          date: watch('startDate') || booking?.startDate,
+          date: startDate || booking?.startDate,
         })
       );
     }
@@ -233,7 +244,7 @@ const SelectBookingActivity = () => {
     dispatch,
     booking?.startDate,
     watch,
-    watch('startDate'),
+    startDate,
   ]);
 
   useEffect(() => {
@@ -263,6 +274,7 @@ const SelectBookingActivity = () => {
   // VALIDATE NUMBER OF PARTICIPANTS AGAINST MIN AND MAX
   useEffect(() => {
     clearErrors('numberOfParticipants');
+    clearErrors('numberOfSeats');
     setMinNumberOfSeatsDisclaimer('');
     if (selectedActivitySchedule?.minNumberOfSeats) {
       if (
@@ -305,7 +317,7 @@ const SelectBookingActivity = () => {
           Number(watch('numberOfChildren') || 0) >
         remainingSeats
       ) {
-        setError('numberOfParticipants', {
+        setError('numberOfSeats', {
           type: 'manual',
           message: `Number of participants must be less than or equal to ${remainingSeats}`,
         });
@@ -315,15 +327,28 @@ const SelectBookingActivity = () => {
     selectedActivitySchedule,
     setValue,
     watch,
-    watch('numberOfChildren'),
-    watch('numberOfAdults'),
-    watch('numberOfParticipants'),
-    watch('numberOfSeats'),
+    numberOfChildren,
+    numberOfAdults,
+    numberOfParticipants,
+    numberOfSeats,
     transportationsLabel,
     setError,
     clearErrors,
     remainingSeats,
+    bookingPeopleList?.length,
   ]);
+
+  useEffect(() => {
+    if (
+      Number(numberOfAdults ?? 0) + Number(numberOfChildren ?? 0) >
+      bookingPeopleList?.length
+    ) {
+      setError('participantsExceeded', {
+        type: 'manual',
+        message: `Number of participants must be less than or equal to ${bookingPeopleList?.length}`,
+      });
+    }
+  }, [numberOfAdults, numberOfChildren, bookingPeopleList, setError]);
 
   // HANDLE MINIMUM SEATS COST CALCULATION
   useEffect(() => {
@@ -365,9 +390,9 @@ const SelectBookingActivity = () => {
   }, [
     selectedActivitySchedule,
     selectedActivity,
-    watch('numberOfAdults'),
-    watch('numberOfChildren'),
-    watch('numberOfParticipants'),
+    numberOfChildren,
+    numberOfAdults,
+    numberOfParticipants,
     setValue,
     watch,
   ]);
@@ -381,6 +406,17 @@ const SelectBookingActivity = () => {
       setValue('defaultRate', 200);
     }
   }, [selectedActivity?.name, setValue]);
+
+  // CALCULATE ESTIMATED COST
+  useEffect(() => {
+    setEstimatedCost(
+      calculateActivityPrice({
+        numberOfAdults: Number(numberOfAdults),
+        numberOfChildren: Number(numberOfChildren),
+        numberOfSeats: Number(numberOfSeats),
+      })
+    )
+  }, [watch, numberOfAdults, numberOfChildren, numberOfParticipants, numberOfSeats]);
 
   return (
     <Modal
@@ -401,7 +437,7 @@ const SelectBookingActivity = () => {
       heading={`Confirm adding ${selectedActivity.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
-      className='min-w-[65vw]'
+      className="min-w-[65vw]"
     >
       {existingBookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
@@ -410,7 +446,8 @@ const SelectBookingActivity = () => {
             Retrieving existing bookings for this activity
           </p>
         </figure>
-      ) : (existingBookingActivitiesList?.length <= 0 && existingBookingActivitiesIsSuccess) ? (
+      ) : existingBookingActivitiesList?.length <= 0 &&
+        existingBookingActivitiesIsSuccess ? (
         <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
           <fieldset className="grid grid-cols-2 gap-2 w-full">
             <Controller
@@ -592,6 +629,7 @@ const SelectBookingActivity = () => {
                             field.onChange(e.target.value);
                             await trigger('numberOfAdults');
                             clearErrors('numberOfParticipants');
+                            clearErrors('participantsExceeded');
                           }}
                         />
                         {errors?.numberOfAdults && (
@@ -630,6 +668,7 @@ const SelectBookingActivity = () => {
                             field.onChange(e.target.value);
                             await trigger('numberOfChildren');
                             clearErrors('numberOfParticipants');
+                            clearErrors('participantsExceeded');
                           }}
                         />
                         {errors?.numberOfChildren && (
@@ -745,22 +784,23 @@ const SelectBookingActivity = () => {
           </fieldset>
           <menu className="flex flex-col gap-2 w-[90%]">
             {errors?.numberOfParticipants && (
-              <>
-                <InputErrorMessage
-                  message={errors?.numberOfParticipants?.message}
-                />
-              </>
+              <InputErrorMessage
+                message={errors?.numberOfParticipants?.message}
+              />
+            )}
+            {errors?.numberOfSeats && (
+              <InputErrorMessage message={errors?.numberOfSeats?.message} />
             )}
             {selectedActivitySchedule &&
             selectedActivitySchedule?.disclaimer ? (
-              <p className="text-slate-900 text-[15px]">
+              <p className="text-black font-normal text-[15px]">
                 Disclaimer: {selectedActivitySchedule?.disclaimer}
               </p>
             ) : null}
             {watch('numberOfParticipants') ? (
               Number(watch('numberOfParticipants')) >= 1 &&
               Number(watch('numberOfParticipants')) <= 29 ? (
-                <p className="text-slate-900 text-[15px]">
+                <p className="text-black font-bold text-[15px]">
                   Price: ${watch('defaultRate')} USD
                 </p>
               ) : null
@@ -768,7 +808,7 @@ const SelectBookingActivity = () => {
             {selectedActivity?.name
               ?.toUpperCase()
               ?.includes('BEHIND THE SCENES TOUR') && !watch('defaultRate') ? (
-              <p className="text-slate-900 text-[15px]">
+              <p className="text-black font-normal text-[15px]">
                 Price:{' '}
                 {calculateBehindTheScenesPrice(
                   Number(watch('numberOfAdults')) || 0,
@@ -778,12 +818,12 @@ const SelectBookingActivity = () => {
               </p>
             ) : null}
             {watch('defaultRate') ? (
-              <p className="text-slate-900 text-[15px]">
+              <p className="text-black font-normal text-[15px]">
                 Minimum cost: {watch('defaultRate')} USD
               </p>
             ) : null}
             {minNumberOfSeatsDisclaimer && (
-              <p className="text-slate-900 text-[15px]">
+              <p className="text-black font-normal text-[15px]">
                 {minNumberOfSeatsDisclaimer}
               </p>
             )}

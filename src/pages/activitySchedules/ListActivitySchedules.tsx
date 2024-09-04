@@ -22,7 +22,7 @@ import { faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Row } from '@tanstack/react-table';
 import { UUID } from 'crypto';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -43,6 +43,8 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
     activityScheduleDetailsModal,
   } = useSelector((state: RootState) => state.activitySchedule);
   const { activity } = useSelector((state: RootState) => state.activity);
+  const [transportationsLabel, setTransportationsLabel] =
+    useState<string>('seats');
 
   // INITIALIZE FETCH ACTIVITY SCHEDULES QUERY
   const [
@@ -90,9 +92,44 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
     activitySchedulesError,
   ]);
 
+    // SET TRANSPORTATIONS LABEL
+    useEffect(() => {
+      switch (activity?.slug) {
+        case 'behind-the-scenes-tour':
+          setTransportationsLabel('participants');
+          break;
+        case 'boat-trip-morning-day':
+        case 'boat-trip-morning-day-amc-operated':
+        case 'boat-trip-sunset-trip':
+          setTransportationsLabel('seats');
+          break;
+        case 'camping':
+        case 'camping-at-mihindi-campsite':
+        case 'camping-at-mihindi-for-rwanda-nationals':
+        case 'camping-for-rwandan-nationals':
+          setTransportationsLabel('tents');
+          break;
+        case 'game-drive-day-amc-operated':
+        case 'night-drive-operated-by-amc':
+          setTransportationsLabel('cars');
+          break;
+        case 'boat-trip–private-non-scheduled':
+          setTransportationsLabel('participants');
+          break;
+        default:
+          setTransportationsLabel('transportations');
+          break;
+      }
+    }, [activity]);
+
   // ACTIVITY SCHEDULES COLUMNS
   const activityScheduleExtendedColumns = [
     ...activityScheduleColumns,
+    {
+      header: `Number of ${transportationsLabel}`,
+      accessorKey: 'numberOfSeats',
+      cell: ({ row }: { row: Row<ActivitySchedule> }) => row?.original?.numberOfSeats,
+    },
     {
       header: 'Actions',
       accessorKey: 'actions',

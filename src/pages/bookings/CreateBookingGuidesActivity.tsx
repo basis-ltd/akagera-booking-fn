@@ -79,8 +79,8 @@ const CreateBookingGuidesActivity = () => {
         <menu className="w-full grid grid-cols-2 gap-6 max-[700px]:grid-cols-1">
           {activitiesIsSuccess &&
             activitiesList?.length > 0 &&
-            activitiesList.map((activity) => {
-              return <ActivityCard activity={activity} />;
+            activitiesList.map((activity, index: number) => {
+              return <ActivityCard activity={activity} key={index} />;
             })}
         </menu>
       )}

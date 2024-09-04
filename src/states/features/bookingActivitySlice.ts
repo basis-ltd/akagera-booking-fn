@@ -50,8 +50,6 @@ export const fetchBookingActivitiesThunk = createAsyncThunk<
         activityId,
       })
     );
-    dispatch(setExistingBookingActivitiesList(response.data?.data?.rows));
-
     return response.data.data?.rows;
   }
 );
@@ -156,9 +154,10 @@ const bookingActivitySlice = createSlice({
       state.existingBookingActivitiesIsFetching = true;
       state.existingBookingActivitiesIsSuccess = false;
     });
-    builder.addCase(fetchBookingActivitiesThunk.fulfilled, (state) => {
+    builder.addCase(fetchBookingActivitiesThunk.fulfilled, (state, action) => {
       state.existingBookingActivitiesIsFetching = false;
       state.existingBookingActivitiesIsSuccess = true;
+      state.existingBookingActivitiesList = action.payload;
     });
     builder.addCase(fetchBookingActivitiesThunk.rejected, (state) => {
       state.existingBookingActivitiesIsFetching = false;

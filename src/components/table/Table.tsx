@@ -52,7 +52,7 @@ export default function Table<TData, TValue>({
   showPagination = true,
   showExport = true,
   page = 0,
-  size = 10,
+  size = 100,
   totalCount,
   totalPages,
   setPage,
@@ -98,8 +98,8 @@ export default function Table<TData, TValue>({
           showExport={showExport}
         />
       )}
-      <div className="rounded-md border">
-        <DataTable>
+      <section className="rounded-md border">
+        <DataTable className='!h-[20vh] !max-h-[20vh]'>
           <TableHeader className="px-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -181,7 +181,7 @@ export default function Table<TData, TValue>({
             )}
           </TableBody>
         </DataTable>
-      </div>
+      </section>
       {showPagination && (
         <DataTablePagination
           page={page}

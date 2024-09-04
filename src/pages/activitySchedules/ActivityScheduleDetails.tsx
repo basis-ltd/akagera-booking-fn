@@ -6,7 +6,6 @@ import Select from '@/components/inputs/Select';
 import TextArea from '@/components/inputs/TextArea';
 import Modal from '@/components/modals/Modal';
 import { dayHoursArray } from '@/helpers/activity.helper';
-import { formatTime } from '@/helpers/strings.helper';
 import { useUpdateActivityScheduleMutation } from '@/states/apiSlice';
 import { setSelectedActivity } from '@/states/features/activitySlice';
 import {
@@ -29,7 +28,7 @@ const ActivityScheduleDetails = () => {
   const { activityScheduleDetailsModal, selectedActivitySchedule } =
     useSelector((state: RootState) => state.activitySchedule);
   const [transportationsLabel, setTransportationsLabel] =
-    useState<string>('transportations');
+    useState<string>('seats');
 
   // REACT HOOK FORM
   const { control, handleSubmit, formState, setValue, watch, trigger } =
@@ -99,7 +98,8 @@ const ActivityScheduleDetails = () => {
         break;
       case 'boat-trip-morning-day':
       case 'boat-trip-morning-day-amc-operated':
-        setTransportationsLabel('boats');
+      case 'boat-trip-sunset-trip':
+        setTransportationsLabel('seats');
         break;
       case 'camping':
       case 'camping-at-mihindi-campsite':
@@ -119,6 +119,10 @@ const ActivityScheduleDetails = () => {
         break;
     }
   }, [selectedActivity, selectedActivitySchedule]);
+
+  const cleanTime = (time: string) => {
+    return time?.split(':')[0];
+  };
 
   return (
     <Modal
@@ -142,7 +146,11 @@ const ActivityScheduleDetails = () => {
             rules={{
               required: 'Select start time for this schedule',
               validate: (value) => {
-                if (value && formatTime(value) >= formatTime(watch('endTime')))
+                if (
+                  value &&
+                  Number(cleanTime(value)) >=
+                    Number(cleanTime(watch('endTime')))
+                )
                   return 'Start Time must be less than End Time';
               },
             }}
@@ -178,7 +186,7 @@ const ActivityScheduleDetails = () => {
               validate: (value) => {
                 if (
                   value &&
-                  formatTime(value) <= formatTime(watch('startTime'))
+                  Number(cleanTime(value)) <= Number(cleanTime(watch('startTime')))
                 )
                   return 'End Time must be greater than Start Time';
               },

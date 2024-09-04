@@ -320,7 +320,7 @@ const ConfirmDecline = ({
         Declining the terms of service will cancel your booking. You can always
         resume the process later.
       </h2>
-      <menu className="flex items-center gap-3 justify-between">
+      <menu className="flex items-center gap-3 justify-between mt-5">
         <Button
           danger
           onClick={(e) => {
