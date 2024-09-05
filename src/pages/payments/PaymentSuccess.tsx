@@ -1,6 +1,6 @@
 import Loader from '@/components/inputs/Loader';
 import PublicLayout from '@/containers/PublicLayout';
-import { useUpdatePaymentMutation } from '@/states/apiSlice';
+import { useHandlePaymentCallbackMutation } from '@/states/apiSlice';
 import { submitBookingThunk } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import queryString, { ParsedQuery } from 'query-string';
@@ -29,36 +29,34 @@ const PaymentSuccess = () => {
 
   // INTIIALIZE UPDATE PAYMENT MUTATION
   const [
-    updatePayment,
+    handlePaymentCallback,
     {
       data: updatePaymentData,
-      error: updatePaymentError,
       isLoading: updatePaymentIsLoading,
       isSuccess: updatePaymentIsSuccess,
       isError: updatePaymentIsError,
+      error: updatePaymentError,
     },
-  ] = useUpdatePaymentMutation();
+  ] = useHandlePaymentCallbackMutation();
 
   // HANDLE UPDATE PAYMENT
   useEffect(() => {
-    if (queryParams?.payment_intent) {
-      updatePayment({
-        paymentIntentId: queryParams?.payment_intent,
+    console.log(queryParams)
+    if (queryParams?.CompanyRef) {
+      handlePaymentCallback({
         status: 'PAID',
+        TransID: queryParams?.TransID,
+        CompanyRef: queryParams?.CompanyRef,
+        CCDapproval: queryParams?.CCDapproval,
       });
     }
-  }, [queryParams, updatePayment]);
+  }, [handlePaymentCallback, queryParams]);
 
   useEffect(() => {
     if (submitBookingIsSuccess) {
       navigate(`/bookings/${updatePaymentData?.data?.bookingId}/success`);
     }
-  }, [
-    dispatch,
-    navigate,
-    submitBookingIsSuccess,
-    updatePaymentData?.data?.bookingId,
-  ]);
+  }, [navigate, submitBookingIsSuccess, updatePaymentData?.data?.bookingId]);
 
   // HANDLE UPDATE PAYMENT SUCCESS RESPONSE
   useEffect(() => {
@@ -90,8 +88,17 @@ const PaymentSuccess = () => {
   return (
     <PublicLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-5 p-6 min-h-[80vh] items-center justify-center">
-        {(updatePaymentIsLoading || submitBookingIsLoading) && (
-          <Loader className="text-primary" />
+        {(updatePaymentIsLoading) && (
+          <figure className='w-full flex flex-col gap-3 justify-center items-center'>
+            <Loader className="text-primary" />
+            <h3 className='text-primary'>Processing payment...</h3>
+          </figure>
+        )}
+        {(submitBookingIsLoading) && (
+          <figure className='w-full flex flex-col gap-3 justify-center items-center'>
+            <Loader className="text-primary" />
+            <h3 className='text-primary'>Submitting booking...</h3>
+          </figure>
         )}
       </main>
     </PublicLayout>

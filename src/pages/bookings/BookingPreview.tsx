@@ -29,13 +29,6 @@ import {
   setCancellationPolicyModal,
   submitBookingThunk,
 } from '@/states/features/bookingSlice';
-import {
-  setApplicationLink,
-  setCreatePaymentModal,
-  setPayment,
-  setPaymentIntent,
-  setStripeKeys,
-} from '@/states/features/paymentSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -202,11 +195,7 @@ const BookingPreview = () => {
         toast.error((createPaymentError as ErrorResponse).data.message);
       }
     } else if (createPaymentIsSuccess) {
-      dispatch(setCreatePaymentModal(true));
-      dispatch(setPayment(createPaymentData?.data?.payment));
-      dispatch(setPaymentIntent(createPaymentData?.data?.paymentIntent));
-      dispatch(setStripeKeys(createPaymentData?.data?.stripeKeys));
-      dispatch(setApplicationLink(createPaymentData?.data?.applicationLink));
+      window.location.href = createPaymentData?.data?.payment?.redirectUrl;
     }
   }, [
     createPaymentIsError,
@@ -520,10 +509,8 @@ const BookingPreview = () => {
                           e.preventDefault();
                           createPayment({
                             bookingId: booking?.id,
-                            amount: Number(
-                              String(bookingAmount)?.split('.')[0]
-                            ),
-                            currency: 'usd',
+                            amount: 10,
+                            currency: 'rwf',
                             email: booking?.email,
                           });
                         }}

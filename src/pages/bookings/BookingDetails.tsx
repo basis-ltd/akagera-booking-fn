@@ -45,7 +45,7 @@ import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
 import { Payment } from '@/types/models/payment.types';
-import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -381,19 +381,22 @@ const BookingDetails = () => {
         return (
           <menu className="flex items-center gap-3">
             {row?.original?.status === 'PAID' && (
-              <CustomTooltip label="Click to confirm payment">
-                {confirmPaymentIsLoading ? (
-                  '...'
-                ) : (
-                  <FontAwesomeIcon
-                    icon={faCircleCheck}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      confirmPayment({ id: row?.original?.id });
-                    }}
-                    className="bg-green-700 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
-                  />
-                )}
+              <CustomTooltip label="Click to verify payment">
+          {confirmPaymentIsLoading ? (
+            '...'
+          ) : (
+            <FontAwesomeIcon
+              icon={faCertificate}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(
+            `https://secure.3gdirectpay.com/payv3.php?ID=${row?.original?.transactionId}`,
+            '_blank'
+                );
+              }}
+              className="bg-green-700 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
+            />
+          )}
               </CustomTooltip>
             )}
           </menu>

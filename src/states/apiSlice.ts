@@ -815,6 +815,19 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // HANDLE PAYMENT CALLBACK
+      handlePaymentCallback: builder.mutation({
+        query: ({ CompanyRef, TransID, CCDapproval, status }) => {
+          return {
+            url: `payments/callback?CompanyRef=${CompanyRef}&TransID=${TransID}&CCDapproval=${CCDapproval}`,
+            method: 'POST',
+            body: {
+              status,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -870,6 +883,7 @@ export const {
   useLazyGetBookingAmountQuery,
   useLazyGetRemainingSeatsQuery,
   useUpdateTermsOfServiceMutation,
+  useHandlePaymentCallbackMutation,
 } = apiSlice;
 
 export default apiSlice;

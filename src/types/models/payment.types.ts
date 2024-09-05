@@ -9,4 +9,5 @@ export type Payment = {
   createdAt: Date | string;
   updatedAt: Date | string;
   currency?: string;
+  transactionId?: string;
 };

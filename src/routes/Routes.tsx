@@ -71,7 +71,7 @@ const Router = () => {
         <Route path="/dashboard/activities" element={<ListActivities />} />
         <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
         <Route path="/user/profile" element={<UserProfile />} />
-        <Route path="/payments/:id/success" element={<PaymentSuccess />} />
+        <Route path="/payments/success" element={<PaymentSuccess />} />
         <Route path="/dashboard/terms-of-services" element={<TermsOfService />} />
       </Routes>
       <CreateBooking />
