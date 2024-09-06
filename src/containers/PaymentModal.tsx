@@ -63,7 +63,6 @@ const CheckoutForm = () => {
       setLoading(false);
       toast.error('Error while creating payment. Please try again');
       dispatch(setCreatePaymentModal(false));
-      console.log(error);
     }
   };
 

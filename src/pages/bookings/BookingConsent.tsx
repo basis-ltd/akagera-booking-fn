@@ -7,6 +7,7 @@ import { bookingPeopleColumns } from '@/constants/bookingPerson.constants';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import PublicLayout from '@/containers/PublicLayout';
+import { handleDownloadBookingConsent } from '@/helpers/booking.helper';
 import {
   useLazyFetchBookingPeopleQuery,
   useLazyGetTermsOfServiceQuery,
@@ -16,6 +17,8 @@ import { setBookingPeopleList } from '@/states/features/bookingPeopleSlice';
 import { getBookingDetailsThunk } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
+import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef } from '@tanstack/react-table';
 import { UUID } from 'crypto';
 import moment from 'moment';
@@ -32,6 +35,9 @@ const BookingConsent = () => {
   const { booking } = useSelector((state: RootState) => state.booking);
   const { bookingPeopleList } = useSelector(
     (state: RootState) => state.bookingPeople
+  );
+  const [consentPrintIsFetching, setConsentPrintIsFetching] = useState<boolean>(
+    false
   );
 
   // NAVIGATION
@@ -178,7 +184,27 @@ const BookingConsent = () => {
           </figure>
         ) : (
           <menu className="flex w-[80%] mx-auto flex-col gap-4">
-            <CustomBreadcrumb navigationLinks={navigationLinks} />
+            <nav className="w-full flex items-center gap-3 justify-between">
+              <CustomBreadcrumb navigationLinks={navigationLinks} />
+              <Button
+                primary
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setConsentPrintIsFetching(true);
+                  await handleDownloadBookingConsent({ booking });
+                  setConsentPrintIsFetching(false);
+                }}
+              >
+                {consentPrintIsFetching ? (
+                  <Loader />
+                ) : (
+                  <menu className="flex items-center gap-2">
+                    <FontAwesomeIcon icon={faPrint} />
+                    Print
+                  </menu>
+                )}
+              </Button>
+            </nav>
             <article
               className="w-full"
               dangerouslySetInnerHTML={{ __html: termsOfService }}

@@ -302,7 +302,6 @@ const AddGameDayDriveActivity = () => {
                               )
                             );
                             const [startTime, endTime] = e.split('-');
-                            console.log(startTime, endTime);
                             if (
                               Number(endTime?.split(':')[0]) -
                                 Number(startTime?.split(':')[0]) >

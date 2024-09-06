@@ -1,8 +1,12 @@
+import { stagingApiUrl } from '@/constants/environments.constants';
 import { ActivityRate } from '@/types/models/activityRate.types';
+import { Booking } from '@/types/models/booking.types';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { BookingPerson } from '@/types/models/bookingPerson.types';
 import { BookingVehicle } from '@/types/models/bookingVehicle.types';
+import axios from 'axios';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 type PriceType = 'adults' | 'children';
 
@@ -223,4 +227,31 @@ export const getBookingStatusColor = (status: string) => {
     : ['confirmed', 'cash_received', 'completed'].includes(status)
     ? 'bg-green-600 text-white'
     : 'bg-red-700 text-white';
+};
+
+export const handleDownloadBookingConsent = async ({
+  booking,
+}: {
+  booking: Booking;
+}) => {
+  try {
+    const response = await axios.get(
+      `${stagingApiUrl}/bookings/${booking?.id}/consent/download`,
+      {
+        responseType: 'blob',
+      }
+    );
+
+    const file = new Blob([response.data], { type: 'application/pdf' });
+
+    const fileURL = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.download = `${booking?.referenceId}-CONSENT.pdf`;
+    link.click();
+
+    URL.revokeObjectURL(fileURL);
+  } catch (error) {
+    toast.error('An error occurred while downloading consent form');
+  }
 };

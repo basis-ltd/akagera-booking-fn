@@ -41,7 +41,6 @@ const PaymentSuccess = () => {
 
   // HANDLE UPDATE PAYMENT
   useEffect(() => {
-    console.log(queryParams)
     if (queryParams?.CompanyRef) {
       handlePaymentCallback({
         status: 'PAID',

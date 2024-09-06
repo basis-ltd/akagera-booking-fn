@@ -6,7 +6,7 @@ import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
 import { bookingStatus } from '@/constants/bookings.constants';
-import { getBookingStatusColor } from '@/helpers/booking.helper';
+import { getBookingStatusColor, handleDownloadBookingConsent } from '@/helpers/booking.helper';
 import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import validateInputs from '@/helpers/validations.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
@@ -24,9 +24,6 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios';
-import { UUID } from 'crypto';
-import { stagingApiUrl } from '@/constants/environments.constants';
 
 const ListDraftBookings = () => {
   // STATE VARIABLES
@@ -39,35 +36,6 @@ const ListDraftBookings = () => {
 
   // NAVIGATION
   const navigate = useNavigate();
-
-  const handleDownload = async ({ id }: { id: UUID }) => {
-    try {
-      setConsentIsFetching(true);
-      const response = await axios.get(
-        `${stagingApiUrl}/bookings/${id}/consent/download`,
-        {
-          responseType: 'blob', // Important: This tells axios to treat the response as binary data
-        }
-      );
-
-      setConsentIsFetching(false);
-
-      // Create a blob from the PDF Stream
-      const file = new Blob([response.data], { type: 'application/pdf' });
-
-      // Create a link element, set the download attribute, and click it
-      const fileURL = URL.createObjectURL(file);
-      const link = document.createElement('a');
-      link.href = fileURL;
-      link.download = `booking_consent.pdf`;
-      link.click();
-
-      // Clean up by revoking the Object URL
-      URL.revokeObjectURL(fileURL);
-    } catch (error) {
-      toast.error('An error occurred while downloading consent form');
-    }
-  };
 
   // REACT HOOK FORM
   const {
@@ -214,10 +182,12 @@ const ListDraftBookings = () => {
               ?.includes(row?.original?.status) && (
               <Link
                 to={'#'}
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault();
                   setSelectedBooking(row.original);
-                  handleDownload({ id: row.original.id });
+                  setConsentIsFetching(true);
+                  await handleDownloadBookingConsent({ booking: row?.original });
+                  setConsentIsFetching(false);
                 }}
                 className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01] flex items-center gap-1"
               >
