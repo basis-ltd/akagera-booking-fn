@@ -16,12 +16,17 @@ import {
 } from '@/states/features/bookingSlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { Booking } from '@/types/models/booking.types';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { UUID } from 'crypto';
+import { stagingApiUrl } from '@/constants/environments.constants';
 
 const ListDraftBookings = () => {
   // STATE VARIABLES
@@ -29,9 +34,40 @@ const ListDraftBookings = () => {
   const { draftBookingsModal, draftBookingsList } = useSelector(
     (state: RootState) => state.booking
   );
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [consentIsFetching, setConsentIsFetching] = useState<boolean>(false);
 
   // NAVIGATION
   const navigate = useNavigate();
+
+  const handleDownload = async ({ id }: { id: UUID }) => {
+    try {
+      setConsentIsFetching(true);
+      const response = await axios.get(
+        `${stagingApiUrl}/bookings/${id}/consent/download`,
+        {
+          responseType: 'blob', // Important: This tells axios to treat the response as binary data
+        }
+      );
+
+      setConsentIsFetching(false);
+
+      // Create a blob from the PDF Stream
+      const file = new Blob([response.data], { type: 'application/pdf' });
+
+      // Create a link element, set the download attribute, and click it
+      const fileURL = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = fileURL;
+      link.download = `booking_consent.pdf`;
+      link.click();
+
+      // Clean up by revoking the Object URL
+      URL.revokeObjectURL(fileURL);
+    } catch (error) {
+      toast.error('An error occurred while downloading consent form');
+    }
+  };
 
   // REACT HOOK FORM
   const {
@@ -151,7 +187,12 @@ const ListDraftBookings = () => {
             {Object.values(bookingStatus)
               ?.filter(
                 (status) =>
-                  !['approved', 'cash_received', 'confirmed', 'declined'].includes(status)
+                  ![
+                    'approved',
+                    'cash_received',
+                    'confirmed',
+                    'declined',
+                  ].includes(status)
               )
               ?.includes(row?.original?.status) && (
               <Link
@@ -164,6 +205,29 @@ const ListDraftBookings = () => {
                 className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01]"
               >
                 Update
+              </Link>
+            )}
+            {Object.values(bookingStatus)
+              ?.filter((status) =>
+                ['approved', 'cash_received', 'confirmed'].includes(status)
+              )
+              ?.includes(row?.original?.status) && (
+              <Link
+                to={'#'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSelectedBooking(row.original);
+                  handleDownload({ id: row.original.id });
+                }}
+                className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01] flex items-center gap-1"
+              >
+                <FontAwesomeIcon className="text-[13px]" icon={faDownload} />
+                {consentIsFetching &&
+                selectedBooking?.id === row?.original?.id ? (
+                  <Loader />
+                ) : (
+                  'Consent'
+                )}
               </Link>
             )}
           </menu>
@@ -191,7 +255,7 @@ const ListDraftBookings = () => {
           ? ' List of unfinished bookings/registrations'
           : 'Find bookings/registrations in progress to complete'
       }
-      className='min-w-[60vw]'
+      className="min-w-[60vw]"
     >
       <form
         className={`flex flex-col gap-4 w-full ${
@@ -204,34 +268,32 @@ const ListDraftBookings = () => {
             draftBookingsList?.length > 0 && bookingsIsSuccess && 'hidden'
           } w-full flex flex-col gap-4`}
         >
-            <Controller
-              name="selectOption"
-              rules={{
-                required:
-                  'Select the option you will use to find bookings in progress',
-              }}
-              control={control}
-              render={({ field }) => {
-                return (
-                  <label className="flex flex-col gap-1">
-                    <Select
-                      placeholder="Select option"
-                      label="Select booking retrieval option"
-                      options={bookingSelectOptions}
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                      }}
-                    />
-                    {errors?.selectOption && (
-                      <InputErrorMessage
-                        message={errors.selectOption.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
-            />
+          <Controller
+            name="selectOption"
+            rules={{
+              required:
+                'Select the option you will use to find bookings in progress',
+            }}
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="flex flex-col gap-1">
+                  <Select
+                    placeholder="Select option"
+                    label="Select booking retrieval option"
+                    options={bookingSelectOptions}
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                    }}
+                  />
+                  {errors?.selectOption && (
+                    <InputErrorMessage message={errors.selectOption.message} />
+                  )}
+                </label>
+              );
+            }}
+          />
           <menu className="flex flex-col gap-2 w-full">
             {watch('selectOption') === 'referenceId' && (
               <Controller

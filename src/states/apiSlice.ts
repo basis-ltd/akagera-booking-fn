@@ -828,6 +828,15 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // DOWNLOAD CONSENT FORM
+      downloadConsentForm: builder.query({
+        query: ({ id }) => {
+          return {
+            url: `bookings/${id}/consent/download`,
+          }
+        },
+      }),
     };
   },
 });
@@ -884,6 +893,7 @@ export const {
   useLazyGetRemainingSeatsQuery,
   useUpdateTermsOfServiceMutation,
   useHandlePaymentCallbackMutation,
+  useLazyDownloadConsentFormQuery,
 } = apiSlice;
 
 export default apiSlice;

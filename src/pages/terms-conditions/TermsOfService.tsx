@@ -125,7 +125,9 @@ const TermsOfService = () => {
   return (
     <AdminLayout>
       <main className="w-[85%] mx-auto flex flex-col">
+        <nav className='w-full my-3'>
         <CustomBreadcrumb navigationLinks={breadcrumbLinks} />
+        </nav>
         <section className="flex flex-col gap-4">
           {termsOfServiceIsFetching ? (
             <figure className="w-full flex items-center justify-center min-h-[70vh]">

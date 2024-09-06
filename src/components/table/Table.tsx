@@ -90,7 +90,7 @@ export default function Table<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4 w-full">
+    <table className="space-y-4 w-full">
       {showFilter && (
         <TableToolbar
           table={table as unknown as TableType<object>}
@@ -99,7 +99,7 @@ export default function Table<TData, TValue>({
         />
       )}
       <section className="rounded-md border">
-        <DataTable className='!h-[20vh] !max-h-[20vh]'>
+        <DataTable className="!h-[20vh] !max-h-[20vh]">
           <TableHeader className="px-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -129,7 +129,9 @@ export default function Table<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className={`p-2 ${rowClickHandler ? 'cursor-pointer' : ''}`}
+                    className={`px-2 ${
+                      rowClickHandler ? 'cursor-pointer' : ''
+                    }`}
                     onClick={(e) => {
                       e.preventDefault();
                       rowClickHandler &&
@@ -150,7 +152,7 @@ export default function Table<TData, TValue>({
                         <TableCell
                           className={`${
                             preventAction ? '!cursor-auto' : ''
-                          } text-[13px] p-4`}
+                          } text-[13px] px-4`}
                           key={cell.id}
                           onClick={(e) => {
                             if (preventAction) {
@@ -193,6 +195,6 @@ export default function Table<TData, TValue>({
           setSize={setSize}
         />
       )}
-    </div>
+    </table>
   );
 }
