@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  akagera-booking-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_STAGING_API_URL: ${VITE_APP_STAGING_API_URL}
+        VITE_APP_PRODUCTION_API_URL: ${VITE_APP_PRODUCTION_API_URL}
+    environment:
+      VITE_APP_STAGING_API_URL: ${VITE_APP_STAGING_API_URL}
+      VITE_APP_PRODUCTION_API_URL: ${VITE_APP_PRODUCTION_API_URL}
+      PORT: 8080
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
