@@ -13,8 +13,6 @@ import {
 } from '@/states/apiSlice';
 import { setUser } from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -173,12 +171,16 @@ const UserProfile = () => {
                   <span className="w-full h-full bg-gray-200 rounded-full cursor-pointer"></span>
                 )}
               </figure>
-              <Button primary className="!h-fit !w-fit">
+              <label className="cursor-pointer">
+                <input type="file" className="hidden" />
                 <menu className="flex items-center gap-2 text-[13px]">
-                  Edit image
-                  <FontAwesomeIcon icon={faFileUpload} />
+                  <Input
+                    accept="image/*"
+                    placeholder="Select image"
+                    type="file"
+                  />
                 </menu>
-              </Button>
+              </label>
             </section>
             <hr className="h-[.5px] border border-primary" />
             <section className="w-full flex flex-col gap-4">

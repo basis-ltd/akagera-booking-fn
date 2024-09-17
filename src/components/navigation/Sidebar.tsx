@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { toggleSidebar } from '../../states/features/sidebarSlice';
 import { AppDispatch, RootState } from '../../states/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +13,10 @@ import {
   faDashboard,
   faFileContract,
   faUserGroup,
+  faGear,
+  faChevronDown,
+  faChevronUp,
+  faDollarSign,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -20,6 +25,7 @@ const Sidebar = () => {
   const dispatch: AppDispatch = useDispatch();
   const { isOpen } = useSelector((state: RootState) => state.sidebar);
   const { user } = useSelector((state: RootState) => state.user);
+  const [settingsIsOpen, setSettingsIsOpen] = useState(false);
 
   // LOCATION
   const { pathname } = useLocation();
@@ -56,10 +62,22 @@ const Sidebar = () => {
       role: 'admin',
     },
     {
-      label: 'Terms & Conditions',
-      path: '/dashboard/terms-of-services',
-      icon: faFileContract,
+      label: 'Settings',
+      path: '#',
+      icon: faGear,
       role: 'admin',
+      subcategories: [
+        {
+          label: 'Terms & Conditions',
+          path: '/dashboard/terms-of-services',
+          icon: faFileContract,
+        },
+        {
+          label: 'Exchange rates',
+          path: '/dashboard/exchange-rates',
+          icon: faDollarSign,
+        },
+      ],
     },
   ];
 
@@ -77,7 +95,7 @@ const Sidebar = () => {
         <Link to={`/`}>
           <img
             src={akageraLogo}
-            className={`${isOpen ? 'w-[50%]' : 'wfull'} h-auto`}
+            className={`${isOpen ? 'w-[50%]' : 'w-full'} h-auto`}
           />
         </Link>
         <FontAwesomeIcon
@@ -93,18 +111,48 @@ const Sidebar = () => {
         {sidebarLinks.map((link, index) => {
           if (link?.role === 'admin' && user?.role !== 'admin') return null;
           return (
-            <Link
-              key={index}
-              to={link.path}
-              className={`${isOpen ? 'justify-start' : 'justify-center'} ${
-                pathname === link?.path && 'bg-primary text-white'
-              } flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full`}
-            >
-              <FontAwesomeIcon icon={link?.icon} />
-              <p className={`text-[14px] ${!isOpen && 'hidden'}`}>
-                {link?.label}
-              </p>
-            </Link>
+            <React.Fragment key={index}>
+              <Link
+                to={link.path}
+                className={`${isOpen ? 'justify-start' : 'justify-center'} ${
+                  pathname === link?.path && 'bg-primary text-white'
+                } flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full`}
+                onClick={(e) => {
+                  if (link.subcategories) {
+                    e.preventDefault();
+                    setSettingsIsOpen(!settingsIsOpen);
+                  }
+                }}
+              >
+                <FontAwesomeIcon icon={link?.icon} />
+                <p className={`text-[14px] ${!isOpen && 'hidden'}`}>
+                  {link?.label}
+                </p>
+                {link.subcategories && isOpen && (
+                  <FontAwesomeIcon
+                    icon={settingsIsOpen ? faChevronUp : faChevronDown}
+                    className="ml-auto"
+                  />
+                )}
+              </Link>
+              {link.subcategories && isOpen && settingsIsOpen && (
+                <ul className="px-2">
+                  {link.subcategories.map((sub, subIndex) => (
+                    <li key={subIndex}>
+                      <Link
+                        to={sub.path}
+                        className={`flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full ${
+                          pathname === sub.path && 'bg-primary text-white'
+                        }`}
+                      >
+                        <FontAwesomeIcon icon={sub.icon} />
+                        <p className="text-[14px]">{sub.label}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </React.Fragment>
           );
         })}
       </menu>

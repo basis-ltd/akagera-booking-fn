@@ -111,7 +111,7 @@ const Input: FC<InputProps> = ({
           onClick={handleClick}
           className={`!bg-primary !text-white hover:!bg-primary hover:!text-white !shadow-sm py-[5px] w-full text-[12px] text-center max-[800px]:!text-[14px] px-8 rounded-md cursor-pointer ease-in-out duration-400 hover:scale-[1.005] ${className}`}
         >
-          Choose file{multiple ? 's' : ''}
+          {placeholder || 'Choose file'}{multiple ? 's' : ''}
         </button>
         <input
           ref={hiddenFileInput as LegacyRef<HTMLInputElement> | undefined}

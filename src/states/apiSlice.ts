@@ -914,6 +914,22 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // GET USD RATE
+      getUsdRate: builder.query({
+        query: () => '/settings/usd-rate',
+      }),
+
+      // SET USD RATE
+      setUsdRate: builder.mutation({
+        query: ({ usdRate }) => ({
+          url: '/settings/usd-rate',
+          method: 'PATCH',
+          body: {
+            usdRate,
+          },
+        }),
+      }),
     };
   },
 });
@@ -974,7 +990,9 @@ export const {
   useCreateSeatsAdjustmentsMutation,
   useLazyFetchSeatsAdjustmentsQuery,
   useDeleteSeatsAdjustmentsMutation,
-  useUpdateUserPasswordMutation
+  useUpdateUserPasswordMutation,
+  useLazyGetUsdRateQuery,
+  useSetUsdRateMutation,
 } = apiSlice;
 
 export default apiSlice;

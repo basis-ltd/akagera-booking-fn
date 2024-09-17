@@ -41,6 +41,7 @@ import AddCampingActivities from '@/pages/bookings/booking-activities/AddCamping
 import AddGameDayDriveActivity from '@/pages/bookings/booking-activities/AddGameDayDriveActivity.tsx';
 import AddBoatTripPrivateActivity from '@/pages/bookings/booking-activities/AddBoatTripPrivateActivity.tsx';
 import CancellationPolicy from '@/pages/bookings/CancellationPolicy.tsx';
+import ExchangeRates from '@/pages/dashboard/ExchangeRates.tsx';
 
 const Router = () => {
   return (
@@ -73,6 +74,7 @@ const Router = () => {
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/payments/success" element={<PaymentSuccess />} />
         <Route path="/dashboard/terms-of-services" element={<TermsOfService />} />
+        <Route path="/dashboard/exchange-rates" element={<ExchangeRates />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
