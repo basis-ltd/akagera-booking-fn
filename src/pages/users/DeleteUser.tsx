@@ -66,7 +66,7 @@ const DeleteUser = () => {
     >
       Are you sure you want to delete {selectedUser?.name}? This action cannot
       be undone!
-      <menu className="flex items-center gap-3 justify-between">
+      <menu className="flex items-center gap-3 justify-between mt-4">
         <Button
           onClick={(e) => {
             e.preventDefault();

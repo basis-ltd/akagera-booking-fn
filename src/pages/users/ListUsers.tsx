@@ -115,22 +115,24 @@ const ListUsers = () => {
           </figure>
         ) : (
           usersIsSuccess && (
-            <Table
-              showFilter={false}
-              page={page}
-              size={size}
-              totalCount={totalCount}
-              totalPages={totalPages}
-              setPage={setPage}
-              setSize={setSize}
-              data={usersList?.map((user: User, index: number) => {
-                return {
-                  ...user,
-                  no: index + 1,
-                };
-              })}
-              columns={userExtendedColumns as ColumnDef<User>[]}
-            />
+            <section className="w-full flex flex-col gap-3">
+              <Table
+                showFilter={false}
+                page={page}
+                size={size}
+                totalCount={totalCount}
+                totalPages={totalPages}
+                setPage={setPage}
+                setSize={setSize}
+                data={usersList?.map((user: User, index: number) => {
+                  return {
+                    ...user,
+                    no: index + 1,
+                  };
+                })}
+                columns={userExtendedColumns as ColumnDef<User>[]}
+              />
+            </section>
           )
         )}
       </main>

@@ -6,9 +6,15 @@ import Select from '@/components/inputs/Select';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import AdminLayout from '@/containers/AdminLayout';
-import { useLazyGetUserByIdQuery, useUpdateUserMutation } from '@/states/apiSlice';
+import {
+  useLazyGetUserByIdQuery,
+  useUpdateUserMutation,
+  useUpdateUserPasswordMutation,
+} from '@/states/apiSlice';
 import { setUser } from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
+import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -27,7 +33,11 @@ const UserProfile = () => {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
+    trigger,
   } = useForm();
+  const { existingPassword, newPassword, confirmPassword } = watch();
 
   // INITIALIZE GET USER BY ID QUERY
   const [
@@ -107,6 +117,41 @@ const UserProfile = () => {
     user?.id,
   ]);
 
+  // INITIALIZE UPDATE USER PASSWORD
+  const [
+    updateUserPassword,
+    {
+      data: updateUserPasswordData,
+      isLoading: updateUserPasswordIsLoading,
+      isSuccess: updateUserPasswordIsSuccess,
+      isError: updateUserPasswordIsError,
+      error: updateUserPasswordError,
+    },
+  ] = useUpdateUserPasswordMutation();
+
+  // HANDLE UPDATE USER PASSWORD RESPONSE
+  useEffect(() => {
+    if (updateUserPasswordIsSuccess && updateUserPasswordData) {
+      toast.success('User password updated successfully');
+      setValue('existingPassword', '');
+      setValue('newPassword', '');
+      setValue('confirmPassword', '');
+    } else if (updateUserPasswordIsError) {
+      const errorResponse = (updateUserPasswordError as ErrorResponse)?.data
+        ?.message;
+      toast.error(
+        errorResponse ||
+          'Failed to update user password. Refresh and try again.'
+      );
+    }
+  }, [
+    updateUserPasswordIsSuccess,
+    updateUserPasswordData,
+    updateUserPasswordIsError,
+    updateUserPasswordError,
+    setValue,
+  ]);
+
   return (
     <AdminLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-6 p-6">
@@ -116,7 +161,7 @@ const UserProfile = () => {
           </figure>
         ) : (
           <article className="w-full flex flex-col gap-5">
-            {/* <section className="w-full flex flex-col items-start gap-3 justify-between">
+            <section className="w-full flex flex-col items-start gap-3 justify-between">
               <figure className="w-[100px] h-[100px] flex items-center justify-center gap-1 rounded-full">
                 {user?.photo ? (
                   <img
@@ -134,8 +179,8 @@ const UserProfile = () => {
                   <FontAwesomeIcon icon={faFileUpload} />
                 </menu>
               </Button>
-            </section> 
-            <hr className="h-[.5px] border border-primary" /> */}
+            </section>
+            <hr className="h-[.5px] border border-primary" />
             <section className="w-full flex flex-col gap-4">
               <h1 className="uppercase text-primary font-semibold text-lg">
                 {user?.name}'s Profile
@@ -317,13 +362,157 @@ const UserProfile = () => {
                       type="submit"
                       submit
                     >
-                     {updateUserIsLoading ? (
-                      <Loader className="text-white" />
-                    ) : (
-                      'Update Profile'
-                    )}
+                      {updateUserIsLoading ? (
+                        <Loader className="text-white" />
+                      ) : (
+                        'Update Profile'
+                      )}
                     </Button>
                   )}
+                </menu>
+              </form>
+            </section>
+            <hr className="h-[.5px] border border-primary" />
+            <section className="w-full flex flex-col gap-4">
+              <h1 className="uppercase text-primary font-semibold text-lg">
+                Change Password
+              </h1>
+              <form className="w-full flex flex-col gap-3">
+                <fieldset className="grid grid-cols-2 gap-5 w-full">
+                  <Controller
+                    name="existingPassword"
+                    control={control}
+                    rules={{
+                      required: 'Old password is required',
+                      validate: (value) => {
+                        if (value === newPassword) {
+                          return 'Old password cannot be the same as new password';
+                        } else {
+                          return true;
+                        }
+                      },
+                    }}
+                    render={({ field }) => {
+                      return (
+                        <label className="w-full flex flex-col gap-1">
+                          <Input
+                            {...field}
+                            label="Old Password"
+                            type="password"
+                            required
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger('existingPassword');
+                              trigger('newPassword');
+                              trigger('confirmPassword');
+                            }}
+                          />
+                          {errors?.existingPassword && (
+                            <InputErrorMessage
+                              message={errors?.existingPassword?.message}
+                            />
+                          )}
+                        </label>
+                      );
+                    }}
+                  />
+                  <Controller
+                    name="newPassword"
+                    control={control}
+                    rules={{
+                      required: 'New password is required',
+                      validate: (value) => {
+                        if (value === existingPassword) {
+                          return 'New password cannot be the same as old password';
+                        } else {
+                          return true;
+                        }
+                      },
+                    }}
+                    render={({ field }) => {
+                      return (
+                        <label className="w-full flex flex-col gap-1">
+                          <Input
+                            {...field}
+                            label="New Password"
+                            type="password"
+                            required
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger('existingPassword');
+                              trigger('newPassword');
+                              trigger('confirmPassword');
+                            }}
+                          />
+                          {errors?.newPassword && (
+                            <InputErrorMessage
+                              message={errors?.newPassword?.message}
+                            />
+                          )}
+                        </label>
+                      );
+                    }}
+                  />
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    rules={{
+                      required: 'Confirm password is required',
+                      validate: (value) =>
+                        value === newPassword || 'Passwords do not match',
+                    }}
+                    render={({ field }) => {
+                      return (
+                        <label className="w-full flex flex-col gap-1">
+                          <Input
+                            {...field}
+                            label="Confirm Password"
+                            type="password"
+                            required
+                            onChange={(e) => {
+                              field.onChange(e);
+                              trigger('existingPassword');
+                              trigger('newPassword');
+                              trigger('confirmPassword');
+                            }}
+                          />
+                          {errors?.confirmPassword && (
+                            <InputErrorMessage
+                              message={errors?.confirmPassword?.message}
+                            />
+                          )}
+                        </label>
+                      );
+                    }}
+                  />
+                </fieldset>
+                <menu className="w-full flex items-center gap-3 justify-between my-4">
+                  <Button
+                    primary
+                    disabled={
+                      Object.keys(errors).length > 0 ||
+                      !existingPassword ||
+                      !newPassword ||
+                      !confirmPassword ||
+                      newPassword !== confirmPassword ||
+                      newPassword === existingPassword
+                    }
+                    className="!h-fit !w-fit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      updateUserPassword({
+                        id: user?.id,
+                        existingPassword,
+                        newPassword,
+                      });
+                    }}
+                  >
+                    {updateUserPasswordIsLoading ? (
+                      <Loader className="text-white" />
+                    ) : (
+                      'Update Password'
+                    )}
+                  </Button>
                 </menu>
               </form>
             </section>
