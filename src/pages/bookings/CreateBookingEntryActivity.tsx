@@ -191,6 +191,10 @@ const CreateBookingEntryActivity = () => {
       accessorKey: 'vehiclesCount',
     },
     {
+      header: 'Plate number',
+      accessorKey: 'plateNumber',
+    },
+    {
       header: 'Actions',
       accessorKey: 'actions',
       cell: ({ row }: { row: Row<BookingVehicle> }) => {

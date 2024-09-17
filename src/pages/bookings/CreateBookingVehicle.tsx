@@ -55,6 +55,7 @@ const CreateBookingVehicle = () => {
       registrationCountry: data?.registrationCountry,
       vehicleType: data?.vehicleType,
       vehiclesCount: data?.vehiclesCount,
+      plateNumber: data?.plateNumber,
     });
   };
 
@@ -126,6 +127,19 @@ const CreateBookingVehicle = () => {
               );
             }}
           />
+          <Controller name='plateNumber' control={control} render={({field}) => {
+            return (
+              <Input
+                label='Plate number'
+                placeholder='Enter plate number'
+                {...field}
+                onChange={async (e) => {
+                  field.onChange(e.target.value);
+                  await trigger('plateNumber');
+                }}
+              />
+            )
+          }} />
           <Controller
             name="registrationCountry"
             control={control}

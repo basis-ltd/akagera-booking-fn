@@ -157,7 +157,7 @@ const ListDraftBookings = () => {
                 (status) =>
                   ![
                     'approved',
-                    'cash_received',
+                    'payment_received',
                     'confirmed',
                     'declined',
                   ].includes(status)
@@ -177,7 +177,7 @@ const ListDraftBookings = () => {
             )}
             {Object.values(bookingStatus)
               ?.filter((status) =>
-                ['approved', 'cash_received', 'confirmed'].includes(status)
+                ['approved', 'payment_received', 'confirmed'].includes(status)
               )
               ?.includes(row?.original?.status) && (
               <Link

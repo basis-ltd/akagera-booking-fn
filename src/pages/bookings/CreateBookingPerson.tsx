@@ -105,7 +105,7 @@ const CreateBookingPerson = () => {
       heading={`Add Person to "${booking?.name} - ${formatDate(
         booking?.startDate
       )}"`}
-      className="min-w-[50%]"
+      className="min-w-[60%]"
     >
       <form
         className="flex flex-col gap-4 w-full"

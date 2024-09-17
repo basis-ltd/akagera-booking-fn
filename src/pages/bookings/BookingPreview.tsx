@@ -19,7 +19,6 @@ import {
   useCreatePaymentMutation,
   useLazyFetchPaymentsQuery,
   useLazyGetBookingDetailsQuery,
-  useUpdateBookingMutation,
 } from '@/states/apiSlice';
 import {
   addBookingTotalAmountUsd,
@@ -38,7 +37,9 @@ import { toast } from 'react-toastify';
 import BookingActivitiesPreview from './booking-preview/BookingActivitiesPreview';
 import BookingPeoplePreview from './booking-preview/BookingPeoplePreview';
 import BookingVehiclesPreview from './booking-preview/BookingVehiclesPreview';
-import TextArea from '@/components/inputs/TextArea';
+import { ColumnDef, Row } from '@tanstack/react-table';
+import { Payment } from '@/types/models/payment.types';
+import CustomTooltip from '@/components/inputs/CustomTooltip';
 
 const BookingPreview = () => {
   // STATE VARIABLES
@@ -65,53 +66,20 @@ const BookingPreview = () => {
 
   // REACT HOOK FORM
   const { watch, control } = useForm();
-  const { notes } = watch();
 
   // MANAGE BOOKING PAYMENT STATUS
   useEffect(() => {
     if (bookingPaymentsList?.length > 0) {
       const bookingPaid =
         bookingPaymentsList?.find((payment) => payment?.status === 'PAID') !==
-        undefined;
+          undefined &&
+        bookingPaymentsList?.reduce(
+          (acc, curr) => acc + Number(curr.amount),
+          0
+        ) >= Number(bookingAmount);
       setBookingPaid(bookingPaid);
     }
-  }, [bookingPaymentsList]);
-
-  // INITIALIZE UPDATE BOOKING MUTATION
-  const [
-    updateBooking,
-    {
-      isLoading: updateBookingIsLoading,
-      error: updateBookingError,
-      isSuccess: updateBookingIsSuccess,
-      isError: updateBookingIsError,
-      reset: resetUpdateBooking,
-    },
-  ] = useUpdateBookingMutation();
-
-  // HANDLE UDPATE BOOKING RESPONSE
-  useEffect(() => {
-    if (updateBookingIsError) {
-      if ((updateBookingError as ErrorResponse).status === 500) {
-        toast.error(
-          'An error occured while updating booking. Please try again later.'
-        );
-      } else {
-        toast.error((updateBookingError as ErrorResponse).data.message);
-      }
-    } else if (updateBookingIsSuccess) {
-      toast.success('Booking updated successfully.');
-      resetUpdateBooking();
-      dispatch(setBooking({ ...booking, notes }));
-    }
-  }, [
-    updateBookingIsError,
-    updateBookingIsSuccess,
-    updateBookingError,
-    dispatch,
-    notes,
-    resetUpdateBooking,
-  ]);
+  }, [bookingAmount, bookingPaymentsList]);
 
   // NAVIGATION
   const { id } = useParams();
@@ -308,6 +276,34 @@ const BookingPreview = () => {
     );
   }
 
+  // PAYMENT EXTENDED COLUMNS
+  const paymentsExtendedColumns = [
+    ...paymentColumns,
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<Payment> }) => {
+        if (row?.original?.status === 'PAID' || bookingPaid) return null;
+        return (
+          <menu className="w-full flex items-start justify-start">
+            <CustomTooltip label="Click to continue payment">
+              <Link
+                to={`#`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = `https://secure.3gdirectpay.com/dpopayment.php?ID=${row?.original?.transactionId}`;
+                }}
+                className="text-primary underline text-[14px] transition-all ease-in-out duration-300 hover:scale-[1.01]"
+              >
+                Complete
+              </Link>
+            </CustomTooltip>
+          </menu>
+        );
+      },
+    },
+  ];
+
   // NAVIGATION LINKS
   const navigationLinks = [
     {
@@ -391,12 +387,11 @@ const BookingPreview = () => {
               <Table
                 showFilter={false}
                 showPagination={false}
-                columns={paymentColumns}
+                columns={paymentsExtendedColumns as ColumnDef<Payment>[]}
                 data={bookingPaymentsList?.map((payment, index) => {
                   return {
                     ...payment,
                     no: index + 1,
-                    amount: formatCurrency(payment?.amount),
                     currency: payment?.currency,
                     status: payment?.status,
                     createdAt: formatDate(payment?.createdAt),
@@ -406,43 +401,6 @@ const BookingPreview = () => {
             </menu>
           )
         )}
-        <form className="w-[50%] flex flex-col gap-3 my-4">
-          <Controller
-            name="notes"
-            defaultValue={booking?.notes}
-            control={control}
-            render={({ field }) => {
-              return (
-                <TextArea
-                  label="Additional notes"
-                  placeholder="Add any notes or comments here"
-                  {...field}
-                  resize
-                />
-              );
-            }}
-          />
-          {notes && (
-            <menu className="w-full flex items-center justify-end">
-              <Button
-                primary
-                onClick={(e) => {
-                  e.preventDefault();
-                  updateBooking({
-                    id: booking?.id,
-                    notes,
-                  });
-                }}
-              >
-                {updateBookingIsLoading ? (
-                  <Loader />
-                ) : (
-                  `${booking?.notes ? 'Update' : 'Add'} notes`
-                )}
-              </Button>
-            </menu>
-          )}
-        </form>
         <menu className="flex items-start gap-3 justify-end w-full my-4 px-2">
           <h1 className="text-primary text-xl font-bold uppercase text-center">
             Total:
@@ -509,7 +467,7 @@ const BookingPreview = () => {
                           e.preventDefault();
                           createPayment({
                             bookingId: booking?.id,
-                            amount: 10,
+                            amount: Number(bookingAmount),
                             currency: 'rwf',
                             email: booking?.email,
                           });
@@ -517,7 +475,7 @@ const BookingPreview = () => {
                         disabled={watch('consent') ? false : true}
                       >
                         {createPaymentIsLoading ? (
-                          <Loader />
+                          <Loader className="text-primary" />
                         ) : (
                           'Complete payment'
                         )}
@@ -562,7 +520,7 @@ const BookingPreview = () => {
                       dispatch(
                         submitBookingThunk({
                           id: booking?.id,
-                          status: 'cash_received',
+                          status: 'payment_received',
                           totalAmountUsd: bookingAmount,
                           totalAmountRwf: bookingAmount * 1343,
                         })

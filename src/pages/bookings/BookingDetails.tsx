@@ -1,6 +1,7 @@
 import Button from '@/components/inputs/Button';
 import CustomTooltip from '@/components/inputs/CustomTooltip';
 import Loader from '@/components/inputs/Loader';
+import TextArea from '@/components/inputs/TextArea';
 import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
@@ -50,6 +51,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -78,6 +80,10 @@ const BookingDetails = () => {
   useEffect(() => {
     dispatch(addBookingTotalAmountUsd(0));
   }, [dispatch]);
+
+  // REACT HOOK FORM
+  const { watch, control } = useForm();
+  const { notes } = watch();
 
   // INITIALIZE GET BOOKING DETAILS QUERY
   const [
@@ -188,6 +194,42 @@ const BookingDetails = () => {
     bookingDetailsError,
     dispatch,
     navigate,
+  ]);
+
+  // INITIALIZE UPDATE BOOKING MUTATION
+  const [
+    updateBookingNotes,
+    {
+      isLoading: updateBookingNotesIsLoading,
+      error: updateBookingNotesError,
+      isSuccess: updateBookingNotesIsSuccess,
+      isError: updateBookingNotesIsError,
+      reset: resetUpdateBookingNotes,
+    },
+  ] = useUpdateBookingMutation();
+
+  // HANDLE UDPATE BOOKING RESPONSE
+  useEffect(() => {
+    if (updateBookingNotesIsError) {
+      if ((updateBookingNotesError as ErrorResponse).status === 500) {
+        toast.error(
+          'An error occured while updating booking. Please try again later.'
+        );
+      } else {
+        toast.error((updateBookingNotesError as ErrorResponse).data.message);
+      }
+    } else if (updateBookingNotesIsSuccess) {
+      toast.success('Booking updated successfully.');
+      resetUpdateBookingNotes();
+      dispatch(setBooking({ ...booking, notes }));
+    }
+  }, [
+    updateBookingNotesIsError,
+    updateBookingNotesIsSuccess,
+    updateBookingNotesError,
+    dispatch,
+    notes,
+    resetUpdateBookingNotes,
   ]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
@@ -382,21 +424,18 @@ const BookingDetails = () => {
           <menu className="flex items-center gap-3">
             {row?.original?.status === 'PAID' && (
               <CustomTooltip label="Click to verify payment">
-          {confirmPaymentIsLoading ? (
-            '...'
-          ) : (
-            <FontAwesomeIcon
-              icon={faCertificate}
-              onClick={(e) => {
-                e.preventDefault();
-                window.open(
-            `https://secure.3gdirectpay.com/payv3.php?ID=${row?.original?.transactionId}`,
-            '_blank'
-                );
-              }}
-              className="bg-green-700 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
-            />
-          )}
+                {confirmPaymentIsLoading ? (
+                  '...'
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faCertificate}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      confirmPayment({ id: row?.original?.id, transactionToken: row?.original?.transactionId });
+                    }}
+                    className="bg-green-700 text-white p-2 px-[8.2px] transition-all duration-300 hover:scale-[1.01] cursor-pointer rounded-full"
+                  />
+                )}
               </CustomTooltip>
             )}
           </menu>
@@ -413,7 +452,7 @@ const BookingDetails = () => {
     },
     {
       label: `${capitalizeString(booking?.type)}s`,
-      route: `/dashboard/${booking?.type}s`,
+      route: `/dashboard/bookings`,
     },
     {
       label: `${booking?.name}`,
@@ -600,7 +639,6 @@ const BookingDetails = () => {
                   return {
                     ...payment,
                     no: index + 1,
-                    amount: formatCurrency(payment?.amount),
                     currency: payment?.currency,
                     status: payment?.status,
                     createdAt: formatDate(payment?.createdAt),
@@ -610,6 +648,43 @@ const BookingDetails = () => {
             </menu>
           )
         )}
+        <form className="w-[50%] flex flex-col gap-3 my-4">
+          <Controller
+            name="notes"
+            defaultValue={booking?.notes}
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextArea
+                  label="Additional notes"
+                  placeholder="Add any notes or comments here"
+                  {...field}
+                  resize
+                />
+              );
+            }}
+          />
+          {notes && (
+            <menu className="w-full flex items-center justify-end">
+              <Button
+                primary
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateBookingNotes({
+                    id: booking?.id,
+                    notes,
+                  });
+                }}
+              >
+                {updateBookingNotesIsLoading ? (
+                  <Loader />
+                ) : (
+                  `${booking?.notes ? 'Update' : 'Add'} notes`
+                )}
+              </Button>
+            </menu>
+          )}
+        </form>
         <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
           <h1 className="text-primary font-bold uppercase">Total</h1>
           <ul className="flex flex-col items-start gap-2">
