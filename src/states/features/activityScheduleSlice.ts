@@ -1,4 +1,7 @@
-import { ActivitySchedule } from '@/types/models/activitySchedule.types';
+import {
+  ActivitySchedule,
+  SeatsAdjustment,
+} from '@/types/models/activitySchedule.types';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import apiSlice from '../apiSlice';
 import { UUID } from 'crypto';
@@ -17,6 +20,11 @@ const initialState: {
   totalPages: number;
   remainingSeatsIsFetching: boolean;
   remainingSeats: number | boolean;
+  createSeatsAdjustmentsModal: boolean;
+  seatsAdjustmentsList: SeatsAdjustment[];
+  manageSeatsAdjustmentsModal: boolean;
+  deleteSeatsAdjustmentModal: boolean;
+  selectedSeatsAdjustment?: SeatsAdjustment;
 } = {
   activityScheduleDetailsModal: false,
   selectedActivitySchedule: undefined,
@@ -29,6 +37,11 @@ const initialState: {
   totalPages: 1,
   remainingSeatsIsFetching: false,
   remainingSeats: 0,
+  createSeatsAdjustmentsModal: false,
+  seatsAdjustmentsList: [],
+  manageSeatsAdjustmentsModal: false,
+  deleteSeatsAdjustmentModal: false,
+  selectedSeatsAdjustment: undefined,
 };
 
 // CALCULATE REMAINING SEATS THUNK
@@ -92,6 +105,29 @@ const activityScheduleSlice = createSlice({
     setRemainingSeats: (state, action) => {
       state.remainingSeats = action.payload;
     },
+    setCreateSeatsAdjustmentsModal: (state, action) => {
+      state.createSeatsAdjustmentsModal = action.payload;
+    },
+    setSeatsAdjustmentsList: (state, action) => {
+      state.seatsAdjustmentsList = action.payload;
+    },
+    addToSeatsAdjustmentsList: (state, action) => {
+      state.seatsAdjustmentsList.unshift(action.payload);
+    },
+    removeFromSeatsAdjustmentsList: (state, action) => {
+      state.seatsAdjustmentsList = state.seatsAdjustmentsList.filter(
+        (seatsAdjustment) => seatsAdjustment.id !== action.payload
+      );
+    },
+    setManageSeatsAdjustmentsModal: (state, action) => {
+      state.manageSeatsAdjustmentsModal = action.payload;
+    },
+    setDeleteSeatsAdjustmentModal: (state, action) => {
+      state.deleteSeatsAdjustmentModal = action.payload;
+    },
+    setSelectedSeatsAdjustment: (state, action) => {
+      state.selectedSeatsAdjustment = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(calculateRemainingSeatsThunk.pending, (state) => {
@@ -118,7 +154,14 @@ export const {
   setPage,
   setTotalCount,
   setTotalPages,
-  setRemainingSeats
+  setRemainingSeats,
+  setCreateSeatsAdjustmentsModal,
+  setSeatsAdjustmentsList,
+  addToSeatsAdjustmentsList,
+  removeFromSeatsAdjustmentsList,
+  setManageSeatsAdjustmentsModal,
+  setDeleteSeatsAdjustmentModal,
+  setSelectedSeatsAdjustment,
 } = activityScheduleSlice.actions;
 
 export default activityScheduleSlice.reducer;

@@ -1,3 +1,7 @@
+import { formatCurrency } from '@/helpers/strings.helper';
+import { Payment } from '@/types/models/payment.types';
+import { Row } from '@tanstack/react-table';
+
 export const paymentColumns = [
   {
     header: 'No',
@@ -6,6 +10,8 @@ export const paymentColumns = [
   {
     header: 'Amount',
     accessorKey: 'amount',
+    cell: ({ row }: { row: Row<Payment> }) =>
+      formatCurrency(row?.original?.amount),
   },
   {
     header: 'Currency',

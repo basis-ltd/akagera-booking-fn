@@ -16,6 +16,10 @@ export const bookingVehicleColumns = [
     accessorKey: 'vehiclesCount',
   },
   {
+    header: 'Plate number',
+    accessorKey: 'plateNumber',
+  },
+  {
     header: 'Price',
     accessorKey: 'vehiclePrice',
   },

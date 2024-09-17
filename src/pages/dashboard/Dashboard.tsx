@@ -287,7 +287,7 @@ const Dashboard = () => {
             </figure>
           )}
         </section>
-        <section className="grid grid-cols-2 w-full gap-[5%]">
+        <section className="grid grid-cols-2 w-full gap-5">
           {type !== 'registration' && (
             <PopularActivites
               startDate={startDate}

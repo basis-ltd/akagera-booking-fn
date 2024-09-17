@@ -74,10 +74,12 @@ const Sidebar = () => {
           !isOpen && 'flex-col pr-0 gap-6'
         }`}
       >
-        <img
-          src={akageraLogo}
-          className={`${isOpen ? 'w-[50%]' : 'wfull'} h-auto`}
-        />
+        <Link to={`/`}>
+          <img
+            src={akageraLogo}
+            className={`${isOpen ? 'w-[50%]' : 'wfull'} h-auto`}
+          />
+        </Link>
         <FontAwesomeIcon
           icon={isOpen ? faChevronCircleLeft : faChevronCircleRight}
           className="text-lg cursor-pointer text-black hover:scale-[1.02]"

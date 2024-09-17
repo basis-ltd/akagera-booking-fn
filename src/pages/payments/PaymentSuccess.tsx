@@ -64,7 +64,7 @@ const PaymentSuccess = () => {
       dispatch(
         submitBookingThunk({
           id: updatePaymentData?.data?.bookingId,
-          status: 'cash_received',
+          status: 'payment_received',
           totalAmountUsd: updatePaymentData?.data?.amount,
           totalAmountRwf: updatePaymentData?.data?.amount * 1343,
         })

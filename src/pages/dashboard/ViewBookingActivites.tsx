@@ -260,7 +260,7 @@ const ViewBookingActivites = () => {
               localizer={localizer}
               events={bookingActivitiesList
                 ?.filter((bookingActivity: BookingActivity) =>
-                  ['pending', 'confirmed', 'cash_received'].includes(
+                  ['pending', 'confirmed', 'payment_received'].includes(
                     bookingActivity?.booking?.status
                   )
                 )

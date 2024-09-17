@@ -4,6 +4,10 @@ export const formatDate = (date: string | Date) => {
   return moment(date).format('YYYY-MM-DD');
 };
 
+export const formatDateTime = (date: string | Date) => {
+  return moment(date).format('YYYY-MM-DD HH:mm:ss');
+};
+
 // CAPITALIZE STRING
 export const capitalizeString = (string: string | undefined | null) => {
   if (!string) return "";

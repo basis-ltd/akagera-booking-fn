@@ -1,5 +1,6 @@
 import { UUID } from "crypto";
 import { Activity } from "./activity.types";
+import { User } from "./user.types";
 
 export type ActivitySchedule = {
   id: UUID;
@@ -15,3 +16,15 @@ export type ActivitySchedule = {
   numberOfSeats: number;
   updatedAt: Date;
 };
+
+export type SeatsAdjustment = {
+  id: UUID;
+  activityScheduleId: UUID;
+  reason?: string;
+  adjustedSeats: number;
+  startDate: Date;
+  endDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  user: User;
+}

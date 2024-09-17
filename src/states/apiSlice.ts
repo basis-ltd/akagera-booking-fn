@@ -1,3 +1,4 @@
+import store from 'store';
 import { localApiUrl, stagingApiUrl } from '@/constants/environments.constants';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { UUID } from 'crypto';
@@ -8,7 +9,7 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: stagingApiUrl || localApiUrl,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const token = store.get('token');
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -171,6 +172,7 @@ export const apiSlice = createApi({
           registrationCountry,
           vehicleType,
           vehiclesCount,
+          plateNumber
         }) => ({
           url: `booking-vehicles`,
           method: 'POST',
@@ -179,6 +181,7 @@ export const apiSlice = createApi({
             registrationCountry,
             vehicleType,
             vehiclesCount,
+            plateNumber
           },
         }),
       }),
@@ -227,7 +230,14 @@ export const apiSlice = createApi({
 
       // FETCH BOOKING ACTIVITIES
       fetchBookingActivities: builder.query({
-        query: ({ size = 10, page = 0, bookingId, activityId, startTime, status }) => {
+        query: ({
+          size = 10,
+          page = 0,
+          bookingId,
+          activityId,
+          startTime,
+          status,
+        }) => {
           let url = `booking-activities?size=${size}&page=${page}`;
           if (bookingId) {
             url += `&bookingId=${bookingId}`;
@@ -246,9 +256,10 @@ export const apiSlice = createApi({
         providesTags: (result) =>
           result
             ? [
-                ...result.data.rows.map(({ id }: {
-                  id: UUID;
-                }) => ({ type: 'BookingActivities' as const, id })),
+                ...result.data.rows.map(({ id }: { id: UUID }) => ({
+                  type: 'BookingActivities' as const,
+                  id,
+                })),
                 { type: 'BookingActivities', id: 'LIST' },
               ]
             : [{ type: 'BookingActivities', id: 'LIST' }],
@@ -750,10 +761,13 @@ export const apiSlice = createApi({
 
       // CONFIRM PAYMENT
       confirmPayment: builder.mutation({
-        query: ({ id }) => {
+        query: ({ id, transactionToken }) => {
           return {
             url: `payments/${id}/confirm`,
             method: 'PATCH',
+            body: {
+              transactionToken,
+            }
           };
         },
       }),
@@ -834,7 +848,70 @@ export const apiSlice = createApi({
         query: ({ id }) => {
           return {
             url: `bookings/${id}/consent/download`,
+          };
+        },
+      }),
+
+      // CREATE SEATS ADJUSTMENTS
+      createSeatsAdjustments: builder.mutation({
+        query: ({
+          activityScheduleId,
+          startDate,
+          adjustedSeats,
+          endDate,
+          reason,
+        }) => {
+          return {
+            url: `seats-adjustments`,
+            method: 'POST',
+            body: {
+              activityScheduleId,
+              startDate,
+              adjustedSeats,
+              endDate,
+              reason,
+            },
+          };
+        },
+      }),
+
+      // FETCH SEATS ADJUSTMENTS
+      fetchSeatsAdjustments: builder.query({
+        query: ({ size = 100, page = 0, activityScheduleId, userId }) => {
+          let url = `seats-adjustments?size=${size}&page=${page}`;
+          if (activityScheduleId) {
+            url += `&activityScheduleId=${activityScheduleId}`;
           }
+          if (userId) {
+            url += `&userId=${userId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
+      // DELETE SEATS ADJUSTMENTS
+      deleteSeatsAdjustments: builder.mutation({
+        query: ({ id }) => {
+          return {
+            url: `seats-adjustments/${id}`,
+            method: 'DELETE',
+          };
+        },
+      }),
+
+      // UPDATE USER PASSWORD
+      updateUserPassword: builder.mutation({
+        query: ({ id, existingPassword, newPassword }) => {
+          return {
+            url: `users/${id}/password`,
+            method: 'PATCH',
+            body: {
+              existingPassword,
+              newPassword,
+            },
+          };
         },
       }),
     };
@@ -894,6 +971,10 @@ export const {
   useUpdateTermsOfServiceMutation,
   useHandlePaymentCallbackMutation,
   useLazyDownloadConsentFormQuery,
+  useCreateSeatsAdjustmentsMutation,
+  useLazyFetchSeatsAdjustmentsQuery,
+  useDeleteSeatsAdjustmentsMutation,
+  useUpdateUserPasswordMutation
 } = apiSlice;
 
 export default apiSlice;

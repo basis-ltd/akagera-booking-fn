@@ -30,7 +30,7 @@ export const bookingStatus = {
     WAITING: 'waiting',
     QUOTE: 'quote',
     RESCHEDULE: 'reschedule',
-    CASH_RECEIVED: 'cash_received',
+    PAYMENT_RECEIVED: 'payment_received',
     PROOF_OF_PAYMENT: 'proof_of_payment',
     RESERVED: 'reserved',
     CONFIRMED: 'confirmed',

@@ -106,7 +106,7 @@ const PopularActivites = ({ startDate, endDate, type }: PopularActivitesProps) =
   ];
 
   return (
-    <menu className="flex flex-col gap-4">
+    <menu className="flex flex-col gap-4 w-full">
       <ul className="flex items-center gap-3 justify-between">
         <h1 className="text-primary uppercase text-md font-medium">
           Most popular activities

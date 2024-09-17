@@ -23,7 +23,7 @@ type PopularBookingPeopleProps = {
 const PopularBookingPeople = ({
   startDate,
   endDate,
-  type
+  type,
 }: PopularBookingPeopleProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
@@ -109,10 +109,10 @@ const PopularBookingPeople = ({
   ];
 
   return (
-    <menu className="flex flex-col gap-4">
+    <menu className="flex flex-col gap-4 w-full">
       <ul className="w-full flex items-center gap-3 justify-between">
         <h1 className="uppercase text-primary font-medium text-md">
-          Most popular booking people
+          Most popular {capitalizeString(type)} people
         </h1>{' '}
         <Controller
           name="criteria"

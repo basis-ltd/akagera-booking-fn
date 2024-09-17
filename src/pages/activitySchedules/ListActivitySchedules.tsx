@@ -1,5 +1,5 @@
 import Button from '@/components/inputs/Button';
-import CustomTooltip from '@/components/inputs/CustomTooltip';
+import CustomPopover from '@/components/inputs/CustomPopover';
 import Loader from '@/components/inputs/Loader';
 import Table from '@/components/table/Table';
 import { activityScheduleColumns } from '@/constants/activitySchedule.constants';
@@ -9,6 +9,7 @@ import {
   setActivitySchedulesList,
   setCreateActivityScheduleModal,
   setDeleteActivityScheduleModal,
+  setManageSeatsAdjustmentsModal,
   setPage,
   setSelectedActivitySchedule,
   setSize,
@@ -18,14 +19,23 @@ import {
 import { setSelectedActivity } from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { ActivitySchedule } from '@/types/models/activitySchedule.types';
-import { faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEllipsisH,
+  faPenToSquare,
+  faPlus,
+  faSliders,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Row } from '@tanstack/react-table';
 import { UUID } from 'crypto';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorResponse } from 'react-router-dom';
+import { ErrorResponse, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import CreateSeatsAdjustments from './CreateSeatsAdjustments';
+import ManageSeatsAdjustments from './ManageSeatsAdjustments';
+import DeleteSeatsAdjustment from './DeleteSeatsAdjustment';
 
 type ListActivitySchedulesProps = {
   activityId: UUID;
@@ -92,35 +102,35 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
     activitySchedulesError,
   ]);
 
-    // SET TRANSPORTATIONS LABEL
-    useEffect(() => {
-      switch (activity?.slug) {
-        case 'behind-the-scenes-tour':
-          setTransportationsLabel('participants');
-          break;
-        case 'boat-trip-morning-day':
-        case 'boat-trip-morning-day-amc-operated':
-        case 'boat-trip-sunset-trip':
-          setTransportationsLabel('seats');
-          break;
-        case 'camping':
-        case 'camping-at-mihindi-campsite':
-        case 'camping-at-mihindi-for-rwanda-nationals':
-        case 'camping-for-rwandan-nationals':
-          setTransportationsLabel('tents');
-          break;
-        case 'game-drive-day-amc-operated':
-        case 'night-drive-operated-by-amc':
-          setTransportationsLabel('cars');
-          break;
-        case 'boat-trip–private-non-scheduled':
-          setTransportationsLabel('participants');
-          break;
-        default:
-          setTransportationsLabel('transportations');
-          break;
-      }
-    }, [activity]);
+  // SET TRANSPORTATIONS LABEL
+  useEffect(() => {
+    switch (activity?.slug) {
+      case 'behind-the-scenes-tour':
+        setTransportationsLabel('participants');
+        break;
+      case 'boat-trip-morning-day':
+      case 'boat-trip-morning-day-amc-operated':
+      case 'boat-trip-sunset-trip':
+        setTransportationsLabel('seats');
+        break;
+      case 'camping':
+      case 'camping-at-mihindi-campsite':
+      case 'camping-at-mihindi-for-rwanda-nationals':
+      case 'camping-for-rwandan-nationals':
+        setTransportationsLabel('tents');
+        break;
+      case 'game-drive-day-amc-operated':
+      case 'night-drive-operated-by-amc':
+        setTransportationsLabel('cars');
+        break;
+      case 'boat-trip–private-non-scheduled':
+        setTransportationsLabel('participants');
+        break;
+      default:
+        setTransportationsLabel('transportations');
+        break;
+    }
+  }, [activity]);
 
   // ACTIVITY SCHEDULES COLUMNS
   const activityScheduleExtendedColumns = [
@@ -128,38 +138,72 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
     {
       header: `Number of ${transportationsLabel}`,
       accessorKey: 'numberOfSeats',
-      cell: ({ row }: { row: Row<ActivitySchedule> }) => row?.original?.numberOfSeats,
+      cell: ({ row }: { row: Row<ActivitySchedule> }) =>
+        row?.original?.numberOfSeats,
     },
     {
       header: 'Actions',
       accessorKey: 'actions',
       cell: ({ row }: { row: Row<ActivitySchedule> }) => {
         return (
-          <menu className="flex items-center gap-2">
-            <CustomTooltip label="Click to manage">
+          <CustomPopover
+            trigger={
               <FontAwesomeIcon
-                icon={faPenToSquare}
+                icon={faEllipsisH}
+                className="p-1 px-2 rounded-md text-primary bg-slate-200 hover:bg-slate-300 cursor-pointer"
+              />
+            }
+          >
+            <menu className="flex flex-col items-center gap-2">
+              <Link
+                to={`#`}
                 onClick={(e) => {
                   e.preventDefault();
                   dispatch(setSelectedActivity(activity));
                   dispatch(setSelectedActivitySchedule(row?.original));
                   dispatch(setActivityScheduleDetailsModal(true));
                 }}
-                className="text-white p-2 cursor-pointer px-[8.2px] bg-primary rounded-full text-[13px] transition-all duration-300 hover:scale-[1.01]"
-              />
-            </CustomTooltip>
-            <CustomTooltip label="Click to delete">
-              <FontAwesomeIcon
-                icon={faTrash}
+                className="w-full flex items-center gap-2 text-[13px] p-1 px-2 rounded-md cursor-pointer hover:bg-background"
+              >
+                <FontAwesomeIcon
+                  className="text-primary hover:scale-[1.01]"
+                  icon={faPenToSquare}
+                />
+                Manage schedule
+              </Link>
+              <Link
+                to={`#`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(setSelectedActivity(activity));
+                  dispatch(setSelectedActivitySchedule(row?.original));
+                  dispatch(setManageSeatsAdjustmentsModal(true));
+                }}
+                className="w-full flex items-center gap-2 text-[13px] p-1 px-2 rounded-md cursor-pointer hover:bg-background"
+              >
+                <FontAwesomeIcon
+                  className="text-primary hover:scale-[1.01]"
+                  icon={faSliders}
+                />
+                Adjust schedule
+              </Link>
+              <Link
+                to={`#`}
                 onClick={(e) => {
                   e.preventDefault();
                   dispatch(setSelectedActivitySchedule(row?.original));
                   dispatch(setDeleteActivityScheduleModal(true));
                 }}
-                className="text-white p-2 cursor-pointer px-[8.2px] bg-red-600 rounded-full text-[13px] transition-all duration-300 hover:scale-[1.01]"
-              />
-            </CustomTooltip>
-          </menu>
+                className="w-full flex items-center gap-2 text-[13px] p-1 px-2 rounded-md cursor-pointer hover:bg-background"
+              >
+                <FontAwesomeIcon
+                  className="text-red-600 hover:scale-[1.01]"
+                  icon={faTrash}
+                />
+                Delete schedule
+              </Link>
+            </menu>
+          </CustomPopover>
         );
       },
     },
@@ -204,6 +248,9 @@ const ListActivitySchedules = ({ activityId }: ListActivitySchedulesProps) => {
           data={activitySchedulesList}
         />
       )}
+      <CreateSeatsAdjustments />
+      <ManageSeatsAdjustments />
+      <DeleteSeatsAdjustment />
     </section>
   );
 };

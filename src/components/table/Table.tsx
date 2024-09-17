@@ -90,7 +90,8 @@ export default function Table<TData, TValue>({
   });
 
   return (
-    <table className="space-y-4 w-full">
+    <section className='w-full overflow-x-scroll'>
+      <table className="space-y-4 w-full">
       {showFilter && (
         <TableToolbar
           table={table as unknown as TableType<object>}
@@ -129,7 +130,7 @@ export default function Table<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className={`px-2 ${
+                    className={`px-2 py-2 ${
                       rowClickHandler ? 'cursor-pointer' : ''
                     }`}
                     onClick={(e) => {
@@ -152,7 +153,7 @@ export default function Table<TData, TValue>({
                         <TableCell
                           className={`${
                             preventAction ? '!cursor-auto' : ''
-                          } text-[13px] px-4`}
+                          } text-[13px] px-4 py-2`}
                           key={cell.id}
                           onClick={(e) => {
                             if (preventAction) {
@@ -196,5 +197,6 @@ export default function Table<TData, TValue>({
         />
       )}
     </table>
+    </section>
   );
 }

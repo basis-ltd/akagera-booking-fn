@@ -16,10 +16,13 @@ export const bookingActivitiesColumns = [
   {
     header: 'Start Time',
     accessorKey: 'startTime',
-    cell: ({ row }: { row: Row<BookingActivity> }) =>
-      row?.original?.activity?.activitySchedules?.length > 0
-        ? moment(row?.original?.startTime).format('hh:mm A')
-        : '',
+    cell: ({ row }: { row: Row<BookingActivity> }) => {
+      return (
+        row?.original?.activity?.activitySchedules?.length > 0
+          ? row?.original?.startTime
+          : ''
+      )
+    },
   },
   {
     header: 'End Time',
