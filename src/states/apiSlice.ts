@@ -930,6 +930,18 @@ export const apiSlice = createApi({
           },
         }),
       }),
+
+      // UPDATE USER PHOTO
+      updateUserPhoto: builder.mutation({
+        query: ({ id, formData }) => {
+          return {
+            url: `users/${id}/photo`,
+            method: 'PATCH',
+            body: formData,
+            formData: true,
+          };
+        },
+      }),
     };
   },
 });
@@ -993,6 +1005,7 @@ export const {
   useUpdateUserPasswordMutation,
   useLazyGetUsdRateQuery,
   useSetUsdRateMutation,
+  useUpdateUserPhotoMutation,
 } = apiSlice;
 
 export default apiSlice;

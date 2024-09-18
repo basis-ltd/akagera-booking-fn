@@ -3,6 +3,7 @@ import Button from '@/components/inputs/Button';
 import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
+import CustomBreadcrumb from '@/components/navigation/CustomBreadcrumb';
 import { COUNTRIES } from '@/constants/countries.constants';
 import { genderOptions } from '@/constants/inputs.constants';
 import AdminLayout from '@/containers/AdminLayout';
@@ -10,6 +11,7 @@ import {
   useLazyGetUserByIdQuery,
   useUpdateUserMutation,
   useUpdateUserPasswordMutation,
+  useUpdateUserPhotoMutation,
 } from '@/states/apiSlice';
 import { setUser } from '@/states/features/userSlice';
 import { AppDispatch, RootState } from '@/states/store';
@@ -34,8 +36,18 @@ const UserProfile = () => {
     setValue,
     watch,
     trigger,
+    clearErrors,
   } = useForm();
   const { existingPassword, newPassword, confirmPassword } = watch();
+
+  // CLEAR ERRORS IF FIELDS ARE EMPTY
+  useEffect(() => {
+    if (!existingPassword && !newPassword && !confirmPassword) {
+      clearErrors('existingPassword');
+      clearErrors('newPassword');
+      clearErrors('confirmPassword');
+    }
+  }, [existingPassword, newPassword, confirmPassword, clearErrors]);
 
   // INITIALIZE GET USER BY ID QUERY
   const [
@@ -150,38 +162,104 @@ const UserProfile = () => {
     setValue,
   ]);
 
+  // INITIALIZE UPDATE USER PHOTO MUTATION
+  const [
+    updateUserPhoto,
+    {
+      data: updateUserPhotoData,
+      isLoading: updateUserPhotoIsLoading,
+      isSuccess: updateUserPhotoIsSuccess,
+      isError: updateUserPhotoIsError,
+      error: updateUserPhotoError,
+    },
+  ] = useUpdateUserPhotoMutation();
+
+  // HANDLE UPDATE USER PHOTO RESPONSE
+  useEffect(() => {
+    if (updateUserPhotoIsSuccess && updateUserPhotoData) {
+      getUserById({ id: user?.id });
+      toast.success('User photo updated successfully');
+    } else if (updateUserPhotoIsError) {
+      const errorResponse = (updateUserPhotoError as ErrorResponse)?.data
+        ?.message;
+      toast.error(
+        errorResponse || 'Failed to update user photo. Refresh and try again.'
+      );
+    }
+  }, [
+    updateUserPhotoIsSuccess,
+    updateUserPhotoData,
+    updateUserPhotoIsError,
+    updateUserPhotoError,
+    getUserById,
+    user?.id,
+  ]);
+
+  // NAVIGATION LINKS
+  const navigationLinks = [
+    {
+      label: 'Dashboard',
+      route: '/dashboard',
+    },
+    {
+      label: 'Profile',
+      route: '/user/profile',
+    },
+  ];
+
   return (
     <AdminLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-6 p-6">
+        <CustomBreadcrumb navigationLinks={navigationLinks} />
         {userIsFetching ? (
           <figure className="h-[10vh] flex items-center justify-center">
             <Loader className="text-primary" />
           </figure>
         ) : (
           <article className="w-full flex flex-col gap-5">
-            <section className="w-full flex flex-col items-start gap-3 justify-between">
-              <figure className="w-[100px] h-[100px] flex items-center justify-center gap-1 rounded-full">
-                {user?.photo ? (
-                  <img
-                    src={user?.photo}
-                    alt="User"
-                    className="w-full h-full rounded-full"
-                  />
-                ) : (
-                  <span className="w-full h-full bg-gray-200 rounded-full cursor-pointer"></span>
-                )}
+            {updateUserPhotoIsLoading ? (
+              <figure className="w-full flex flex-col gap-2 items-center justify-center min-h-[20vh]">
+                <Loader className="text-primary" />
+                <p className="text-[13px] text-primary text-center">
+                  Uploading photo...
+                </p>
               </figure>
-              <label className="cursor-pointer">
-                <input type="file" className="hidden" />
-                <menu className="flex items-center gap-2 text-[13px]">
-                  <Input
-                    accept="image/*"
-                    placeholder="Select image"
-                    type="file"
-                  />
-                </menu>
-              </label>
-            </section>
+            ) : (
+              <section className="w-full flex flex-col items-start gap-3 justify-between">
+                <figure className="w-[100px] h-[100px] flex items-center justify-center gap-1 rounded-full">
+                  {user?.photo ? (
+                    <img
+                      src={user?.photo}
+                      alt="User"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="w-full h-full bg-gray-200 rounded-full cursor-pointer"></span>
+                  )}
+                </figure>
+                <label className="cursor-pointer">
+                  <input type="file" className="hidden" />
+                  <menu className="flex items-center gap-2 text-[13px]">
+                    <Input
+                      accept="image/*"
+                      placeholder="Select image"
+                      type="file"
+                      onChange={(e) => {
+                        const file = e?.target?.files?.[0];
+                        if (file) {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          updateUserPhoto({
+                            id: user?.id,
+                            formData,
+                          });
+                        }
+                      }}
+                    />
+                  </menu>
+                </label>
+              </section>
+            )}
             <hr className="h-[.5px] border border-primary" />
             <section className="w-full flex flex-col gap-4">
               <h1 className="uppercase text-primary font-semibold text-lg">

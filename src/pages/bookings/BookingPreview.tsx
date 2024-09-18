@@ -413,10 +413,10 @@ const BookingPreview = () => {
             bookingAmountIsSuccess && (
               <ul className="flex flex-col items-start gap-2">
                 <p className="uppercase font-bold text-xl text-primary">
-                  {formatCurrency(Number(bookingAmount))}
+                  {formatCurrency(booking?.totalAmountUsd)}
                 </p>
                 <p className="uppercase font-bold text-xl text-primary">
-                  {formatCurrency(Number(bookingAmount) * 1343, 'RWF')}
+                  {formatCurrency(booking?.totalAmountRwf, 'RWF')}
                 </p>
               </ul>
             )
@@ -490,8 +490,8 @@ const BookingPreview = () => {
                             submitBookingThunk({
                               id: booking?.id,
                               status: 'pending',
-                              totalAmountRwf: Number(bookingAmount) * 1343,
-                              totalAmountUsd: Number(bookingAmount),
+                              totalAmountRwf: booking?.totalAmountRwf,
+                              totalAmountUsd: booking?.totalAmountUsd,
                             })
                           );
                         }}
@@ -521,8 +521,8 @@ const BookingPreview = () => {
                         submitBookingThunk({
                           id: booking?.id,
                           status: 'payment_received',
-                          totalAmountUsd: bookingAmount,
-                          totalAmountRwf: bookingAmount * 1343,
+                          totalAmountUsd: booking?.totalAmountUsd,
+                          totalAmountRwf: booking?.totalAmountRwf,
                         })
                       );
                     }}

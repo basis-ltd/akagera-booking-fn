@@ -15,8 +15,9 @@ const PaymentSuccess = () => {
   const [queryParams, setQueryParams] = useState<ParsedQuery<string | number>>(
     {}
   );
-  const { submitBookingIsSuccess, submitBookingIsLoading } =
-    useSelector((state: RootState) => state.booking);
+  const { submitBookingIsSuccess, submitBookingIsLoading } = useSelector(
+    (state: RootState) => state.booking
+  );
 
   // NAVIGATION
   const navigate = useNavigate();
@@ -65,8 +66,6 @@ const PaymentSuccess = () => {
         submitBookingThunk({
           id: updatePaymentData?.data?.bookingId,
           status: 'payment_received',
-          totalAmountUsd: updatePaymentData?.data?.amount,
-          totalAmountRwf: updatePaymentData?.data?.amount * 1343,
         })
       );
     } else if (updatePaymentIsError) {
@@ -87,16 +86,16 @@ const PaymentSuccess = () => {
   return (
     <PublicLayout>
       <main className="w-[95%] mx-auto flex flex-col gap-5 p-6 min-h-[80vh] items-center justify-center">
-        {(updatePaymentIsLoading) && (
-          <figure className='w-full flex flex-col gap-3 justify-center items-center'>
+        {updatePaymentIsLoading && (
+          <figure className="w-full flex flex-col gap-3 justify-center items-center">
             <Loader className="text-primary" />
-            <h3 className='text-primary'>Processing payment...</h3>
+            <h3 className="text-primary">Processing payment...</h3>
           </figure>
         )}
-        {(submitBookingIsLoading) && (
-          <figure className='w-full flex flex-col gap-3 justify-center items-center'>
+        {submitBookingIsLoading && (
+          <figure className="w-full flex flex-col gap-3 justify-center items-center">
             <Loader className="text-primary" />
-            <h3 className='text-primary'>Submitting booking...</h3>
+            <h3 className="text-primary">Submitting booking...</h3>
           </figure>
         )}
       </main>

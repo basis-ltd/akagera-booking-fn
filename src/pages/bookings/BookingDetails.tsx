@@ -692,7 +692,7 @@ const BookingDetails = () => {
               {formatCurrency(Number(booking?.totalAmountUsd))}
             </p>
             <p className="uppercase font-medium underline">
-              {formatCurrency(Number(booking?.totalAmountUsd) * 1343, 'RWF')}
+              {formatCurrency(Number(booking?.totalAmountRwf), 'RWF')}
             </p>
           </ul>
         </menu>
