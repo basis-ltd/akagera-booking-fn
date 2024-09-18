@@ -33,6 +33,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import TempBookingActivityPrice from './TemporaryBookingActivityPrice';
 
 const AddBehindTheScencesActivity = () => {
   // STATE VARIABLES
@@ -94,10 +95,10 @@ const AddBehindTheScencesActivity = () => {
     }
     dispatch(
       createBookingActivityThunk({
-        defaultRate: calculateBehindTheScenesPrice(
-          Number(data?.numberOfAdults) || 0,
-          Number(data?.numberOfChildren) || 0
-        ),
+        defaultRate: calculateBehindTheScenesPrice({
+          numberOfAdults: Number(data?.numberOfAdults) || 0,
+          numberOfChildren: Number(data?.numberOfChildren) || 0,
+        }),
         numberOfAdults: Number(data?.numberOfAdults),
         numberOfChildren: Number(data?.numberOfChildren),
         bookingId: booking?.id,
@@ -192,7 +193,6 @@ const AddBehindTheScencesActivity = () => {
         'activitySchedule',
         `${selectedActivity?.activitySchedules[0]?.startTime}-${selectedActivity?.activitySchedules[0]?.endTime}`
       );
-      setSelectedActivitySchedule(selectedActivity?.activitySchedules[0]);
     }
     setBookingActivity((prev) => ({
       ...prev,
@@ -414,26 +414,19 @@ const AddBehindTheScencesActivity = () => {
               )}
             </menu>
           )}
-          <menu className="flex flex-col gap-2 w-full">
-            {(numberOfAdults || numberOfChildren) && (
-              <p className="text-slate-900 text-[15px] font-bold">
-                Price:{' '}
-                {calculateBehindTheScenesPrice(
-                  Number(numberOfAdults) || 0,
-                  Number(numberOfChildren) || 0
-                )}{' '}
-                USD
-              </p>
-            )}
-            {selectedActivitySchedule?.minNumberOfSeats && (
-              <p className="max-w-[50vw] text-[14px]">
-                For this activity, minimum number of participants is{' '}
-                {selectedActivitySchedule?.minNumberOfSeats}. If you enter a
-                number less than this, you will be charged for the minimum
-                number of participants.
-              </p>
-            )}
-          </menu>
+          <TempBookingActivityPrice
+            bookingActivity={{
+              numberOfAdults: Number(numberOfAdults),
+              numberOfChildren: Number(numberOfChildren),
+              startTime: bookingActivity?.startTime as Date,
+              endTime: bookingActivity?.endTime as Date,
+            }}
+            defaultRate={calculateBehindTheScenesPrice({
+              numberOfAdults: Number(numberOfAdults) || 0,
+              numberOfChildren: Number(numberOfChildren) || 0,
+            })}
+            disclaimer={'This is the default rate for this activity.'}
+          />
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button
               onClick={(e) => {

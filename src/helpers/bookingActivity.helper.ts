@@ -1,7 +1,10 @@
-export const calculateBehindTheScenesPrice = (
-  numberOfAdults: number,
-  numberOfChildren: number
-): number => {
+export const calculateBehindTheScenesPrice = ({
+  numberOfAdults,
+  numberOfChildren
+}: {
+  numberOfAdults: number;
+  numberOfChildren: number;
+}): number => {
   const totalPeople = numberOfAdults + numberOfChildren;
   const ADULT_RATE = 25;
   const CHILD_RATE = 15;
