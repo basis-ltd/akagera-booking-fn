@@ -180,7 +180,7 @@ const AddCampingActivities = () => {
         dispatch(setAddCampingActivitiesModal(false));
       }}
       heading={`Add ${selectedActivity?.name}`}
-      className="min-w-[60vw]"
+      className="min-w-[60vw] max-[600px]:min-w-[80vw]"
     >
       {existingBookingActivitiesIsFetching ? (
         <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
@@ -192,108 +192,105 @@ const AddCampingActivities = () => {
       ) : existingBookingActivitiesList?.length <= 0 &&
         existingBookingActivitiesIsSuccess ? (
         <form
-          className="w-full flex flex-col gap-4"
+          className="w-full flex flex-col gap-4 max-[600px]:min-w-[80vw]"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <fieldset className="grid grid-cols-2 gap-5 w-full">
+          <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+            {' '}
             <Controller
               name="startDate"
               control={control}
               defaultValue={booking?.startDate}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      fromDate={booking?.startDate}
-                      toDate={booking?.endDate}
-                      type="date"
-                      label="Start date for this activity"
-                      required
-                      {...field}
-                      defaultValue={booking?.startDate}
-                    />
-                  </label>
-                );
-              }}
+              render={({ field }) => (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    fromDate={booking?.startDate}
+                    toDate={booking?.endDate}
+                    type="date"
+                    label="Start date for this activity"
+                    required
+                    {...field}
+                    defaultValue={booking?.startDate}
+                  />
+                </label>
+              )}
             />
             {selectedActivity?.activitySchedules &&
-              selectedActivity?.activitySchedules?.length > 0 && (
+              selectedActivity?.activitySchedules.length > 0 && (
                 <Controller
                   name="activitySchedule"
                   control={control}
                   rules={{ required: 'Select from available schedules' }}
-                  render={({ field }) => {
-                    return (
-                      <label className="flex w-full flex-col gap-1">
-                        <Select
-                          label="Select time slot for this activity"
-                          {...field}
-                          required
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setBookingActivity({
-                              ...bookingActivity,
-                              startTime: moment(
-                                `${formatDate(booking?.startDate)}T${
-                                  e?.split('-')[0]
-                                }`
-                              ).format(),
-                              endTime: moment(
-                                `${formatDate(booking?.startDate)}T${
-                                  e?.split('-')[1]
-                                }`
-                              ).format(),
-                            });
-                            setSelectedActivitySchedule(
-                              selectedActivity?.activitySchedules?.find(
-                                (activitySchedule: ActivitySchedule) =>
-                                  `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
-                                  e
-                              )
-                            );
-                          }}
-                          options={selectedActivity?.activitySchedules?.map(
-                            (activitySchedule: ActivitySchedule) => {
-                              const label = `${formatTime(
-                                activitySchedule.startTime
-                              )} - ${formatTime(
-                                String(activitySchedule.endTime)
-                              )}`;
-                              return {
-                                label,
-                                value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
-                              };
-                            }
-                          )}
-                        />
-                        {field?.value && remainingSeatsIsFetching ? (
-                          <figure className="flex items-center gap-2">
-                            <p className="text-[12px]">
-                              Calculating available tents
-                            </p>
-                            <Loader className="text-primary" />
-                          </figure>
-                        ) : remainingSeats &&
-                          (remainingSeats as boolean) !== true ? (
-                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                            Number of tents available for this period:{' '}
-                            {remainingSeats}
+                  render={({ field }) => (
+                    <label className="flex w-full flex-col gap-1">
+                      <Select
+                        label="Select time slot for this activity"
+                        {...field}
+                        required
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setBookingActivity({
+                            ...bookingActivity,
+                            startTime: moment(
+                              `${formatDate(booking?.startDate)}T${
+                                e?.split('-')[0]
+                              }`
+                            ).format(),
+                            endTime: moment(
+                              `${formatDate(booking?.startDate)}T${
+                                e?.split('-')[1]
+                              }`
+                            ).format(),
+                          });
+                          setSelectedActivitySchedule(
+                            selectedActivity?.activitySchedules?.find(
+                              (activitySchedule: ActivitySchedule) =>
+                                `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
+                                e
+                            )
+                          );
+                        }}
+                        options={selectedActivity?.activitySchedules?.map(
+                          (activitySchedule: ActivitySchedule) => {
+                            const label = `${formatTime(
+                              activitySchedule.startTime
+                            )} - ${formatTime(
+                              String(activitySchedule.endTime)
+                            )}`;
+                            return {
+                              label,
+                              value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
+                            };
+                          }
+                        )}
+                      />
+                      {field?.value && remainingSeatsIsFetching ? (
+                        <figure className="flex items-center gap-2">
+                          <p className="text-[12px]">
+                            Calculating available tents
                           </p>
-                        ) : (
-                          field?.value && (
-                            <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                              This period is available bookings.
-                            </p>
-                          )
-                        )}
-                        {errors?.activitySchedule && (
-                          <InputErrorMessage
-                            message={errors?.activitySchedule?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
+                          <Loader className="text-primary" />
+                        </figure>
+                      ) : remainingSeats &&
+                        (remainingSeats as boolean) !== true ? (
+                        <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                          Number of tents available for this period:{' '}
+                          {remainingSeats}
+                        </p>
+                      ) : (
+                        field?.value && (
+                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                            This period is available for bookings.
+                          </p>
+                        )
+                      )}
+                      {errors?.activitySchedule && (
+                        <InputErrorMessage
+                          message={errors?.activitySchedule?.message}
+                        />
+                      )}
+                    </label>
+                  )}
                 />
               )}
             <Controller
@@ -311,28 +308,26 @@ const AddCampingActivities = () => {
                   );
                 },
               }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of adult participants"
-                      required
-                      onChange={async (e) => {
-                        field.onChange(e.target.value);
-                        await trigger('numberOfAdults');
-                        clearErrors('numberOfParticipants');
-                      }}
+              render={({ field }) => (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label="Number of adult participants"
+                    required
+                    onChange={async (e) => {
+                      field.onChange(e.target.value);
+                      await trigger('numberOfAdults');
+                      clearErrors('numberOfParticipants');
+                    }}
+                  />
+                  {errors?.numberOfAdults && (
+                    <InputErrorMessage
+                      message={errors?.numberOfAdults?.message}
                     />
-                    {errors?.numberOfAdults && (
-                      <InputErrorMessage
-                        message={errors?.numberOfAdults?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
+                  )}
+                </label>
+              )}
             />
             <Controller
               name="numberOfChildren"
@@ -349,28 +344,26 @@ const AddCampingActivities = () => {
                   );
                 },
               }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of children participants"
-                      required
-                      onChange={async (e) => {
-                        field.onChange(e.target.value);
-                        await trigger('numberOfChildren');
-                        clearErrors('numberOfParticipants');
-                      }}
+              render={({ field }) => (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label="Number of children participants"
+                    required
+                    onChange={async (e) => {
+                      field.onChange(e.target.value);
+                      await trigger('numberOfChildren');
+                      clearErrors('numberOfParticipants');
+                    }}
+                  />
+                  {errors?.numberOfChildren && (
+                    <InputErrorMessage
+                      message={errors?.numberOfChildren?.message}
                     />
-                    {errors?.numberOfChildren && (
-                      <InputErrorMessage
-                        message={errors?.numberOfChildren?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
+                  )}
+                </label>
+              )}
             />
             <Controller
               name="numberOfNights"
@@ -390,66 +383,62 @@ const AddCampingActivities = () => {
                   );
                 },
               }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of nights"
-                      required
-                      onChange={async (e) => {
-                        field.onChange(e.target.value);
-                        setBookingActivity({
-                          ...bookingActivity,
-                          endTime: moment(bookingActivity?.startTime)
-                            .add(Number(e?.target?.value), 'days')
-                            .format(),
-                        });
-                        await trigger('numberOfNights');
-                      }}
+              render={({ field }) => (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label="Number of nights"
+                    required
+                    onChange={async (e) => {
+                      field.onChange(e.target.value);
+                      setBookingActivity({
+                        ...bookingActivity,
+                        endTime: moment(bookingActivity?.startTime)
+                          .add(Number(e?.target?.value), 'days')
+                          .format(),
+                      });
+                      await trigger('numberOfNights');
+                    }}
+                  />
+                  {errors?.numberOfNights && (
+                    <InputErrorMessage
+                      message={errors?.numberOfNights?.message}
                     />
-                    {errors?.numberOfNights && (
-                      <InputErrorMessage
-                        message={errors?.numberOfNights?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
+                  )}
+                </label>
+              )}
             />
             <Controller
               name="numberOfSeats"
               control={control}
               rules={{ required: 'Number of tents is required' }}
-              render={({ field }) => {
-                return (
-                  <label className="w-full flex flex-col gap-1">
-                    <Input
-                      {...field}
-                      type="number"
-                      label="Number of tents"
-                      required
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
-                        clearErrors('numberOfParticipants');
-                        if (Number(e?.target?.value) > Number(remainingSeats)) {
-                          setError('numberOfParticipants', {
-                            type: 'manual',
-                            message:
-                              'Number of tents exceeds available tents for this period',
-                          });
-                        }
-                      }}
+              render={({ field }) => (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    {...field}
+                    type="number"
+                    label="Number of tents"
+                    required
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      clearErrors('numberOfParticipants');
+                      if (Number(e?.target?.value) > Number(remainingSeats)) {
+                        setError('numberOfParticipants', {
+                          type: 'manual',
+                          message:
+                            'Number of tents exceeds available tents for this period',
+                        });
+                      }
+                    }}
+                  />
+                  {errors?.numberOfSeats && (
+                    <InputErrorMessage
+                      message={errors?.numberOfSeats?.message}
                     />
-                    {errors?.numberOfSeats && (
-                      <InputErrorMessage
-                        message={errors?.numberOfSeats?.message}
-                      />
-                    )}
-                  </label>
-                );
-              }}
+                  )}
+                </label>
+              )}
             />
           </fieldset>
           {Object.keys(errors)?.length > 0 && (
@@ -491,17 +480,14 @@ const AddCampingActivities = () => {
               existingBookingActivitiesColumns as ColumnDef<BookingActivity>[]
             }
             data={existingBookingActivitiesList?.map(
-              (bookingActivity: BookingActivity, index: number) => {
-                return {
-                  ...bookingActivity,
-                  no: index + 1,
-                  date: formatDate(bookingActivity?.startTime),
-                  time: `${moment(bookingActivity?.startTime).format(
-                    'HH:mm A'
-                  )} - 
-                      ${moment(bookingActivity?.endTime).format('HH:mm A')}`,
-                };
-              }
+              (bookingActivity: BookingActivity, index: number) => ({
+                ...bookingActivity,
+                no: index + 1,
+                date: formatDate(bookingActivity?.startTime),
+                time: `${moment(bookingActivity?.startTime).format(
+                  'HH:mm A'
+                )} - ${moment(bookingActivity?.endTime).format('HH:mm A')}`,
+              })
             )}
           />
           <ul className="flex items-center gap-3 w-full justify-between">

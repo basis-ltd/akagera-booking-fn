@@ -92,18 +92,18 @@ const ListUsers = () => {
 
   return (
     <AdminLayout>
-      <main className="flex flex-col gap-6 p-6 w-[95%] mx-auto h-full">
-        <menu className="w-full flex items-center gap-3 justify-between">
+      <main className="flex flex-col gap-6 p-4 sm:p-6 w-full sm:w-[95%] mx-auto h-full">
+        <menu className="w-full flex flex-col items-center sm:flex-row items-start sm:items-center gap-3 justify-between">
           <h1 className="text-primary uppercase font-bold text-lg">Users</h1>
           <Button
             primary
-            className="!py-[5px]"
+            className="!py-[5px] w-full sm:w-auto"
             onClick={(e) => {
               e.preventDefault();
               dispatch(setCreateUserModal(true));
             }}
           >
-            <menu className="flex items-center gap-2">
+            <menu className="flex items-center justify-center gap-2">
               <FontAwesomeIcon icon={faPlus} />
               Add user
             </menu>
@@ -115,7 +115,7 @@ const ListUsers = () => {
           </figure>
         ) : (
           usersIsSuccess && (
-            <section className="w-full flex flex-col gap-3">
+            <section className="w-full flex flex-col gap-3 overflow-x-auto">
               <Table
                 showFilter={false}
                 page={page}

@@ -15,9 +15,9 @@ const LandingPageCard = ({
   onClick,
 }: LandingPageCardProps) => {
   return (
-    <section className="w-full flex flex-col gap-4 rounded-md border border-background bg-white shadow-lg p-6 hover:shadow-2xl transition-all ease-in-out duration-300">
+    <section className="w-full mx-auto flex flex-col gap-4 rounded-md border border-background bg-white shadow-lg p-6 hover:shadow-2xl transition-all ease-in-out duration-300 max-[1200px]:w-[95%] max-[1100px]:w-[90%] max-[1000px]:w-[85%]">
       <article className="w-full mx-auto flex flex-col gap-4">
-        <h1 className="font-semibold text-center uppercase text-primary text-xl max-[1000px]:text-[50px] max-[900px]:text-[45px] max-[800px]:text-[40px] max-[600px]:text-[35px]">
+        <h1 className="font-semibold text-center uppercase text-primary text-xl max-[1000px]:text-[lg] max-[900px]:text-[md] max-[800px]:text-[md] max-[600px]:text-[16px]">
           {title}
         </h1>
         <p className="font-medium text-center text-[15px] text-slate-800 text-md max-[1000px]:text-[18px] max-[900px]:text-[17px] max-[800px]:text-[16px] max-[600px]:text-[15px">

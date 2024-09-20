@@ -7,7 +7,6 @@ type PublicLayoutProps = {
 };
 
 const PublicLayout = ({ children }: PublicLayoutProps) => {
-
   // STATE VARIABLES
   const [hideNavigation, setHideNavigation] = useState<boolean>(false);
 
@@ -15,19 +14,15 @@ const PublicLayout = ({ children }: PublicLayoutProps) => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (pathname === '/auth/login' || pathname === '/auth/register') {
-      setHideNavigation(true);
-    } else {
-      setHideNavigation(false);
-    }
+    setHideNavigation(
+      pathname === '/auth/login' || pathname === '/auth/register'
+    );
   }, [pathname]);
 
   return (
-    <main className="w-[100vw] min-h-[90vh] relative">
+    <main className="w-full min-h-[90vh] flex flex-col relative">
       <PublicNavbar hideActions={hideNavigation} />
-      <section className={`w-full h-full top-[10vh] absolute`}>
-        {children}
-      </section>
+      <section className={`w-full flex-grow pt-[10vh]`}>{children}</section>
     </main>
   );
 };

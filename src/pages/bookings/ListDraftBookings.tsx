@@ -6,7 +6,10 @@ import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
 import { bookingStatus } from '@/constants/bookings.constants';
-import { getBookingStatusColor, handleDownloadBookingConsent } from '@/helpers/booking.helper';
+import {
+  getBookingStatusColor,
+  handleDownloadBookingConsent,
+} from '@/helpers/booking.helper';
 import { capitalizeString, formatDate } from '@/helpers/strings.helper';
 import validateInputs from '@/helpers/validations.helper';
 import { useLazyFetchBookingsQuery } from '@/states/apiSlice';
@@ -186,7 +189,9 @@ const ListDraftBookings = () => {
                   e.preventDefault();
                   setSelectedBooking(row.original);
                   setConsentIsFetching(true);
-                  await handleDownloadBookingConsent({ booking: row?.original });
+                  await handleDownloadBookingConsent({
+                    booking: row?.original,
+                  });
                   setConsentIsFetching(false);
                 }}
                 className="text-[13px] p-2 rounded-md bg-primary text-white transition-all hover:scale-[1.01] flex items-center gap-1"
@@ -222,15 +227,13 @@ const ListDraftBookings = () => {
       }}
       heading={
         draftBookingsList?.length > 0 && bookingsIsSuccess
-          ? ' List of unfinished bookings/registrations'
+          ? 'List of unfinished bookings/registrations'
           : 'Find bookings/registrations in progress to complete'
       }
-      className="min-w-[60vw]"
+      className="min-w-[90vw] md:min-w-[60vw] !w-[90vw] md:!w-[60vw]"
     >
       <form
-        className={`flex flex-col gap-4 w-full ${
-          draftBookingsList?.length > 0 ? 'min-w-[55vw]' : 'min-w-[45vw]'
-        }`}
+        className={`flex flex-col gap-4 w-full min-w-[50vw]`}
         onSubmit={handleSubmit(onSubmit)}
       >
         <fieldset
@@ -374,13 +377,14 @@ const ListDraftBookings = () => {
             />
           </section>
         )}
-        <menu className="flex items-center gap3 justify-between">
+        <menu className="flex items-center gap-3 justify-between flex-wrap">
           <Button
             onClick={(e) => {
               e.preventDefault();
               dispatch(setDraftBookingsList([]));
               dispatch(setDraftBookingsModal(false));
             }}
+            className="w-full md:w-auto"
           >
             Cancel
           </Button>
@@ -398,11 +402,12 @@ const ListDraftBookings = () => {
                 });
                 dispatch(setDraftBookingsList([]));
               }}
+              className="w-full md:w-auto"
             >
               Search again
             </Button>
           ) : (
-            <Button submit primary>
+            <Button submit primary className="w-full md:w-auto">
               {bookingsIsFetching ? <Loader /> : 'Find Booking(s)'}
             </Button>
           )}

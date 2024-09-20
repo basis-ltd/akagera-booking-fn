@@ -9,20 +9,26 @@ type AdminLayoutProps = {
 };
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-
-  // STATE VARIABLES
-  const { isOpen: sidebarOpen } = useSelector((state: RootState) => state.sidebar);
+  const { isOpen: sidebarOpen } = useSelector(
+    (state: RootState) => state.sidebar
+  );
 
   return (
-    <main className="w-[100vw] relative">
+    <main className="w-full h-screen flex flex-col overflow-y-scroll">
       <Navbar />
-      <Sidebar />
-      <section
-        className={`h-full top-[10vh] absolute ${
-          sidebarOpen ? 'w-[80vw] left-[20vw]' : 'w-[95vw] left-[5vw]'
-        }`}
-      >
-        {children}
+
+      <section className="flex flex-1 absolute top-[10vh] w-full">
+        <Sidebar />
+
+        <section
+          className={`relative flex-1 transition-all duration-300 ease-in-out w-full ${
+            sidebarOpen
+              ? 'ml-[20vw] md:ml-[25vw] lg:ml-[20vw]'
+              : 'ml-[70px] md:ml-[70px]'
+          } p-4`}
+        >
+          {children}
+        </section>
       </section>
     </main>
   );

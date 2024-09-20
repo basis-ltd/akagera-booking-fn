@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import akageraLogo from '/public/akagera_logo.webp';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/states/store';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { User } from '@/types/models/user.types';
 import { capitalizeString } from '@/helpers/strings.helper';
@@ -67,7 +65,7 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
           }}
           className="h-12 w-12 flex items-center justify-center bg-gray-300 rounded-full text-black hover:text-primary cursor-pointer"
         >
-          <FontAwesomeIcon icon={faUser} />
+          <img src={user?.photo} />
         </Link>
         <NavbarDropdown isOpen={isOpen} user={user} />
       </menu>

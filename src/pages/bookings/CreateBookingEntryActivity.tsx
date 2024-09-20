@@ -150,7 +150,6 @@ const CreateBookingEntryActivity = () => {
       header: 'Residence',
       accessorKey: 'residence',
     },
-
     {
       header: 'Actions',
       accessorKey: 'actions',
@@ -216,14 +215,14 @@ const CreateBookingEntryActivity = () => {
   ];
 
   return (
-    <section className="w-full flex flex-col gap-3 pb-6">
-      <form className="flex flex-col gap-4">
-        <section className="flex flex-col gap-6 mt-4">
+    <section className="w-full flex flex-col gap-3 pb-6 max-w-[100vw]">
+      <form className="flex flex-col gap-4 w-full">
+        <section className="flex flex-col gap-6 mt-4 w-full">
           {/**
            * BOOKING PEOPLE DETAILS
            */}
           <menu className="w-full flex flex-col gap-3 min-h-[10vh]">
-            <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
+            <ul className="flex w-full items-center gap-3 justify-between flex-wrap max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
                 {booking?.type} people
               </h3>
@@ -251,33 +250,42 @@ const CreateBookingEntryActivity = () => {
               </figure>
             )}
             {bookingPeopleList?.length > 0 ? (
-              <Table
-                showFilter={false}
-                data={bookingPeopleList?.map((bookingPerson: BookingPerson) => {
-                  return {
-                    ...bookingPerson,
-                    gender: genderOptions?.find(
-                      (gender) => gender.value === bookingPerson?.gender
-                    )?.label,
-                    nationality: COUNTRIES?.find(
-                      (country) => country.code === bookingPerson?.nationality
-                    )?.name,
-                    residence: COUNTRIES?.find(
-                      (country) => country.code === bookingPerson?.residence
-                    )?.name,
-                    age: Number(
-                      moment().diff(bookingPerson?.dateOfBirth, 'years', false)
-                    ),
-                    numberOfDays: Number(
-                      moment(bookingPerson?.endDate).diff(
-                        bookingPerson?.startDate,
-                        'days'
-                      )
-                    ),
-                  };
-                })}
-                columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
-              />
+              <section className="w-full flex flex-col gap-2">
+                <Table
+                  showFilter={false}
+                  data={bookingPeopleList?.map(
+                    (bookingPerson: BookingPerson) => {
+                      return {
+                        ...bookingPerson,
+                        gender: genderOptions?.find(
+                          (gender) => gender.value === bookingPerson?.gender
+                        )?.label,
+                        nationality: COUNTRIES?.find(
+                          (country) =>
+                            country.code === bookingPerson?.nationality
+                        )?.name,
+                        residence: COUNTRIES?.find(
+                          (country) => country.code === bookingPerson?.residence
+                        )?.name,
+                        age: Number(
+                          moment().diff(
+                            bookingPerson?.dateOfBirth,
+                            'years',
+                            false
+                          )
+                        ),
+                        numberOfDays: Number(
+                          moment(bookingPerson?.endDate).diff(
+                            bookingPerson?.startDate,
+                            'days'
+                          )
+                        ),
+                      };
+                    }
+                  )}
+                  columns={bookingPeopleColumns as ColumnDef<BookingPerson>[]}
+                />
+              </section>
             ) : (
               fetchBookingPeopleIsSuccess && (
                 <figure className="min-h-[10vh] flex items-center justify-center">
@@ -292,7 +300,7 @@ const CreateBookingEntryActivity = () => {
            * BOOKING VEHICLES DETAILS
            */}
           <menu className="w-full flex flex-col gap-3 min-h-[10vh] mb-4">
-            <ul className="flex items-center gap-3 justify-between max-[600px]:flex-col">
+            <ul className="flex items-center gap-3 justify-between flex-wrap max-[600px]:flex-col">
               <h3 className="text-primary uppercase text-lg font-bold">
                 {booking?.type} vehicles
               </h3>
@@ -353,7 +361,7 @@ const CreateBookingEntryActivity = () => {
             )}
           </menu>
         </section>
-        <menu className="flex items-center gap-3 justify-between w-full">
+        <menu className="flex items-center gap-3 justify-between w-full flex-wrap">
           <Button
             onClick={(e) => {
               e.preventDefault();

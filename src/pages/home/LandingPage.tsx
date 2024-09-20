@@ -35,7 +35,7 @@ const LandingPage = () => {
               Choose one of the options below to get started!
             </p>
           </article>
-          <ul className="grid grid-cols-3 gap-10 my-5 items-center w-[80%] mx-auto">
+          <ul className="grid grid-cols-3 gap-10 my-5 items-center justify-center mx-auto w-[80%] max-[1200px]:w-[85%] max-[1100px]:w-[90%] max-[1000px]:w-[95%] max-[800px]:grid-cols-2 max-[600px]:grid-cols-1">
             <LandingPageCard
               title="Book activities"
               description="Register for park visit and book your favorite activities ahead of time"

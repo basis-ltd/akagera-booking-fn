@@ -108,17 +108,17 @@ const CreateBookingPerson = () => {
       className="min-w-[60%]"
     >
       <form
-        className="flex flex-col gap-4 w-full"
+        className="flex flex-col gap-4 w-full min-w-[50vw] max-[600px]:min-w-[80vw]"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <fieldset className="grid grid-cols-2 gap-4">
+        <fieldset className="grid grid-cols-2 gap-4 w-full max-[600px]:grid-cols-1">
           <Controller
             name="name"
             control={control}
             rules={{ required: 'Name is required' }}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Input
                     placeholder="Enter full name"
                     label="Full names"
@@ -139,7 +139,7 @@ const CreateBookingPerson = () => {
             defaultValue={'RW'}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Select
                     {...field}
                     label="Nationality"
@@ -163,7 +163,7 @@ const CreateBookingPerson = () => {
             defaultValue={'RW'}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Select
                     {...field}
                     label="Residence"
@@ -186,7 +186,7 @@ const CreateBookingPerson = () => {
             rules={{ required: 'Age is required' }}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Input
                     label="Age"
                     placeholder='Enter age "e.g. 25"'
@@ -206,7 +206,7 @@ const CreateBookingPerson = () => {
             rules={{ required: 'Select sex' }}
             render={({ field }) => {
               return (
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 w-full">
                   <Select
                     label="Sex"
                     placeholder="Select sex"

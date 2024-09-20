@@ -201,10 +201,10 @@ const AddBoatTripPrivateActivity = () => {
       ) : existingBookingActivitiesList?.length <= 0 &&
         existingBookingActivitiesIsSuccess ? (
         <form
-          className="w-full flex flex-col gap-4"
+          className="w-full flex flex-col gap-4 max-[600px]:min-w-[80vw]"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <fieldset className="grid grid-cols-2 gap-5 w-full">
+          <fieldset className="grid grid-cols-2 gap-5 w-full max-[600px]:grid-cols-1">
             <Controller
               name="startDate"
               control={control}

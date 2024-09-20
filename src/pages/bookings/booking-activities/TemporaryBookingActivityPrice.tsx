@@ -1,8 +1,9 @@
-import { formatCurrency } from "@/helpers/strings.helper";
+import { formatCurrency } from '@/helpers/strings.helper';
+import { ReactNode } from 'react';
 
 interface TemporaryBookingActivityPriceProps {
   defaultRate?: number;
-  disclaimer?: string;
+  disclaimer?: string | ReactNode;
   bookingActivity?: {
     numberOfSeats?: number;
     numberOfAdults: number;
@@ -17,7 +18,7 @@ const TemporaryBookingActivityPrice = ({
   disclaimer,
 }: TemporaryBookingActivityPriceProps) => {
   return (
-    <aside
+    <article
       className="w-full p-2 rounded-md shadow-md flex flex-col items-start"
       aria-label="Booking price information"
     >
@@ -38,7 +39,7 @@ const TemporaryBookingActivityPrice = ({
           </p>
         </section>
       )}
-    </aside>
+    </article>
   );
 };
 

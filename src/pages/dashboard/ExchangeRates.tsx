@@ -106,12 +106,12 @@ const ExchangeRates = () => {
 
   return (
     <AdminLayout>
-      <main className="w-[95%] h-[90vh] mx-auto p-6 flex flex-col gap-4">
+      <main className="w-full sm:w-[95%] h-full sm:h-[90vh] mx-auto p-4 sm:p-6 flex flex-col gap-4">
         <nav className="w-full flex items-center justify-center">
           <CustomBreadcrumb navigationLinks={navigationLinks} />
         </nav>
         <section className="w-full h-full items-center justify-center flex flex-col gap-4">
-          <menu className="shadow-xl py-12 w-[70%] mx-auto rounded-md p-8 flex flex-col gap-5">
+          <menu className="shadow-xl py-8 sm:py-12 w-full sm:w-[90%] md:w-[80%] lg:w-[70%] mx-auto rounded-md p-4 sm:p-8 flex flex-col gap-5">
             <h3 className="uppercase text-primary font-semibold text-lg text-center">
               Update exchange rates
             </h3>
@@ -122,7 +122,7 @@ const ExchangeRates = () => {
               </figure>
             ) : (
               <form
-                className="w-[35vw] mx-auto flex flex-col gap-3"
+                className="w-full sm:w-[90%] md:w-[70%] lg:w-[50%] xl:w-[35vw] mx-auto flex flex-col gap-3"
                 onSubmit={handleSubmit(onSubmit)}
               >
                 <fieldset className="w-full grid grid-cols-1 gap-5">
@@ -150,7 +150,7 @@ const ExchangeRates = () => {
                     }}
                   />
                 </fieldset>
-                <Button primary submit>
+                <Button primary submit className="w-full">
                   {setUsdRateIsLoading ? <Loader /> : 'Update'}
                 </Button>
               </form>

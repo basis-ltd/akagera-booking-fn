@@ -22,7 +22,6 @@ import { ErrorResponse, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ViewBookingActivites = () => {
-  // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { bookingActivitiesList } = useSelector(
     (state: RootState) => state.bookingActivity
@@ -33,16 +32,10 @@ const ViewBookingActivites = () => {
     moment().format('YYYY-MM-DD')
   );
 
-  // REACT HOOK FORM
   const { control } = useForm();
-
-  // NAVIGATION
   const navigate = useNavigate();
-
-  // INITIALIZE LOCALIZER
   const localizer = momentLocalizer(moment);
 
-  // INITIALIZE FETCH BOOKING ACTIVITIES
   const [
     fetchBookingActivities,
     {
@@ -54,7 +47,6 @@ const ViewBookingActivites = () => {
     },
   ] = useLazyFetchBookingActivitiesQuery();
 
-  // FETCH BOOKING ACTIVITIES
   useEffect(() => {
     fetchBookingActivities({
       size: 100,
@@ -64,7 +56,6 @@ const ViewBookingActivites = () => {
     });
   }, [activityId, fetchBookingActivities, startTime]);
 
-  // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
   useEffect(() => {
     if (bookingActivitiesIsError) {
       if ((bookingActivitiesError as ErrorResponse)?.status === 500) {
@@ -85,7 +76,6 @@ const ViewBookingActivites = () => {
     dispatch,
   ]);
 
-  // INITIALIZE FETCH ACTIVITIES QUERY
   const [
     fetchActivities,
     {
@@ -97,12 +87,10 @@ const ViewBookingActivites = () => {
     },
   ] = useLazyFetchActivitiesQuery();
 
-  // FETCH ACTIVITIES
   useEffect(() => {
     fetchActivities({ size: 100, page: 0 });
   }, [fetchActivities]);
 
-  // HANDLE FETCH ACTIVITIES RESPONSE
   useEffect(() => {
     if (activitiesIsError) {
       const errorResponse =
@@ -132,7 +120,6 @@ const ViewBookingActivites = () => {
     dispatch,
   ]);
 
-  // CUSTOMIZE EVENT PROPAGATION
   const eventStyleGetter = (event: BookingActivity) => {
     let backgroundColor = '#036124';
     switch (event?.booking?.status) {
@@ -172,8 +159,8 @@ const ViewBookingActivites = () => {
 
   return (
     <AdminLayout>
-      <main className="w-full flex flex-col gap-5 p-6">
-        <section className="grid grid-cols-4 items-start gap-4">
+      <main className="w-full flex flex-col gap-5 p-4 md:p-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
           <Controller
             name="startDate"
             defaultValue={moment().format('YYYY-MM-DD')}
@@ -182,7 +169,7 @@ const ViewBookingActivites = () => {
               return (
                 <label className="flex flex-col gap-1 w-full">
                   <Input
-                    className="w-fit"
+                    className="w-full"
                     type="date"
                     placeholder="Select day"
                     {...field}
@@ -249,34 +236,37 @@ const ViewBookingActivites = () => {
             <Loader className="text-primary" />
           </figure>
         ) : bookingActivitiesIsSuccess ? (
-          <section className="h-[70vh] w-full flex flex-col gap-4">
+          <section className="h-[65vh] w-full flex flex-col gap-4 overflow-hidden">
             <p className="uppercase text-primary font-semibold">
               {bookingActivitiesList?.length} activities scheduled{' '}
               {startTime ? moment(startTime).format('dddd, MMMM Do YYYY') : ''}
             </p>
-            <Calendar
-              defaultView="week"
-              eventPropGetter={eventStyleGetter}
-              localizer={localizer}
-              events={bookingActivitiesList
-                ?.filter((bookingActivity: BookingActivity) =>
-                  ['pending', 'confirmed', 'payment_received'].includes(
-                    bookingActivity?.booking?.status
+            <div className="h-full w-full">
+              <Calendar
+                defaultView="week"
+                eventPropGetter={eventStyleGetter}
+                localizer={localizer}
+                events={bookingActivitiesList
+                  ?.filter((bookingActivity: BookingActivity) =>
+                    ['pending', 'confirmed', 'payment_received'].includes(
+                      bookingActivity?.booking?.status
+                    )
                   )
-                )
-                ?.map((bookingActivity: BookingActivity) => {
-                  return {
-                    ...bookingActivity,
-                    title: bookingActivity?.activity?.name,
-                    start: new Date(bookingActivity?.startTime),
-                    end: new Date(String(bookingActivity?.endTime)),
-                    booking: bookingActivity?.booking,
-                  };
-                })}
-              onSelectEvent={(e) => {
-                navigate(`/bookings/${e?.booking?.id}/details`);
-              }}
-            />
+                  ?.map((bookingActivity: BookingActivity) => {
+                    return {
+                      ...bookingActivity,
+                      title: bookingActivity?.activity?.name,
+                      start: new Date(bookingActivity?.startTime),
+                      end: new Date(String(bookingActivity?.endTime)),
+                      booking: bookingActivity?.booking,
+                    };
+                  })}
+                onSelectEvent={(e) => {
+                  navigate(`/bookings/${e?.booking?.id}/details`);
+                }}
+                style={{ height: '100%', width: '100%' }}
+              />
+            </div>
           </section>
         ) : (
           <figure className="w-full flex justify-center items-center min-h-[40vh]">

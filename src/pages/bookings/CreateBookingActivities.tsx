@@ -16,10 +16,7 @@ import Loader from '../../components/inputs/Loader';
 import { Service } from '@/types/models/service.types';
 import CreateBookingEntryActivity from './CreateBookingEntryActivity';
 import CreateBookingActivitiesActivity from './CreateBookingActivitiesActivity';
-import {
-  setBooking,
-  setBookingAmount,
-} from '@/states/features/bookingSlice';
+import { setBooking, setBookingAmount } from '@/states/features/bookingSlice';
 import { formatCurrency, formatDate } from '@/helpers/strings.helper';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
 import SelectBookingActivity from './SelectBookingActivity';
@@ -31,10 +28,9 @@ const CreateBookingActivities = () => {
   const { servicesList, selectedService } = useSelector(
     (state: RootState) => state.service
   );
-  const {
-    booking,
-    bookingAmount,
-  } = useSelector((state: RootState) => state.booking);
+  const { booking, bookingAmount } = useSelector(
+    (state: RootState) => state.booking
+  );
   const { bookingVehiclesList } = useSelector(
     (state: RootState) => state.bookingVehicle
   );
@@ -207,8 +203,9 @@ const CreateBookingActivities = () => {
 
   return (
     <PublicLayout>
-      <main className="w-[100vw] flex flex-col gap-6 p-4 pt-8 min-h-[90vh]">
-        <h1 className="text-primary font-medium uppercase text-lg text-center">
+      <main className="flex flex-col gap-6 p-4 pt-8 min-h-[90vh] w-full">
+        <article className='w-full flex flex-col gap-5'>
+        <h1 className="text-primary font-medium uppercase text-lg text-center w-full text-wrap max-[1000px]:text-md">
           Complete {booking?.type} for{' '}
           {bookingDetailsIsSuccess ? booking?.name : '...'} scheduled on{' '}
           {bookingDetailsIsSuccess
@@ -217,15 +214,16 @@ const CreateBookingActivities = () => {
               )}`
             : '...'}
         </h1>
+        <h1 className="text-lg text-center font-medium text-wrap w-full max-[1000px]:w-fit">
+          Select a service to view available activities, schedules, and their
+          respective prices.
+        </h1>
+        </article>
         {bookingDetailsIsSuccess && servicesIsSuccess && (
-          <form className="flex flex-col gap-4 w-[80%] mx-auto">
+          <form className="flex flex-col gap-4 w-full max-w-[85%] mx-auto">
             <fieldset className="flex flex-col gap-3 w-full">
-              <section className="flex flex-col gap-4 w-full">
-                <h1 className="text-lg text-center font-medium">
-                  Select a service to view available activities, schedules, and
-                  their respective prices.
-                </h1>
-                <menu className="flex justify-between items-center w-full gap-4">
+              <section className="flex flex-col gap-4 w-full overflow-x-auto">
+                <menu className="flex flex-wrap justify-between items-center w-full gap-4 max-[800px]:flex-col">
                   {servicesList.map((service) => {
                     return (
                       selectedService.id === service.id && (

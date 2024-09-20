@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,18 +16,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import {
-  Table as DataTable,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-
 import { DataTablePagination } from './TablePagination';
 import TableToolbar from './TableToolbar';
-import { useState } from 'react';
 import { UnknownAction } from '@reduxjs/toolkit';
 
 interface DataTableProps<TData, TValue> {
@@ -90,113 +81,117 @@ export default function Table<TData, TValue>({
   });
 
   return (
-    <section className='w-full overflow-x-scroll'>
-      <table className="space-y-4 w-full">
+    <section className="w-full flex flex-col gap-5" aria-label="Data Table">
       {showFilter && (
-        <TableToolbar
-          table={table as unknown as TableType<object>}
-          columns={columns as ColumnDef<object>[]}
-          showExport={showExport}
-        />
+        <header>
+          <TableToolbar
+            table={table as unknown as TableType<object>}
+            columns={columns as ColumnDef<object>[]}
+            showExport={showExport}
+          />
+        </header>
       )}
-      <section className="rounded-md border">
-        <DataTable className="!h-[20vh] !max-h-[20vh]">
-          <TableHeader className="px-0">
+      <main className="overflow-x-auto">
+        <table className="min-w-full border-collapse table-auto">
+          <caption className="sr-only">Data Table</caption>
+          <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      className="text-[14px] text-black p-4"
-                      key={header.id}
-                      colSpan={header.colSpan}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => {
-                return (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                    className={`px-2 py-2 ${
-                      rowClickHandler ? 'cursor-pointer' : ''
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      rowClickHandler &&
-                        row?.id !== 'no' &&
-                        rowClickHandler(
-                          row?.original as Row<TData>['original']
-                        );
-                    }}
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    className="py-3.5 px-4 text-left text-sm font-semibold text-gray-900 border-b"
+                    key={header.id}
+                    scope="col"
                   >
-                    {row.getVisibleCells().map((cell) => {
-                      const preventAction = [
-                        'no',
-                        'action',
-                        'checkbox',
-                        'actions',
-                      ].includes(cell.column.id || cell?.column?.accessorKey);
-                      return (
-                        <TableCell
-                          className={`${
-                            preventAction ? '!cursor-auto' : ''
-                          } text-[13px] px-4 py-2`}
-                          key={cell.id}
-                          onClick={(e) => {
-                            if (preventAction) {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={`hover:bg-gray-100 ${
+                    rowClickHandler ? 'cursor-pointer' : ''
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    rowClickHandler &&
+                      row?.id !== 'no' &&
+                      rowClickHandler(row?.original as Row<TData>['original']);
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const preventAction = [
+                      'no',
+                      'action',
+                      'checkbox',
+                      'actions',
+                    ].includes(
+                      cell.column.id ||
+                        (
+                          cell as unknown as {
+                            column: { accessorKey: string };
+                          }
+                        )?.column?.accessorKey
+                    );
+                    return (
+                      <td
+                        className={`${
+                          preventAction ? '!cursor-auto' : ''
+                        } whitespace-nowrap py-4 px-4 text-sm text-gray-900 border-b`}
+                        key={cell.id}
+                        onClick={(e) => {
+                          if (preventAction) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
             ) : (
-              <TableRow>
-                <TableCell
+              <tr>
+                <td
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="py-4 text-center text-sm text-gray-500"
                 >
                   No results.
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             )}
-          </TableBody>
-        </DataTable>
-      </section>
+          </tbody>
+        </table>
+      </main>
       {showPagination && (
-        <DataTablePagination
-          page={page}
-          size={size}
-          totalCount={totalCount}
-          totalPages={totalPages}
-          table={table}
-          setPage={setPage}
-          setSize={setSize}
-        />
+        <footer>
+          <DataTablePagination
+            page={page}
+            size={size}
+            totalCount={totalCount}
+            totalPages={totalPages}
+            table={table}
+            setPage={setPage}
+            setSize={setSize}
+          />
+        </footer>
       )}
-    </table>
     </section>
   );
 }

@@ -184,7 +184,7 @@ const BookingConsent = () => {
           </figure>
         ) : (
           <menu className="flex w-[80%] mx-auto flex-col gap-4">
-            <nav className="w-full flex items-center gap-3 justify-between">
+            <nav className="w-full flex items-center gap-3 justify-between max-[600px]:flex-col">
               <CustomBreadcrumb navigationLinks={navigationLinks} />
               <Button
                 primary

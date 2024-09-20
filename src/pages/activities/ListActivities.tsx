@@ -4,7 +4,10 @@ import Table from '@/components/table/Table';
 import { activitiesColumns } from '@/constants/activity.constants';
 import AdminLayout from '@/containers/AdminLayout';
 import { useLazyFetchActivitiesQuery } from '@/states/apiSlice';
-import { setActivitiesList, setCreateActivityModal } from '@/states/features/activitySlice';
+import {
+  setActivitiesList,
+  setCreateActivityModal,
+} from '@/states/features/activitySlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { Activity } from '@/types/models/activity.types';
 import { faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -48,15 +51,19 @@ const ListActivities = () => {
         'An error occurred while fetching activities. Refresh page and try again.';
       toast.error(errorResponse);
     } else if (activitiesIsSuccess) {
-      dispatch(setActivitiesList(activitiesData?.data?.rows?.map((activity: Activity) => {
-        return {
-          ...activity,
-          description:
-            activity?.description !== 'NULL' ? activity?.description : '',
-          disclaimer:
-            activity?.disclaimer !== 'NULL' ? activity?.disclaimer : '',
-        }
-      })));
+      dispatch(
+        setActivitiesList(
+          activitiesData?.data?.rows?.map((activity: Activity) => {
+            return {
+              ...activity,
+              description:
+                activity?.description !== 'NULL' ? activity?.description : '',
+              disclaimer:
+                activity?.disclaimer !== 'NULL' ? activity?.disclaimer : '',
+            };
+          })
+        )
+      );
     }
   }, [
     activitiesData,
@@ -81,14 +88,14 @@ const ListActivities = () => {
       }) => {
         return (
           <Button
-            className="w-fit !py-[4px]"
+            className="w-full sm:w-fit !py-[4px]"
             primary
             onClick={(e) => {
               e.preventDefault();
               navigate(`${row?.original?.id}`);
             }}
           >
-            <menu className="flex items-center gap-2 text-[13px]">
+            <menu className="flex items-center justify-center gap-2 text-[13px]">
               <FontAwesomeIcon icon={faPenToSquare} className="text-[13px]" />
               Manage
             </menu>
@@ -100,30 +107,31 @@ const ListActivities = () => {
 
   return (
     <AdminLayout>
-      <main className="flex flex-col gap-4 p-6 w-[95%] mx-auto">
-        <menu className="w-full flex items-center gap-3 justify-between">
+      <main className="flex flex-col gap-4 p-4 sm:p-6 w-full sm:w-[95%] mx-auto">
+        <menu className="w-full flex items-center flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
           <h1 className="text-primary font-semibold text-lg uppercase">
             Activities
           </h1>
           <Button
             primary
+            className="w-full sm:w-auto"
             onClick={(e) => {
               e.preventDefault();
               dispatch(setCreateActivityModal(true));
             }}
           >
-            <menu className="flex items-center gap-2">
+            <menu className="flex items-center justify-center gap-2">
               <FontAwesomeIcon className="text-[13px]" icon={faPlus} />
               <p className="text-[13px]">Add Activity</p>
             </menu>
           </Button>
         </menu>
         {activitiesIsFetching ? (
-          <figure className="w-full flex items-center justify-center min-h-[70vh]">
+          <figure className="w-full flex items-center justify-center min-h-[50vh] sm:min-h-[70vh]">
             <Loader className="text-primary" />
           </figure>
         ) : (
-          <section className="w-full flex flex-col gap-6">
+          <section className="w-full flex flex-col gap-6 overflow-x-auto">
             <Table
               size={100}
               showFilter={false}

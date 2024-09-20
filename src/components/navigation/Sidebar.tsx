@@ -21,16 +21,12 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
-  // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { isOpen } = useSelector((state: RootState) => state.sidebar);
   const { user } = useSelector((state: RootState) => state.user);
   const [settingsIsOpen, setSettingsIsOpen] = useState(false);
-
-  // LOCATION
   const { pathname } = useLocation();
 
-  // SIDEBAR LINKS
   const sidebarLinks = [
     {
       label: 'Dashboard',
@@ -83,19 +79,24 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`h-[100vh] fixed ${
-        isOpen ? 'w-[20vw]' : 'w-[5vw]'
-      } bg-gray-100 transition-all ease-in-out duration-300 z-50 flex flex-col gap-6 py-4`}
+      className={`fixed top-0 left-0 h-full bg-gray-100 ease-in-out duration-300 z-[10000] flex flex-col gap-6 py-4 overflow-y-auto ${
+        isOpen
+          ? 'w-[60vw] md:w-[40vw] lg:w-[20vw] max-w-full'
+          : 'w-[70px] overflow-x-hidden'
+      }`}
     >
+      {/* Logo and Toggle Button */}
       <figure
-        className={`flex items-center gap-3 justify-between pr-4 p-4 ${
-          !isOpen && 'flex-col pr-0 gap-6'
+        className={`flex items-center gap-3 justify-between px-4 py-4 ${
+          !isOpen && 'flex-col gap-6'
         }`}
       >
         <Link to={`/`}>
           <img
             src={akageraLogo}
-            className={`${isOpen ? 'w-[50%]' : 'w-full'} h-auto`}
+            className={`transition-all ${
+              isOpen ? 'w-[50%] sm:w-[40%] md:w-[30%]' : 'w-[40px]'
+            } h-auto`}
           />
         </Link>
         <FontAwesomeIcon
@@ -107,16 +108,20 @@ const Sidebar = () => {
           }}
         />
       </figure>
-      <menu className="flex flex-col gap-2">
+
+      {/* Sidebar Links */}
+      <menu className="flex flex-col gap-2 w-full">
         {sidebarLinks.map((link, index) => {
           if (link?.role === 'admin' && user?.role !== 'admin') return null;
           return (
             <React.Fragment key={index}>
               <Link
                 to={link.path}
-                className={`${isOpen ? 'justify-start' : 'justify-center'} ${
-                  pathname === link?.path && 'bg-primary text-white'
-                } flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full`}
+                className={`${
+                  isOpen ? 'justify-start' : 'justify-center'
+                } flex items-center py-3 gap-3 px-4 w-full text-left hover:bg-primary hover:text-white transition-all ease-in-out ${
+                  pathname === link?.path ? 'bg-primary text-white' : ''
+                }`}
                 onClick={(e) => {
                   if (link.subcategories) {
                     e.preventDefault();
@@ -125,7 +130,7 @@ const Sidebar = () => {
                 }}
               >
                 <FontAwesomeIcon icon={link?.icon} />
-                <p className={`text-[14px] ${!isOpen && 'hidden'}`}>
+                <p className={`text-sm ${!isOpen && 'hidden'}`}>
                   {link?.label}
                 </p>
                 {link.subcategories && isOpen && (
@@ -135,18 +140,19 @@ const Sidebar = () => {
                   />
                 )}
               </Link>
+
               {link.subcategories && isOpen && settingsIsOpen && (
-                <ul className="px-2">
+                <ul className="w-[90%] mx-auto space-y-1">
                   {link.subcategories.map((sub, subIndex) => (
                     <li key={subIndex}>
                       <Link
                         to={sub.path}
-                        className={`flex items-center gap-3 p-4 px-8 hover:bg-primary hover:text-white transition-all ease-in-out duration-300 w-full ${
-                          pathname === sub.path && 'bg-primary text-white'
+                        className={`flex items-center gap-3 p-2 hover:bg-primary hover:text-white ease-in-out ${
+                          pathname === sub.path ? 'bg-primary text-white' : ''
                         }`}
                       >
                         <FontAwesomeIcon icon={sub.icon} />
-                        <p className="text-[14px]">{sub.label}</p>
+                        <p className="text-sm">{sub.label}</p>
                       </Link>
                     </li>
                   ))}

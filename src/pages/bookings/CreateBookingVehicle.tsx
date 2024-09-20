@@ -102,10 +102,10 @@ const CreateBookingVehicle = () => {
       className='!min-w-[60vw]'
     >
       <form
-        className="flex flex-col gap-4 w-full min-w-[50vw]"
+        className="flex flex-col gap-4 w-full min-w-[50vw] max-[600px]:min-w-[80vw]"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <fieldset className="grid grid-cols-2 gap-4 w-full">
+        <fieldset className="grid grid-cols-2 gap-4 w-full max-[600px]:grid-cols-1">
           <Controller
             name="vehicleType"
             control={control}

@@ -107,7 +107,7 @@ const CreateBooking = () => {
       headingClassName="text-xl"
       className='min-w-[65vw]'
     >
-      <section className="flex flex-col gap-6 w-[60vw] max-[500px]:w-[80vw]">
+      <section className="flex flex-col items-center gap-6 w-[60vw] max-[700px]:w-[75vw] max-[500px]:w-[80vw]">
         {booking?.type === 'booking' ? (
           <h3 className="text-primary font-medium text-md max-[600px]:text-[15px] max-[600px]:text-center ">
             Add primary information that will help us accomodate for your

@@ -29,7 +29,6 @@ import CustomTooltip from '@/components/inputs/CustomTooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const ViewBookings = () => {
-  // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
   const { bookingsList, page, size, totalCount, totalPages } = useSelector(
     (state: RootState) => state.booking
@@ -40,10 +39,8 @@ const ViewBookings = () => {
     moment().format('YYYY-MM-DD')
   );
 
-  // REACT HOOK FORM
   const { control, setValue } = useForm();
 
-  // INITIALIZE FETCH BOOKINGS QUERY
   const [
     fetchBookings,
     {
@@ -55,7 +52,6 @@ const ViewBookings = () => {
     },
   ] = useLazyFetchBookingsQuery();
 
-  // FETCH BOOKINGS
   useEffect(() => {
     fetchBookings({
       size,
@@ -66,7 +62,6 @@ const ViewBookings = () => {
     });
   }, [fetchBookings, page, size, startDate, status, type]);
 
-  // HANDLE FETCH BOOKINGS RESPONSE
   useEffect(() => {
     if (bookingsIsError) {
       dispatch(setBookingsList([]));
@@ -92,7 +87,6 @@ const ViewBookings = () => {
     setValue('startDate', moment().format());
   }, [setValue]);
 
-  // BOOKING COLUMNS
   const bookingExtendedColumns = [
     {
       header: 'Actions',
@@ -141,7 +135,7 @@ const ViewBookings = () => {
           {type ? `${capitalizeString(type)}s` : 'Bookings and Registrations'}{' '}
           scheduled for {startDate || 'the near future'}
         </h1>
-        <section className="grid grid-cols-4 items-start gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-start">
           <Controller
             name="startDate"
             control={control}
@@ -149,7 +143,7 @@ const ViewBookings = () => {
               return (
                 <label className="flex flex-col gap-1 w-full">
                   <Input
-                    className="w-fit"
+                    className="w-full"
                     type="date"
                     placeholder="Select day"
                     {...field}
@@ -286,7 +280,8 @@ const ViewBookings = () => {
               setSize={setSize}
               showFilter={false}
               data={bookingsList?.filter(
-                (booking) => !['cancelled', 'in_progress'].includes(booking?.status)
+                (booking) =>
+                  !['cancelled', 'in_progress'].includes(booking?.status)
               )}
               columns={bookingExtendedColumns}
             />

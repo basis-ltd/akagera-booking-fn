@@ -448,8 +448,8 @@ const SelectBookingActivity = () => {
         </figure>
       ) : existingBookingActivitiesList?.length <= 0 &&
         existingBookingActivitiesIsSuccess ? (
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-          <fieldset className="grid grid-cols-2 gap-2 w-full">
+        <form className="flex flex-col gap-3 w-full max-[600px]:min-w-[80vw]" onSubmit={handleSubmit(onSubmit)}>
+          <fieldset className="grid grid-cols-2 gap-2 w-full max-[600px]:grid-cols-1">
             <Controller
               name="startDate"
               control={control}
