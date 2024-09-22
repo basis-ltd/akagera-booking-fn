@@ -34,6 +34,7 @@ import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
 
 const AddCampingActivities = () => {
   // STATE VARIABLES
@@ -81,7 +82,8 @@ const AddCampingActivities = () => {
     setError,
   } = useForm();
 
-  const { startDate } = watch();
+  const { startDate, numberOfAdults, numberOfChildren, numberOfNights } =
+    watch();
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -368,6 +370,9 @@ const AddCampingActivities = () => {
             <Controller
               name="numberOfNights"
               control={control}
+              defaultValue={
+                moment(booking?.endDate).diff(booking?.startDate, 'days') || 1
+              }
               rules={{
                 required: 'Enter number of nights',
                 validate: (value) => {
@@ -450,6 +455,11 @@ const AddCampingActivities = () => {
               )}
             </menu>
           )}
+          <TemporaryBookingActivityPrice
+            numberOfAdults={numberOfAdults}
+            numberOfChildren={numberOfChildren}
+            numberOfSeats={numberOfNights}
+          />
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button
               onClick={(e) => {

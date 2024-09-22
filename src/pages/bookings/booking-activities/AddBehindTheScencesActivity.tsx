@@ -415,17 +415,11 @@ const AddBehindTheScencesActivity = () => {
             </menu>
           )}
           <TempBookingActivityPrice
-            bookingActivity={{
-              numberOfAdults: Number(numberOfAdults),
-              numberOfChildren: Number(numberOfChildren),
-              startTime: bookingActivity?.startTime as Date,
-              endTime: bookingActivity?.endTime as Date,
-            }}
             defaultRate={calculateBehindTheScenesPrice({
               numberOfAdults: Number(numberOfAdults) || 0,
               numberOfChildren: Number(numberOfChildren) || 0,
             })}
-            disclaimer={'This is the default rate for this activity.'}
+            disclaimer={selectedActivity?.disclaimer}
           />
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button

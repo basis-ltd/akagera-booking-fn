@@ -31,6 +31,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
 
 const AddBoatTripMorningDayActivity = () => {
   // STATE VARIABLES
@@ -169,7 +170,12 @@ const AddBoatTripMorningDayActivity = () => {
         })
       );
     }
-  }, [booking?.id, dispatch, selectedActivity?.id, addBoatTripMorningDayActivityModal]);
+  }, [
+    booking?.id,
+    dispatch,
+    selectedActivity?.id,
+    addBoatTripMorningDayActivityModal,
+  ]);
 
   // VALIDATE PARTICIPANTS AGAINST REMAINING SEATS
   useEffect(() => {
@@ -396,12 +402,14 @@ const AddBoatTripMorningDayActivity = () => {
                 />
               )}
               {errors?.remainingSeats && (
-                <InputErrorMessage
-                  message={errors?.remainingSeats?.message}
-                />
+                <InputErrorMessage message={errors?.remainingSeats?.message} />
               )}
             </menu>
           )}
+          <TemporaryBookingActivityPrice
+            numberOfAdults={numberOfAdults}
+            numberOfChildren={numberOfChildren}
+          />
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button
               onClick={(e) => {

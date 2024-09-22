@@ -38,7 +38,7 @@ import {
   calculateRemainingSeatsThunk,
   setRemainingSeats,
 } from '@/states/features/activityScheduleSlice';
-import { calculateActivityPrice } from '@/helpers/booking.helper';
+import TemporaryBookingActivityPrice from './booking-activities/TemporaryBookingActivityPrice';
 
 const SelectBookingActivity = () => {
   // STATE VARIABLES
@@ -74,7 +74,6 @@ const SelectBookingActivity = () => {
     useState<string>('seats');
   const [minNumberOfSeatsDisclaimer, setMinNumberOfSeatsDisclaimer] =
     useState<string>('');
-    const [estimatedCost, setEstimatedCost] = useState<number>(0);
 
   // REACT HOOK FORM
   const {
@@ -197,10 +196,10 @@ const SelectBookingActivity = () => {
         : selectedActivity?.name
             ?.toUpperCase()
             ?.includes('BEHIND THE SCENES TOUR')
-        ? calculateBehindTheScenesPrice(
-            Number(data?.numberOfAdults) || 0,
-            Number(data?.numberOfChildren) || 0
-          )
+        ? calculateBehindTheScenesPrice({
+            numberOfAdults: Number(data?.numberOfAdults) || 0,
+            numberOfChildren: Number(data?.numberOfChildren) || 0,
+          })
         : null,
     });
   };
@@ -407,17 +406,6 @@ const SelectBookingActivity = () => {
     }
   }, [selectedActivity?.name, setValue]);
 
-  // CALCULATE ESTIMATED COST
-  useEffect(() => {
-    setEstimatedCost(
-      calculateActivityPrice({
-        numberOfAdults: Number(numberOfAdults),
-        numberOfChildren: Number(numberOfChildren),
-        numberOfSeats: Number(numberOfSeats),
-      })
-    )
-  }, [watch, numberOfAdults, numberOfChildren, numberOfParticipants, numberOfSeats]);
-
   return (
     <Modal
       isOpen={selectBookingActivityModal}
@@ -448,7 +436,10 @@ const SelectBookingActivity = () => {
         </figure>
       ) : existingBookingActivitiesList?.length <= 0 &&
         existingBookingActivitiesIsSuccess ? (
-        <form className="flex flex-col gap-3 w-full max-[600px]:min-w-[80vw]" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="flex flex-col gap-3 w-full max-[600px]:min-w-[80vw]"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <fieldset className="grid grid-cols-2 gap-2 w-full max-[600px]:grid-cols-1">
             <Controller
               name="startDate"
@@ -769,6 +760,11 @@ const SelectBookingActivity = () => {
                               };
                             }
                           )}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            clearErrors('numberOfParticipants');
+                            clearErrors('participantsExceeded');
+                          }}
                         />
                         {errors?.defaultRate && (
                           <InputErrorMessage
@@ -782,7 +778,7 @@ const SelectBookingActivity = () => {
               </>
             )}
           </fieldset>
-          <menu className="flex flex-col gap-2 w-[90%]">
+          <menu className="flex flex-col gap-2 w-[100%]">
             {errors?.numberOfParticipants && (
               <InputErrorMessage
                 message={errors?.numberOfParticipants?.message}
@@ -791,42 +787,24 @@ const SelectBookingActivity = () => {
             {errors?.numberOfSeats && (
               <InputErrorMessage message={errors?.numberOfSeats?.message} />
             )}
-            {selectedActivitySchedule &&
-            selectedActivitySchedule?.disclaimer ? (
-              <p className="text-black font-normal text-[15px]">
-                Disclaimer: {selectedActivitySchedule?.disclaimer}
-              </p>
-            ) : null}
-            {watch('numberOfParticipants') ? (
-              Number(watch('numberOfParticipants')) >= 1 &&
-              Number(watch('numberOfParticipants')) <= 29 ? (
-                <p className="text-black font-bold text-[15px]">
-                  Price: ${watch('defaultRate')} USD
-                </p>
-              ) : null
-            ) : null}
-            {selectedActivity?.name
-              ?.toUpperCase()
-              ?.includes('BEHIND THE SCENES TOUR') && !watch('defaultRate') ? (
-              <p className="text-black font-normal text-[15px]">
-                Price:{' '}
-                {calculateBehindTheScenesPrice(
-                  Number(watch('numberOfAdults')) || 0,
-                  Number(watch('numberOfChildren')) || 0
-                )}{' '}
-                USD
-              </p>
-            ) : null}
-            {watch('defaultRate') ? (
-              <p className="text-black font-normal text-[15px]">
-                Minimum cost: {watch('defaultRate')} USD
-              </p>
-            ) : null}
-            {minNumberOfSeatsDisclaimer && (
-              <p className="text-black font-normal text-[15px]">
-                {minNumberOfSeatsDisclaimer}
-              </p>
-            )}
+            <TemporaryBookingActivityPrice
+              numberOfAdults={numberOfAdults}
+              numberOfChildren={numberOfChildren}
+              numberOfSeats={numberOfSeats}
+              defaultRate={watch('defaultRate') * numberOfSeats}
+              disclaimer={<menu>
+                {selectedActivity?.disclaimer && (
+                  <p className="text-sm">
+                    {selectedActivity?.disclaimer}
+                  </p>
+                )}
+                {minNumberOfSeatsDisclaimer && (
+                  <p className="text-sm">
+                    {minNumberOfSeatsDisclaimer}
+                  </p>
+                )}
+              </menu>}
+            />
           </menu>
 
           <menu className="flex items-center gap-3 justify-between mt-3">

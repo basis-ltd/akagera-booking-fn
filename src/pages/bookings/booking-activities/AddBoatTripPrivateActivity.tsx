@@ -7,7 +7,6 @@ import Modal from '@/components/modals/Modal';
 import Table from '@/components/table/Table';
 import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import {
-  formatCurrency,
   formatDate,
   formatTime,
 } from '@/helpers/strings.helper';
@@ -35,6 +34,7 @@ import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
 
 const AddBoatTripPrivateActivity = () => {
   // STATE VARIABLES
@@ -381,9 +381,7 @@ const AddBoatTripPrivateActivity = () => {
             />
           </fieldset>
           {defaultRate > 0 && Object.keys(errors)?.length <= 0 && (
-            <p className="text-[15px] uppercase font-medium text-primary">
-              The total amount for this booking is {formatCurrency(defaultRate)}
-            </p>
+            <TemporaryBookingActivityPrice defaultRate={defaultRate} />
           )}
           <menu className="w-full flex items-center gap-3 justify-between">
             <Button

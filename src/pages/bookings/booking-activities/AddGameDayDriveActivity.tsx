@@ -38,6 +38,7 @@ import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
 
 const AddGameDayDriveActivity = () => {
   // STATE VARIABLES
@@ -84,7 +85,7 @@ const AddGameDayDriveActivity = () => {
     setError,
   } = useForm();
 
-  const { startDate } = watch();
+  const { startDate, defaultRate, numberOfSeats } = watch();
 
   // EXISTING BOOKING ACTIVITIES COLUMNS
   const existingBookingActivitiesColumns = [
@@ -412,13 +413,8 @@ const AddGameDayDriveActivity = () => {
                 )}
               </menu>
             )}
-            {watch('defaultRate') > 0 && (
-              <p className="text-[15px] text-center text-primary">
-                Total amount for this activity:{' '}
-                {formatCurrency(
-                  Number(watch('defaultRate') * Number(watch('numberOfSeats')))
-                )}
-              </p>
+            {defaultRate > 0 && (
+              <TemporaryBookingActivityPrice defaultRate={defaultRate * numberOfSeats} />
             )}
             <p className="font-medium text-[14px]">
               One car cannot exceed 7 passengers in total.

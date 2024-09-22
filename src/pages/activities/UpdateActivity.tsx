@@ -88,6 +88,7 @@ const UpdateActivity = () => {
         dispatch(setUpdateActivityModal(false));
       }}
       heading={`Update ${selectedActivity?.name}`}
+      className='min-w-[60vw]'
     >
       <form
         className="w-full flex flex-col gap-5 min-w-[50vw]"
