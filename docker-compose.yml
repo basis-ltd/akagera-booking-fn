@@ -11,8 +11,8 @@ services:
     environment:
       VITE_APP_STAGING_API_URL: ${VITE_APP_STAGING_API_URL}
       VITE_APP_PRODUCTION_API_URL: ${VITE_APP_PRODUCTION_API_URL}
-      PORT: 8080
+      PORT: 3000
     ports:
-      - 8080:8080
+      - 3000:3000
     env_file:
       - .env
