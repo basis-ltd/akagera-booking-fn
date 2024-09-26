@@ -21,6 +21,7 @@ import { formatCurrency, formatDate } from '@/helpers/strings.helper';
 import CreateBookingGuidesActivity from './CreateBookingGuidesActivity';
 import SelectBookingActivity from './SelectBookingActivity';
 import PublicLayout from '@/containers/PublicLayout';
+import ListExistingBookingActivities from '@/containers/ListExistingBookingActivities';
 
 const CreateBookingActivities = () => {
   // STATE VARIABLES
@@ -264,6 +265,7 @@ const CreateBookingActivities = () => {
           </form>
         )}
         <SelectBookingActivity />
+        <ListExistingBookingActivities />
       </main>
     </PublicLayout>
   );

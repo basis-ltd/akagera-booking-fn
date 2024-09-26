@@ -40,6 +40,7 @@ import BookingVehiclesPreview from './booking-preview/BookingVehiclesPreview';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Payment } from '@/types/models/payment.types';
 import CustomTooltip from '@/components/inputs/CustomTooltip';
+import moment from 'moment';
 
 const BookingPreview = () => {
   // STATE VARIABLES
@@ -286,18 +287,26 @@ const BookingPreview = () => {
         if (row?.original?.status === 'PAID' || bookingPaid) return null;
         return (
           <menu className="w-full flex items-start justify-start">
-            <CustomTooltip label="Click to continue payment">
-              <Link
-                to={`#`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.location.href = `https://secure.3gdirectpay.com/dpopayment.php?ID=${row?.original?.transactionId}`;
-                }}
-                className="text-primary underline text-[14px] transition-all ease-in-out duration-300 hover:scale-[1.01]"
-              >
-                Complete
-              </Link>
-            </CustomTooltip>
+            {moment(new Date()).diff(row?.original?.createdAt, 'day') <= 1 ? (
+              <CustomTooltip label="Click to continue payment">
+                <Link
+                  to={`#`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = `https://secure.3gdirectpay.com/dpopayment.php?ID=${row?.original?.transactionId}`;
+                  }}
+                  className="text-primary underline text-[14px] transition-all ease-in-out duration-300 hover:scale-[1.01]"
+                >
+                  Complete
+                </Link>
+              </CustomTooltip>
+            ) : (
+              <CustomTooltip label="Payment limit expired">
+                <span className="text-gray-400 text-[14px]">
+                  Payment expired
+                </span>
+              </CustomTooltip>
+            )}
           </menu>
         );
       },
@@ -468,7 +477,7 @@ const BookingPreview = () => {
                           createPayment({
                             bookingId: booking?.id,
                             amount: Number(bookingAmount),
-                            currency: 'rwf',
+                            currency: 'usd',
                             email: booking?.email,
                           });
                         }}

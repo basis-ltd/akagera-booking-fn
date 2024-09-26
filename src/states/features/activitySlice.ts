@@ -15,6 +15,7 @@ const initialState: {
   addCampingActivitiesModal: boolean;
   addGameDayDriveActivityModal: boolean;
   addBoatTripPrivateActivityModal: boolean;
+  existingBookingActivitiesModal: boolean;
 } = {
   activitiesList: [],
   selectedActivity: {} as Activity,
@@ -29,6 +30,7 @@ const initialState: {
   addCampingActivitiesModal: false,
   addGameDayDriveActivityModal: false,
   addBoatTripPrivateActivityModal: false,
+  existingBookingActivitiesModal: false,
 };
 
 export const activitySlice = createSlice({
@@ -81,7 +83,10 @@ export const activitySlice = createSlice({
     },
     setAddBoatTripPrivateActivityModal: (state, action) => {
       state.addBoatTripPrivateActivityModal = action.payload;
-    }
+    },
+    setExistingBookingActivitiesModal: (state, action) => {
+      state.existingBookingActivitiesModal = action.payload
+    },
   },
 });
 
@@ -100,7 +105,8 @@ export const {
   setAddBoatTripMorningDayActivityModal,
   setAddCampingActivitiesModal,
   setAddGameDayDriveActivityModal,
-  setAddBoatTripPrivateActivityModal
+  setAddBoatTripPrivateActivityModal,
+  setExistingBookingActivitiesModal,
 } = activitySlice.actions;
 
 export default activitySlice.reducer;

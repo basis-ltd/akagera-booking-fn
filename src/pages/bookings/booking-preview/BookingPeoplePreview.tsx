@@ -115,7 +115,7 @@ const BookingPeoplePreview = () => {
             <ul className="flex items-center gap-3 w-full justify-between my-2 px-1">
               <h1 className="font-bold text-xl uppercase">Entry fees</h1>
               <Button
-                className="!py-[2px] underline !text-[12px]"
+                className="!py-[2px] underline !text-[14px]"
                 styled={false}
                 onClick={(e) => {
                   e.preventDefault();

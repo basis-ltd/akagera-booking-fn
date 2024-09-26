@@ -1,5 +1,5 @@
 import { calculateActivityPrice } from '@/helpers/booking.helper';
-import { formatCurrency } from '@/helpers/strings.helper';
+import { formatCurrency, formatDateTime } from '@/helpers/strings.helper';
 import { BookingActivity } from '@/types/models/bookingActivity.types';
 import { Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -19,7 +19,7 @@ export const bookingActivitiesColumns = [
     cell: ({ row }: { row: Row<BookingActivity> }) => {
       return (
         row?.original?.activity?.activitySchedules?.length > 0
-          ? row?.original?.startTime
+          ? formatDateTime(row?.original?.startTime)
           : ''
       )
     },

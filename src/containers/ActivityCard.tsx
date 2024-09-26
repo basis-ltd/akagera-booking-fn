@@ -8,6 +8,7 @@ import {
   setAddBoatTripPrivateActivityModal,
   setAddCampingActivitiesModal,
   setAddGameDayDriveActivityModal,
+  setExistingBookingActivitiesModal,
   setSelectBookingActivityModal,
   setSelectedActivity,
 } from '@/states/features/activitySlice';
@@ -138,17 +139,31 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
         </ul>
       </menu>
       <menu className="text-center flex flex-col gap-2 w-full items-center">
-        <Button
-          className={`!py-1 ${activityBooked ? '!bg-gray-600' : ''}`}
-          primary
-          onClick={(e) => {
-            e.preventDefault();
-            dispatch(setSelectedActivity(activity));
-            handleSelectBookingActivityModal({ activity });
-          }}
-        >
-          {activityBooked ? 'View Booking' : 'Book Activity'}
-        </Button>
+        {activityBooked ? (
+          <Button
+            primary
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setSelectedActivity(activity));
+              dispatch(setExistingBookingActivitiesModal(true));
+            }}
+            className="!bg-gray-600"
+          >
+            View booking(s)
+          </Button>
+        ) : (
+          <Button
+            className={`!py-1`}
+            primary
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setSelectedActivity(activity));
+              handleSelectBookingActivityModal({ activity });
+            }}
+          >
+            Book activity
+          </Button>
+        )}
       </menu>
     </section>
   );

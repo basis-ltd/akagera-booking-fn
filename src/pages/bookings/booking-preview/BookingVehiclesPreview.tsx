@@ -106,10 +106,10 @@ const BookingVehiclesPreview = () => {
       ) : (
         bookingVehiclesIsSuccess && (
           <menu className="flex flex-col gap-2 w-full">
-            <ul className="flex items-center gap-6 my-2">
+            <ul className="flex items-center justify-between gap-6 my-2">
               <h1 className="font-bold text-xl uppercase">Vehicles</h1>
               <Button
-                className="!py-[2px] underline !text-[12px]"
+                className="!py-[2px] underline !text-[14px]"
                 styled={false}
                 onClick={(e) => {
                   e.preventDefault();

@@ -27,33 +27,6 @@ const initialState: {
   existingBookingActivitiesIsSuccess: false,
 };
 
-// FETCH BOOKING ACTIVITIES THUNK
-export const fetchBookingActivitiesThunk = createAsyncThunk<
-  BookingActivity[],
-  {
-    bookingId: UUID;
-    size: number;
-    page: number;
-    activityId?: UUID;
-  },
-  {
-    dispatch: AppDispatch;
-  }
->(
-  'bookingActivity/fetchBookingActivities',
-  async ({ bookingId, size, page, activityId }, { dispatch }) => {
-    const response = await dispatch(
-      apiSlice.endpoints.fetchBookingActivities.initiate({
-        bookingId,
-        size,
-        page,
-        activityId,
-      })
-    );
-    return response.data.data?.rows;
-  }
-);
-
 // CREATE BOOKING ACTIVITY THUNK
 export const createBookingActivityThunk = createAsyncThunk<
   BookingActivity,
@@ -150,19 +123,6 @@ const bookingActivitySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchBookingActivitiesThunk.pending, (state) => {
-      state.existingBookingActivitiesIsFetching = true;
-      state.existingBookingActivitiesIsSuccess = false;
-    });
-    builder.addCase(fetchBookingActivitiesThunk.fulfilled, (state, action) => {
-      state.existingBookingActivitiesIsFetching = false;
-      state.existingBookingActivitiesIsSuccess = true;
-      state.existingBookingActivitiesList = action.payload;
-    });
-    builder.addCase(fetchBookingActivitiesThunk.rejected, (state) => {
-      state.existingBookingActivitiesIsFetching = false;
-      state.existingBookingActivitiesIsSuccess = false;
-    });
     builder.addCase(createBookingActivityThunk.pending, (state) => {
       state.createBookingActivityIsLoading = true;
       state.createBookingActivityIsError = false;

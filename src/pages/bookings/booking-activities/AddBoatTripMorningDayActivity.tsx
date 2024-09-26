@@ -4,28 +4,17 @@ import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
 import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import Table from '@/components/table/Table';
-import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import { formatDate, formatTime } from '@/helpers/strings.helper';
 import { validatePersonAgeRange } from '@/helpers/validations.helper';
 import {
   calculateRemainingSeatsThunk,
-  setRemainingSeats,
 } from '@/states/features/activityScheduleSlice';
 import { setAddBoatTripMorningDayActivityModal } from '@/states/features/activitySlice';
 import {
   createBookingActivityThunk,
-  fetchBookingActivitiesThunk,
-  setDeleteBookingActivityModal,
-  setExistingBookingActivitiesList,
-  setSelectedBookingActivity,
 } from '@/states/features/bookingActivitySlice';
 import { AppDispatch, RootState } from '@/states/store';
 import { ActivitySchedule } from '@/types/models/activitySchedule.types';
-import { BookingActivity } from '@/types/models/bookingActivity.types';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ColumnDef, Row } from '@tanstack/react-table';
 import { UUID } from 'crypto';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -46,9 +35,6 @@ const AddBoatTripMorningDayActivity = () => {
   const {
     createBookingActivityIsLoading,
     createBookingActivityIsSuccess,
-    existingBookingActivitiesList,
-    existingBookingActivitiesIsFetching,
-    existingBookingActivitiesIsSuccess,
   } = useSelector((state: RootState) => state.bookingActivity);
   const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
     ActivitySchedule | undefined
@@ -134,49 +120,6 @@ const AddBoatTripMorningDayActivity = () => {
     }
   }, [createBookingActivityIsSuccess, dispatch, reset, selectedActivity?.slug]);
 
-  // EXISTING BOOKING ACTIVITIES COLUMNS
-  const existingBookingActivitiesColumns = [
-    ...bookingActivitiesColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingActivity> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingActivity(row?.original));
-                dispatch(setDeleteBookingActivityModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
-
-  // FETCH EXISTING BOOKING ACTIVITIES
-  useEffect(() => {
-    if (addBoatTripMorningDayActivityModal) {
-      dispatch(
-        fetchBookingActivitiesThunk({
-          activityId: selectedActivity?.id,
-          page: 0,
-          size: 100,
-          bookingId: booking?.id,
-        })
-      );
-    }
-  }, [
-    booking?.id,
-    dispatch,
-    selectedActivity?.id,
-    addBoatTripMorningDayActivityModal,
-  ]);
-
   // VALIDATE PARTICIPANTS AGAINST REMAINING SEATS
   useEffect(() => {
     if (remainingSeats && remainingSeats !== true) {
@@ -202,16 +145,7 @@ const AddBoatTripMorningDayActivity = () => {
       heading={`Add Boat Trip Morning Day Activity`}
       className="min-w-[60%]"
     >
-      {existingBookingActivitiesIsFetching ? (
-        <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
-          <Loader className="text-primary" />
-          <p className="text-[15px]">
-            Retrieving existing bookings for this activity
-          </p>
-        </figure>
-      ) : existingBookingActivitiesList?.length <= 0 &&
-        existingBookingActivitiesIsSuccess ? (
-        <form
+      <form
           className="w-full flex flex-col gap-4 max-[600px]:min-w-[80vw]"
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -428,63 +362,6 @@ const AddBoatTripMorningDayActivity = () => {
             </Button>
           </menu>
         </form>
-      ) : (
-        <article className="w-full flex flex-col gap-3">
-          <p className="text-[15px]">
-            This activity has been added to this booking.
-          </p>
-          <Table
-            showFilter={false}
-            showPagination={false}
-            columns={
-              existingBookingActivitiesColumns as ColumnDef<BookingActivity>[]
-            }
-            data={existingBookingActivitiesList?.map(
-              (bookingActivity: BookingActivity, index: number) => {
-                return {
-                  ...bookingActivity,
-                  no: index + 1,
-                  date: formatDate(bookingActivity?.startTime),
-                  time: `${moment(bookingActivity?.startTime).format(
-                    'HH:mm A'
-                  )} - 
-                  ${moment(bookingActivity?.endTime).format('HH:mm A')}`,
-                };
-              }
-            )}
-          />
-          <ul className="flex items-center gap-3 w-full justify-between">
-            <Button
-              className="btn btn-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setAddBoatTripMorningDayActivityModal(false));
-                setSelectedActivitySchedule(undefined);
-                dispatch(setRemainingSeats(0));
-                reset({
-                  activitySchedule: '',
-                  defaultRate: '',
-                  numberOfAdults: '',
-                  numberOfChildren: '',
-                  numberOfParticipants: '',
-                  numberOfSeats: 0,
-                });
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              primary
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setExistingBookingActivitiesList([]));
-              }}
-            >
-              Book again
-            </Button>
-          </ul>
-        </article>
-      )}
     </Modal>
   );
 };

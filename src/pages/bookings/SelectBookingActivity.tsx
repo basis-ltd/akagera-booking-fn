@@ -11,10 +11,6 @@ import { useCreateBookingActivityMutation } from '@/states/apiSlice';
 import { ErrorResponse } from 'react-router-dom';
 import {
   addBookingActivity,
-  fetchBookingActivitiesThunk,
-  setDeleteBookingActivityModal,
-  setExistingBookingActivitiesList,
-  setSelectedBookingActivity,
 } from '@/states/features/bookingActivitySlice';
 import Loader from '@/components/inputs/Loader';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
@@ -25,15 +21,9 @@ import { formatTime } from '@/helpers/strings.helper';
 import moment from 'moment';
 import Input from '@/components/inputs/Input';
 import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
-import { BookingActivity } from '@/types/models/bookingActivity.types';
-import Table from '@/components/table/Table';
 import { validatePersonAgeRange } from '@/helpers/validations.helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ColumnDef, Row } from '@tanstack/react-table';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ActivityRate } from '@/types/models/activityRate.types';
 import { calculateBehindTheScenesPrice } from '@/helpers/bookingActivity.helper';
-import { bookingActivitiesColumns } from '@/constants/bookingActivity.constants';
 import {
   calculateRemainingSeatsThunk,
   setRemainingSeats,
@@ -46,12 +36,9 @@ const SelectBookingActivity = () => {
   const { selectBookingActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
-  const { bookingPeopleList } = useSelector((state: RootState) => state.bookingPeople);
-  const {
-    existingBookingActivitiesList,
-    existingBookingActivitiesIsFetching,
-    existingBookingActivitiesIsSuccess,
-  } = useSelector((state: RootState) => state.bookingActivity);
+  const { bookingPeopleList } = useSelector(
+    (state: RootState) => state.bookingPeople
+  );
   const { remainingSeats, remainingSeatsIsFetching } = useSelector(
     (state: RootState) => state.activitySchedule
   );
@@ -107,20 +94,6 @@ const SelectBookingActivity = () => {
       isSuccess: createBookingActivityIsSuccess,
     },
   ] = useCreateBookingActivityMutation();
-
-  // FETCH BOOKING ACTIVITIES
-  useEffect(() => {
-    if (booking && selectedActivity) {
-      dispatch(
-        fetchBookingActivitiesThunk({
-          bookingId: booking?.id,
-          size: 100,
-          page: 0,
-          activityId: selectedActivity?.id,
-        })
-      );
-    }
-  }, [booking, selectedActivity, dispatch]);
 
   // HANDLE CREATE BOOKING ACTIVITY RESPONSE
   useEffect(() => {
@@ -203,30 +176,6 @@ const SelectBookingActivity = () => {
         : null,
     });
   };
-
-  // EXISTING BOOKING ACTIVITIES COLUMNS
-  const existingBookingActivitiesColumns = [
-    ...bookingActivitiesColumns,
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: { row: Row<BookingActivity> }) => {
-        return (
-          <menu className="flex items-center gap-2">
-            <FontAwesomeIcon
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectedBookingActivity(row?.original));
-                dispatch(setDeleteBookingActivityModal(true));
-              }}
-              className="p-2 transition-all cursor-pointer ease-in-out duration-300 hover:scale-[1.01] px-[9px] rounded-full bg-red-600 text-white"
-              icon={faTrash}
-            />
-          </menu>
-        );
-      },
-    },
-  ];
 
   // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
   useEffect(() => {
@@ -422,82 +371,155 @@ const SelectBookingActivity = () => {
           numberOfSeats: 0,
         });
       }}
-      heading={`Confirm adding ${selectedActivity.name} to "${
+      heading={`Confirm adding ${selectedActivity?.name} to "${
         booking?.name
       } - ${formatDate(booking?.startDate)}"?`}
       className="min-w-[65vw]"
     >
-      {existingBookingActivitiesIsFetching ? (
-        <figure className="w-full min-h-[20vh] flex flex-col gap-2 items-center justify-center">
-          <Loader className="text-primary" />
-          <p className="text-[15px]">
-            Retrieving existing bookings for this activity
-          </p>
-        </figure>
-      ) : existingBookingActivitiesList?.length <= 0 &&
-        existingBookingActivitiesIsSuccess ? (
-        <form
-          className="flex flex-col gap-3 w-full max-[600px]:min-w-[80vw]"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <fieldset className="grid grid-cols-2 gap-2 w-full max-[600px]:grid-cols-1">
+      <form
+        className="flex flex-col gap-3 w-full max-[600px]:min-w-[80vw]"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <fieldset className="grid grid-cols-2 gap-2 w-full max-[600px]:grid-cols-1">
+          <Controller
+            name="startDate"
+            control={control}
+            render={({ field }) => {
+              return (
+                <label className="w-full flex flex-col gap-1">
+                  <Input
+                    fromDate={booking?.startDate}
+                    toDate={booking?.endDate}
+                    type="date"
+                    label="Date for this activity"
+                    required
+                    {...field}
+                    defaultValue={booking?.startDate}
+                  />
+                </label>
+              );
+            }}
+          />
+          {selectedActivity?.name?.toUpperCase()?.includes('CAMPING') && (
             <Controller
-              name="startDate"
+              name="numberOfNights"
               control={control}
+              rules={{
+                required: 'Enter number of nights',
+                validate: (value) => {
+                  return (
+                    Number(value) <=
+                      moment(booking?.endDate).diff(
+                        booking?.startDate,
+                        'days'
+                      ) || 'Number of nights cannot exceed booking nights'
+                  );
+                },
+              }}
+              defaultValue={moment(booking?.endDate).diff(
+                booking?.startDate,
+                'days'
+              )}
               render={({ field }) => {
                 return (
                   <label className="w-full flex flex-col gap-1">
                     <Input
                       fromDate={booking?.startDate}
                       toDate={booking?.endDate}
-                      type="date"
-                      label="Date for this activity"
+                      label="Number of nights"
                       required
                       {...field}
-                      defaultValue={booking?.startDate}
+                      defaultValue={booking?.endDate}
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                        trigger('numberOfNights');
+                      }}
                     />
+                    {errors?.numberOfNights && (
+                      <InputErrorMessage
+                        message={errors?.numberOfNights?.message}
+                      />
+                    )}
                   </label>
                 );
               }}
             />
-            {selectedActivity?.name?.toUpperCase()?.includes('CAMPING') && (
+          )}
+          {selectedActivity?.activitySchedules &&
+            selectedActivity?.activitySchedules?.length > 0 && (
               <Controller
-                name="numberOfNights"
+                name="activitySchedule"
                 control={control}
-                rules={{
-                  required: 'Enter number of nights',
-                  validate: (value) => {
-                    return (
-                      Number(value) <=
-                        moment(booking?.endDate).diff(
-                          booking?.startDate,
-                          'days'
-                        ) || 'Number of nights cannot exceed booking nights'
-                    );
-                  },
-                }}
-                defaultValue={moment(booking?.endDate).diff(
-                  booking?.startDate,
-                  'days'
-                )}
+                rules={{ required: 'Select from available schedules' }}
                 render={({ field }) => {
                   return (
-                    <label className="w-full flex flex-col gap-1">
-                      <Input
-                        fromDate={booking?.startDate}
-                        toDate={booking?.endDate}
-                        label="Number of nights"
-                        required
+                    <label className="flex w-full flex-col gap-1">
+                      <Select
+                        label="Select time slot for this activity"
                         {...field}
-                        defaultValue={booking?.endDate}
+                        required
                         onChange={(e) => {
-                          field.onChange(e.target.value);
-                          trigger('numberOfNights');
+                          field.onChange(e);
+                          setBookingActivity({
+                            ...bookingActivity,
+                            startTime: moment(
+                              `${formatDate(booking?.startDate)}T${
+                                e?.split('-')[0]
+                              }`
+                            ).format(),
+                            endTime: moment(
+                              `${formatDate(booking?.startDate)}T${
+                                e?.split('-')[1]
+                              }`
+                            ).format(),
+                          });
+                          setSelectedActivitySchedule(
+                            selectedActivity?.activitySchedules?.find(
+                              (activitySchedule: ActivitySchedule) =>
+                                `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
+                                e
+                            )
+                          );
                         }}
+                        options={selectedActivity?.activitySchedules?.map(
+                          (activitySchedule: ActivitySchedule) => {
+                            const label = `${formatTime(
+                              activitySchedule.startTime
+                            )} - ${formatTime(
+                              String(activitySchedule.endTime)
+                            )}`;
+                            return {
+                              label: activitySchedule?.description
+                                ? `${''} ${label}`
+                                : label,
+                              value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
+                            };
+                          }
+                        )}
                       />
-                      {errors?.numberOfNights && (
+                      {selectedActivitySchedule && remainingSeatsIsFetching ? (
+                        <figure className="flex items-center gap-2">
+                          <p className="text-[12px]">
+                            Calculating available seats
+                          </p>
+                          <Loader className="text-primary" />
+                        </figure>
+                      ) : remainingSeats &&
+                        (remainingSeats as boolean) !== true ? (
+                        <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                          Number of {transportationsLabel} available for this
+                          period: {remainingSeats}
+                        </p>
+                      ) : (
+                        selectedActivitySchedule && (
+                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                            This period is available bookings.
+                          </p>
+                        )
+                      )}
+                      {errors?.activitySchedule && (
                         <InputErrorMessage
-                          message={errors?.numberOfNights?.message}
+                          message={errors?.activitySchedule?.message}
                         />
                       )}
                     </label>
@@ -505,387 +527,245 @@ const SelectBookingActivity = () => {
                 }}
               />
             )}
-            {selectedActivity?.activitySchedules &&
-              selectedActivity?.activitySchedules?.length > 0 && (
-                <Controller
-                  name="activitySchedule"
-                  control={control}
-                  rules={{ required: 'Select from available schedules' }}
-                  render={({ field }) => {
-                    return (
-                      <label className="flex w-full flex-col gap-1">
-                        <Select
-                          label="Select time slot for this activity"
-                          {...field}
-                          required
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setBookingActivity({
-                              ...bookingActivity,
-                              startTime: moment(
-                                `${formatDate(booking?.startDate)}T${
-                                  e?.split('-')[0]
-                                }`
-                              ).format(),
-                              endTime: moment(
-                                `${formatDate(booking?.startDate)}T${
-                                  e?.split('-')[1]
-                                }`
-                              ).format(),
-                            });
-                            setSelectedActivitySchedule(
-                              selectedActivity?.activitySchedules?.find(
-                                (activitySchedule: ActivitySchedule) =>
-                                  `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
-                                  e
-                              )
-                            );
-                          }}
-                          options={selectedActivity?.activitySchedules?.map(
-                            (activitySchedule: ActivitySchedule) => {
-                              const label = `${formatTime(
-                                activitySchedule.startTime
-                              )} - ${formatTime(
-                                String(activitySchedule.endTime)
-                              )}`;
-                              return {
-                                label: activitySchedule?.description
-                                  ? `${''} ${label}`
-                                  : label,
-                                value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
-                              };
-                            }
-                          )}
-                        />
-                        {selectedActivitySchedule &&
-                        remainingSeatsIsFetching ? (
-                          <figure className="flex items-center gap-2">
-                            <p className="text-[12px]">
-                              Calculating available seats
-                            </p>
-                            <Loader className="text-primary" />
-                          </figure>
-                        ) : remainingSeats &&
-                          (remainingSeats as boolean) !== true ? (
-                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                            Number of {transportationsLabel} available for this
-                            period: {remainingSeats}
-                          </p>
-                        ) : (
-                          selectedActivitySchedule && (
-                            <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                              This period is available bookings.
-                            </p>
-                          )
-                        )}
-                        {errors?.activitySchedule && (
-                          <InputErrorMessage
-                            message={errors?.activitySchedule?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
-                />
-              )}
 
-            {selectedActivity?.activityRates?.find(
-              (rate: ActivityRate) => rate?.ageRange === 'children'
-            ) !== undefined ? (
-              <>
-                <Controller
-                  name="numberOfAdults"
-                  control={control}
-                  rules={{
-                    validate: (value) => {
-                      if (!value) return true;
-                      return (
-                        validatePersonAgeRange(
-                          Number(value),
-                          booking?.bookingPeople || [],
-                          'adults'
-                        ) || 'Add people who have 13 years or more.'
-                      );
-                    },
-                  }}
-                  render={({ field }) => {
+          {selectedActivity?.activityRates?.find(
+            (rate: ActivityRate) => rate?.ageRange === 'children'
+          ) !== undefined ? (
+            <>
+              <Controller
+                name="numberOfAdults"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true;
                     return (
-                      <label className="w-full flex flex-col gap-1">
-                        <Input
-                          {...field}
-                          type="number"
-                          label="Number of adult participants"
-                          required
-                          onChange={async (e) => {
-                            field.onChange(e.target.value);
-                            await trigger('numberOfAdults');
-                            clearErrors('numberOfParticipants');
-                            clearErrors('participantsExceeded');
-                          }}
-                        />
-                        {errors?.numberOfAdults && (
-                          <InputErrorMessage
-                            message={errors?.numberOfAdults?.message}
-                          />
-                        )}
-                      </label>
+                      validatePersonAgeRange(
+                        Number(value),
+                        booking?.bookingPeople || [],
+                        'adults'
+                      ) || 'Add people who have 13 years or more.'
                     );
-                  }}
-                />
-                <Controller
-                  name="numberOfChildren"
-                  control={control}
-                  rules={{
-                    validate: (value) => {
-                      if (!value) return true;
-                      return (
-                        validatePersonAgeRange(
-                          Number(value),
-                          booking?.bookingPeople || [],
-                          'children'
-                        ) || 'Add people who have 6 - 12 years old only.'
-                      );
-                    },
-                  }}
-                  render={({ field }) => {
-                    return (
-                      <label className="w-full flex flex-col gap-1">
-                        <Input
-                          {...field}
-                          type="number"
-                          label="Number of children participants"
-                          required
-                          onChange={async (e) => {
-                            field.onChange(e.target.value);
-                            await trigger('numberOfChildren');
-                            clearErrors('numberOfParticipants');
-                            clearErrors('participantsExceeded');
-                          }}
+                  },
+                }}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full flex flex-col gap-1">
+                      <Input
+                        {...field}
+                        type="number"
+                        label="Number of adult participants"
+                        required
+                        onChange={async (e) => {
+                          field.onChange(e.target.value);
+                          await trigger('numberOfAdults');
+                          clearErrors('numberOfParticipants');
+                          clearErrors('participantsExceeded');
+                        }}
+                      />
+                      {errors?.numberOfAdults && (
+                        <InputErrorMessage
+                          message={errors?.numberOfAdults?.message}
                         />
-                        {errors?.numberOfChildren && (
-                          <InputErrorMessage
-                            message={errors?.numberOfChildren?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
-                />
-              </>
-            ) : selectedActivity?.name?.toUpperCase() ===
-              'BOAT TRIP – PRIVATE, NON-SCHEDULED' ? (
-              <>
-                <Controller
-                  name="numberOfParticipants"
-                  control={control}
-                  rules={{
-                    required:
-                      'Enter the number of participants for this boat trip',
-                  }}
-                  render={({ field }) => {
-                    return (
-                      <label className="w-full flex flex-col gap-1">
-                        <Input
-                          type="number"
-                          {...field}
-                          label="Number of participants"
-                          required
-                          onChange={async (e) => {
-                            field.onChange(e.target.value);
-                            if (Number(e.target.value) <= 11) {
-                              setValue('defaultRate', 200);
-                            } else if (Number(e.target.value) <= 18) {
-                              setValue('defaultRate', 360);
-                            } else if (Number(e.target.value) <= 29) {
-                              setValue('defaultRate', 560);
-                            }
-                            await trigger('numberOfParticipants');
-                          }}
-                        />
-                        {errors?.numberOfParticipants && (
-                          <InputErrorMessage
-                            message={errors?.numberOfParticipants?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <Controller
-                  name="numberOfSeats"
-                  defaultValue={0}
-                  control={control}
-                  rules={{
-                    required: `Specify the number of ${transportationsLabel} available for this activity`,
-                  }}
-                  render={({ field }) => {
-                    return (
-                      <label className="flex flex-col gap-2">
-                        <Input
-                          {...field}
-                          type="number"
-                          label={`Number of ${transportationsLabel}`}
-                          required
-                        />
-                        {errors?.numberOfSeats && (
-                          <InputErrorMessage
-                            message={errors?.numberOfSeats?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
-                />
-                <Controller
-                  name="defaultRate"
-                  control={control}
-                  rules={{
-                    required: 'Select your preferred pricing option',
-                  }}
-                  render={({ field }) => {
-                    return (
-                      <label className="flex flex-col gap-2">
-                        <Select
-                          {...field}
-                          label="Select pricing option"
-                          required
-                          options={selectedActivity?.activityRates?.map(
-                            (rate: ActivityRate) => {
-                              return {
-                                label: rate?.name,
-                                value: String(rate?.amountUsd),
-                              };
-                            }
-                          )}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            clearErrors('numberOfParticipants');
-                            clearErrors('participantsExceeded');
-                          }}
-                        />
-                        {errors?.defaultRate && (
-                          <InputErrorMessage
-                            message={errors?.defaultRate?.message}
-                          />
-                        )}
-                      </label>
-                    );
-                  }}
-                />
-              </>
-            )}
-          </fieldset>
-          <menu className="flex flex-col gap-2 w-[100%]">
-            {errors?.numberOfParticipants && (
-              <InputErrorMessage
-                message={errors?.numberOfParticipants?.message}
+                      )}
+                    </label>
+                  );
+                }}
               />
-            )}
-            {errors?.numberOfSeats && (
-              <InputErrorMessage message={errors?.numberOfSeats?.message} />
-            )}
-            <TemporaryBookingActivityPrice
-              numberOfAdults={numberOfAdults}
-              numberOfChildren={numberOfChildren}
-              numberOfSeats={numberOfSeats}
-              defaultRate={watch('defaultRate') * numberOfSeats}
-              disclaimer={<menu>
+              <Controller
+                name="numberOfChildren"
+                control={control}
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true;
+                    return (
+                      validatePersonAgeRange(
+                        Number(value),
+                        booking?.bookingPeople || [],
+                        'children'
+                      ) || 'Add people who have 6 - 12 years old only.'
+                    );
+                  },
+                }}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full flex flex-col gap-1">
+                      <Input
+                        {...field}
+                        type="number"
+                        label="Number of children participants"
+                        required
+                        onChange={async (e) => {
+                          field.onChange(e.target.value);
+                          await trigger('numberOfChildren');
+                          clearErrors('numberOfParticipants');
+                          clearErrors('participantsExceeded');
+                        }}
+                      />
+                      {errors?.numberOfChildren && (
+                        <InputErrorMessage
+                          message={errors?.numberOfChildren?.message}
+                        />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            </>
+          ) : selectedActivity?.name?.toUpperCase() ===
+            'BOAT TRIP – PRIVATE, NON-SCHEDULED' ? (
+            <>
+              <Controller
+                name="numberOfParticipants"
+                control={control}
+                rules={{
+                  required:
+                    'Enter the number of participants for this boat trip',
+                }}
+                render={({ field }) => {
+                  return (
+                    <label className="w-full flex flex-col gap-1">
+                      <Input
+                        type="number"
+                        {...field}
+                        label="Number of participants"
+                        required
+                        onChange={async (e) => {
+                          field.onChange(e.target.value);
+                          if (Number(e.target.value) <= 11) {
+                            setValue('defaultRate', 200);
+                          } else if (Number(e.target.value) <= 18) {
+                            setValue('defaultRate', 360);
+                          } else if (Number(e.target.value) <= 29) {
+                            setValue('defaultRate', 560);
+                          }
+                          await trigger('numberOfParticipants');
+                        }}
+                      />
+                      {errors?.numberOfParticipants && (
+                        <InputErrorMessage
+                          message={errors?.numberOfParticipants?.message}
+                        />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <Controller
+                name="numberOfSeats"
+                defaultValue={0}
+                control={control}
+                rules={{
+                  required: `Specify the number of ${transportationsLabel} available for this activity`,
+                }}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-2">
+                      <Input
+                        {...field}
+                        type="number"
+                        label={`Number of ${transportationsLabel}`}
+                        required
+                      />
+                      {errors?.numberOfSeats && (
+                        <InputErrorMessage
+                          message={errors?.numberOfSeats?.message}
+                        />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+              <Controller
+                name="defaultRate"
+                control={control}
+                rules={{
+                  required: 'Select your preferred pricing option',
+                }}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-2">
+                      <Select
+                        {...field}
+                        label="Select pricing option"
+                        required
+                        options={selectedActivity?.activityRates?.map(
+                          (rate: ActivityRate) => {
+                            return {
+                              label: rate?.name,
+                              value: String(rate?.amountUsd),
+                            };
+                          }
+                        )}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          clearErrors('numberOfParticipants');
+                          clearErrors('participantsExceeded');
+                        }}
+                      />
+                      {errors?.defaultRate && (
+                        <InputErrorMessage
+                          message={errors?.defaultRate?.message}
+                        />
+                      )}
+                    </label>
+                  );
+                }}
+              />
+            </>
+          )}
+        </fieldset>
+        <menu className="flex flex-col gap-2 w-[100%]">
+          {errors?.numberOfParticipants && (
+            <InputErrorMessage
+              message={errors?.numberOfParticipants?.message}
+            />
+          )}
+          {errors?.numberOfSeats && (
+            <InputErrorMessage message={errors?.numberOfSeats?.message} />
+          )}
+          <TemporaryBookingActivityPrice
+            numberOfAdults={numberOfAdults}
+            numberOfChildren={numberOfChildren}
+            numberOfSeats={numberOfSeats}
+            defaultRate={watch('defaultRate') * numberOfSeats}
+            disclaimer={
+              <menu>
                 {selectedActivity?.disclaimer && (
-                  <p className="text-sm">
-                    {selectedActivity?.disclaimer}
-                  </p>
+                  <p className="text-sm">{selectedActivity?.disclaimer}</p>
                 )}
                 {minNumberOfSeatsDisclaimer && (
-                  <p className="text-sm">
-                    {minNumberOfSeatsDisclaimer}
-                  </p>
+                  <p className="text-sm">{minNumberOfSeatsDisclaimer}</p>
                 )}
-              </menu>}
-            />
-          </menu>
-
-          <menu className="flex items-center gap-3 justify-between mt-3">
-            <Button
-              className="btn btn-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectBookingActivityModal(false));
-                setSelectedActivitySchedule(undefined);
-              }}
-              danger
-            >
-              Cancel
-            </Button>
-            <Button
-              disabled={Object.keys(errors)?.length > 0}
-              className="btn btn-primary"
-              submit
-              primary
-            >
-              {createBookingActivityIsLoading ? <Loader /> : 'Confirm'}
-            </Button>
-          </menu>
-        </form>
-      ) : (
-        <article className="w-full flex flex-col gap-3">
-          <p className="text-[15px]">
-            This activity has been added to this booking.
-          </p>
-          <Table
-            showFilter={false}
-            showPagination={false}
-            columns={
-              existingBookingActivitiesColumns as ColumnDef<BookingActivity>[]
+              </menu>
             }
-            data={existingBookingActivitiesList?.map(
-              (bookingActivity: BookingActivity, index: number) => {
-                return {
-                  ...bookingActivity,
-                  no: index + 1,
-                  date: formatDate(bookingActivity?.startTime),
-                  time: `${moment(bookingActivity?.startTime).format(
-                    'HH:mm A'
-                  )} - 
-                      ${moment(bookingActivity?.endTime).format('HH:mm A')}`,
-                };
-              }
-            )}
           />
-          <ul className="flex items-center gap-3 w-full justify-between">
-            <Button
-              className="btn btn-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setSelectBookingActivityModal(false));
-                setSelectedActivitySchedule(undefined);
-                dispatch(setRemainingSeats(0));
-                reset({
-                  activitySchedule: '',
-                  defaultRate: '',
-                  numberOfAdults: '',
-                  numberOfChildren: '',
-                  numberOfParticipants: '',
-                  numberOfSeats: 0,
-                });
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              primary
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(setExistingBookingActivitiesList([]));
-              }}
-            >
-              Book again
-            </Button>
-          </ul>
-        </article>
-      )}
+        </menu>
+
+        <menu className="flex items-center gap-3 justify-between mt-3">
+          <Button
+            className="btn btn-primary"
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setSelectBookingActivityModal(false));
+              setSelectedActivitySchedule(undefined);
+            }}
+            danger
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={Object.keys(errors)?.length > 0}
+            className="btn btn-primary"
+            submit
+            primary
+          >
+            {createBookingActivityIsLoading ? <Loader /> : 'Confirm'}
+          </Button>
+        </menu>
+      </form>
     </Modal>
   );
 };
