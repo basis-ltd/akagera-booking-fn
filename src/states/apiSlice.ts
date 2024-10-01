@@ -172,7 +172,7 @@ export const apiSlice = createApi({
           registrationCountry,
           vehicleType,
           vehiclesCount,
-          plateNumber
+          plateNumber,
         }) => ({
           url: `booking-vehicles`,
           method: 'POST',
@@ -181,7 +181,7 @@ export const apiSlice = createApi({
             registrationCountry,
             vehicleType,
             vehiclesCount,
-            plateNumber
+            plateNumber,
           },
         }),
       }),
@@ -709,7 +709,7 @@ export const apiSlice = createApi({
 
       // CREATE PAYMENT
       createPayment: builder.mutation({
-        query: ({ bookingId, amount, email }) => {
+        query: ({ bookingId, amount, email, currency }) => {
           return {
             url: `payments`,
             method: 'POST',
@@ -717,6 +717,7 @@ export const apiSlice = createApi({
               bookingId,
               amount: amount,
               email,
+              currency,
             },
           };
         },
@@ -767,7 +768,7 @@ export const apiSlice = createApi({
             method: 'PATCH',
             body: {
               transactionToken,
-            }
+            },
           };
         },
       }),
@@ -942,6 +943,72 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // GET BOOKING EMAIL
+      findBookingEmail: builder.query({
+        query: ({ email, phone, referenceId, page, size }) => {
+          let url = `bookings/search/email?page=${page}&size=${size}`;
+          if (email) {
+            url += `&email=${email}`;
+          }
+          if (phone) {
+            url += `&phone=${phone}`;
+          }
+          if (referenceId) {
+            url += `&referenceId=${referenceId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
+
+      // REQUEST BOOKING OTP
+      requestBookingOtp: builder.mutation({
+        query: ({ email, phone }) => {
+          return {
+            url: `bookings/request-otp`,
+            method: 'POST',
+            body: {
+              email,
+              phone,
+            },
+          };
+        },
+      }),
+
+      // VERIFY BOOKING OTP
+      verifyBookingOtp: builder.mutation({
+        query: ({ email, otp }) => {
+          return {
+            url: `bookings/verify-otp`,
+            method: 'POST',
+            body: {
+              email,
+              otp,
+            },
+          };
+        },
+      }),
+
+      // SEARCH BOOKINGS
+      searchBookings: builder.query({
+        query: ({ email, phone, referenceId, page, size, token }) => {
+          let url = `bookings/search/draft/all?page=${page}&size=${size}&token=${token}`;
+          if (email) {
+            url += `&email=${email}`;
+          }
+          if (phone) {
+            url += `&phone=${phone}`;
+          }
+          if (referenceId) {
+            url += `&referenceId=${referenceId}`;
+          }
+          return {
+            url,
+          };
+        },
+      }),
     };
   },
 });
@@ -1006,6 +1073,10 @@ export const {
   useLazyGetUsdRateQuery,
   useSetUsdRateMutation,
   useUpdateUserPhotoMutation,
+  useLazyFindBookingEmailQuery,
+  useRequestBookingOtpMutation,
+  useVerifyBookingOtpMutation,
+  useLazySearchBookingsQuery,
 } = apiSlice;
 
 export default apiSlice;

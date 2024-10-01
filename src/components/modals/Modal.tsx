@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import {
   Dialog,
@@ -14,7 +14,7 @@ interface ModalProps {
   onClose: () => void;
   className?: string;
   mainClassName?: string;
-  heading?: string;
+  heading?: string | ReactNode;
   headingClassName?: string;
 }
 

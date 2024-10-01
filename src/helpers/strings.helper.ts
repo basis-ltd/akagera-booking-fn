@@ -12,7 +12,13 @@ export const formatDateTime = (date: string | Date) => {
 export const capitalizeString = (string: string | undefined | null) => {
   if (!string) return "";
   const isCamelCase = /^[a-z]+([A-Z][a-z]*)*$/.test(string);
-  if (isCamelCase) return capitalizeCamelCase(string)
+  if (isCamelCase) return capitalizeCamelCase(string);
+  
+  const isPascalCase = /^[A-Z][a-z]+([A-Z][a-z]+)*$/.test(string);
+  if (isPascalCase) {
+    return string.replace(/([A-Z][a-z]+)/g, ' $1').trim();
+  }
+
   const words = string?.toLowerCase()?.split("_");
   const capitalizedWords =
     words && words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));

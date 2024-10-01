@@ -67,6 +67,7 @@ const BookingPreview = () => {
 
   // REACT HOOK FORM
   const { watch, control } = useForm();
+  const { consent } = watch();
 
   // MANAGE BOOKING PAYMENT STATUS
   useEffect(() => {
@@ -476,15 +477,21 @@ const BookingPreview = () => {
                           e.preventDefault();
                           createPayment({
                             bookingId: booking?.id,
-                            amount: Number(bookingAmount),
-                            currency: 'usd',
+                            amount: Number(booking?.totalAmountRwf),
+                            currency: 'RWF',
                             email: booking?.email,
                           });
                         }}
-                        disabled={watch('consent') ? false : true}
+                        disabled={consent ? false : true}
                       >
                         {createPaymentIsLoading ? (
-                          <Loader className="text-primary" />
+                          <Loader
+                            className={
+                              booking?.type === 'booking'
+                                ? 'text-white'
+                                : 'text-primary'
+                            }
+                          />
                         ) : (
                           'Complete payment'
                         )}
@@ -504,7 +511,7 @@ const BookingPreview = () => {
                             })
                           );
                         }}
-                        disabled={watch('consent') ? false : true}
+                        disabled={consent ? false : true}
                       >
                         {submitBookingIsLoading ? (
                           <Loader />

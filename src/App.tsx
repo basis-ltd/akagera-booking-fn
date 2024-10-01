@@ -8,8 +8,9 @@ const App = () => {
     <ToastContainer
         closeOnClick
         hideProgressBar
-        autoClose={2000}
-        position="top-center"
+        autoClose={3000}
+        position="top-right"
+        closeButton
       />
       <Router />
     </>

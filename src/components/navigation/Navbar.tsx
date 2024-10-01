@@ -38,7 +38,7 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
         sidebarOpen ? 'w-[80vw] left-[20vw]' : 'w-[95vw] left-[5vw]'
       } ${
         showLogo && '!w-[100vw] !left-0'
-      } bg-white flex items-center gap-3 justify-between h-[10vh] mx-auto px-[7.5%] bg-transparent fixed py-6 z-[1000] ${className}`}
+      } bg-white flex items-center gap-3 justify-between h-[9vh] mx-auto px-[7.5%] bg-transparent fixed py-6 z-[1000] ${className}`}
     >
       <Link to={'/'} className={`h-[8vh] w-auto ${!showLogo && 'invisible'}`}>
         <img className="text-white h-full w-auto" src={akageraLogo} />

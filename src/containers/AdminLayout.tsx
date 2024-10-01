@@ -14,7 +14,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   );
 
   return (
-    <main className="w-full h-screen flex flex-col overflow-y-scroll">
+    <main className="w-full min-h-screen flex flex-col overflow-y-scroll">
       <Navbar />
 
       <section className="flex flex-1 absolute top-[10vh] w-full">

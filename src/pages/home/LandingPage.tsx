@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import {
   setBooking,
   setCreateBookingModal,
-  setDraftBookingsModal,
+  setGetBookingEmailModal,
 } from '../../states/features/bookingSlice';
-import ListDraftBookings from '../bookings/ListDraftBookings';
+import GetBookingEmail from '../bookings/GetBookingEmail';
 import PublicLayout from '@/containers/PublicLayout';
 import { useEffect } from 'react';
 import LandingPageCard from '@/components/cards/LandingPageCard';
@@ -65,14 +65,14 @@ const LandingPage = () => {
             <LandingPageCard
               onClick={(e) => {
                 e.preventDefault();
-                dispatch(setDraftBookingsModal(true));
+                dispatch(setGetBookingEmailModal(true));
               }}
               title="Find bookings/registrations"
               description="Find a list of all your bookings, including the unfinished."
             />
           </ul>
         </section>
-        <ListDraftBookings />
+        <GetBookingEmail />
       </main>
     </PublicLayout>
   );

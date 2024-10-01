@@ -1,4 +1,4 @@
-import { Payment } from '@/types/models/payment.types';
+import { DPOPaymentVerificationType, Payment } from '@/types/models/payment.types';
 import { createSlice } from '@reduxjs/toolkit';
 import { PaymentIntent } from '@stripe/stripe-js';
 
@@ -12,6 +12,8 @@ const initialState: {
     secretKey: string;
   };
   selectedPayment?: Payment;
+  confirmPaymentModal: boolean;
+  paymentVerification?: DPOPaymentVerificationType;
 } = {
   applicationLink: '',
   payment: undefined,
@@ -22,6 +24,8 @@ const initialState: {
   },
   paymentIntent: undefined,
   selectedPayment: undefined,
+  confirmPaymentModal: false,
+  paymentVerification: undefined,
 };
 
 const paymentSlice = createSlice({
@@ -45,7 +49,13 @@ const paymentSlice = createSlice({
     },
     setSelectedPayment: (state, action) => {
       state.selectedPayment = action.payload;
-    }
+    },
+    setConfirmPaymentModal: (state, action) => {
+      state.confirmPaymentModal = action.payload;
+    },
+    setPaymentVerification: (state, action) => {
+      state.paymentVerification = action.payload;
+    },
   },
 });
 
@@ -56,6 +66,8 @@ export const {
   setStripeKeys,
   setPaymentIntent,
   setSelectedPayment,
+  setConfirmPaymentModal,
+  setPaymentVerification,
 } = paymentSlice.actions;
 
 export default paymentSlice.reducer;

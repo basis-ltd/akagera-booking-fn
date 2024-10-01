@@ -255,3 +255,9 @@ export const handleDownloadBookingConsent = async ({
     toast.error('An error occurred while downloading consent form');
   }
 };
+
+export const maskEmail = (email: string) => {
+  if (!email) return '';
+  const [username, domain] = email.split('@');
+  return `${username.slice(0, 4)}****@${domain}`;
+}

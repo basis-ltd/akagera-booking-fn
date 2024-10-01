@@ -11,7 +11,7 @@ export const paymentColumns = [
     header: 'Amount',
     accessorKey: 'amount',
     cell: ({ row }: { row: Row<Payment> }) =>
-      formatCurrency(row?.original?.amount),
+      formatCurrency(row?.original?.amount, row?.original?.currency),
   },
   {
     header: 'Currency',

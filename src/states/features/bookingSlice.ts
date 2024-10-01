@@ -10,7 +10,7 @@ const initialState: {
   bookingsList: Booking[];
   selectedBooking: Booking;
   createBookingModal: boolean;
-  draftBookingsModal: boolean;
+  bookingEmailModal: boolean;
   draftBookingsList: Booking[];
   booking: Booking & { totalAmountUsd: number };
   timeSeriesBookings: {
@@ -36,7 +36,7 @@ const initialState: {
   bookingsList: [],
   selectedBooking: {} as Booking,
   createBookingModal: false,
-  draftBookingsModal: false,
+  bookingEmailModal: false,
   draftBookingsList: [],
   booking: { totalAmountUsd: 0 } as Booking & { totalAmountUsd: number },
   timeSeriesBookings: [],
@@ -127,8 +127,8 @@ export const bookingSlice = createSlice({
     setCreateBookingModal: (state, action) => {
       state.createBookingModal = action.payload;
     },
-    setDraftBookingsModal: (state, action) => {
-      state.draftBookingsModal = action.payload;
+    setGetBookingEmailModal: (state, action) => {
+      state.bookingEmailModal = action.payload;
     },
     setDraftBookingsList: (state, action) => {
       state.draftBookingsList = action.payload;
@@ -221,7 +221,7 @@ export const {
   setBookingsList,
   setSelectedBooking,
   setCreateBookingModal,
-  setDraftBookingsModal,
+  setGetBookingEmailModal,
   setDraftBookingsList,
   setBooking,
   setBookingTotalAmountUsd,

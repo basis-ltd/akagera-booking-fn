@@ -55,6 +55,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ConfirmPayment from './ConfirmPayment';
+import { setConfirmPaymentModal, setPaymentVerification } from '@/states/features/paymentSlice';
 
 const BookingDetails = () => {
   // STATE VARIABLES
@@ -205,6 +207,7 @@ const BookingDetails = () => {
       isSuccess: updateBookingNotesIsSuccess,
       isError: updateBookingNotesIsError,
       reset: resetUpdateBookingNotes,
+      data: updateBookingNotesData,
     },
   ] = useUpdateBookingMutation();
 
@@ -221,15 +224,15 @@ const BookingDetails = () => {
     } else if (updateBookingNotesIsSuccess) {
       toast.success('Booking updated successfully.');
       resetUpdateBookingNotes();
-      dispatch(setBooking({ ...booking, notes }));
+      dispatch(setBooking(updateBookingNotesData?.data));
     }
   }, [
     updateBookingNotesIsError,
     updateBookingNotesIsSuccess,
     updateBookingNotesError,
     dispatch,
-    notes,
     resetUpdateBookingNotes,
+    updateBookingNotesData?.data,
   ]);
 
   // HANDLE FETCH BOOKING ACTIVITIES RESPONSE
@@ -249,10 +252,18 @@ const BookingDetails = () => {
             ...bookingActivity,
             no: index + 1,
             activity: bookingActivity?.activity,
-            endTime: bookingActivity.endTime,
-            price: `USD ${calculateActivityPrice(bookingActivity)}`,
-            startTime: moment(bookingActivity.startTime).format('hh:mm A'),
+            price: bookingActivity?.defaultRate
+              ? formatCurrency(
+                  Number(bookingActivity?.defaultRate) *
+                    Number(
+                      bookingActivity?.numberOfSeats ||
+                        bookingActivity?.numberOfAdults
+                    )
+                )
+              : `${formatCurrency(calculateActivityPrice(bookingActivity))}`,
             numberOfPeople: bookingActivity?.bookingActivityPeople?.length,
+            numberOfAdults: bookingActivity?.numberOfAdults || '',
+            numberOfChildren: bookingActivity?.numberOfChildren || '',
           };
         }
       );
@@ -379,6 +390,7 @@ const BookingDetails = () => {
       isSuccess: confirmPaymentIsSuccess,
       isError: confirmPaymentIsError,
       data: confirmPaymentData,
+      reset: resetConfirmPayment,
     },
   ] = useConfirmPaymentMutation();
 
@@ -395,6 +407,9 @@ const BookingDetails = () => {
     } else if (confirmPaymentIsSuccess) {
       toast.success('Payment confirmed successfully');
       dispatch(updateBookingPayment(confirmPaymentData?.data));
+      dispatch(setConfirmPaymentModal(true));
+      dispatch(setPaymentVerification(confirmPaymentData?.data));
+      resetConfirmPayment();
     }
   }, [
     confirmPaymentIsError,
@@ -402,6 +417,7 @@ const BookingDetails = () => {
     confirmPaymentError,
     dispatch,
     confirmPaymentData?.data,
+    resetConfirmPayment,
   ]);
 
   // BOOKING ACTIVITIES COLUMNS
@@ -425,7 +441,7 @@ const BookingDetails = () => {
             {row?.original?.status === 'PAID' && (
               <CustomTooltip label="Click to verify payment">
                 {confirmPaymentIsLoading ? (
-                  '...'
+                  <Loader className='text-primary' />
                 ) : (
                   <FontAwesomeIcon
                     icon={faCertificate}
@@ -726,6 +742,7 @@ const BookingDetails = () => {
           )}
         </menu>
       </main>
+      <ConfirmPayment />
     </AdminLayout>
   );
 };
