@@ -43,6 +43,7 @@ import AddBoatTripPrivateActivity from '@/pages/bookings/booking-activities/AddB
 import CancellationPolicy from '@/pages/bookings/CancellationPolicy.tsx';
 import ExchangeRates from '@/pages/dashboard/ExchangeRates.tsx';
 import SearchBookings from '@/pages/bookings/SearchBookings.tsx';
+import SystemLogs from '@/pages/dashboard/SystemLogs.tsx';
 
 const Router = () => {
   return (
@@ -70,6 +71,7 @@ const Router = () => {
           path="/dashboard/registrations"
           element={<ViewRegistrations />}
         />
+        <Route path='/dashboard/logs' element={<SystemLogs />} />
         <Route path="/dashboard/users" element={<ListUsers />} />
         <Route path="/dashboard/activities" element={<ListActivities />} />
         <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />

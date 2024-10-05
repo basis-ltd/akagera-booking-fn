@@ -63,9 +63,13 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
             e.preventDefault();
             setIsOpen(!isOpen);
           }}
-          className="h-12 w-12 flex items-center justify-center bg-gray-300 rounded-full text-black hover:text-primary cursor-pointer"
+          className="h-10 w-10 flex items-center justify-center bg-gray-300 rounded-full text-black hover:text-primary cursor-pointer"
         >
-          <img src={user?.photo} />
+          <img
+            src={user?.photo}
+            className="h-full w-full object-cover rounded-full"
+            alt="User profile"
+          />
         </Link>
         <NavbarDropdown isOpen={isOpen} user={user} />
       </menu>

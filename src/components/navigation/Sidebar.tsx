@@ -17,6 +17,7 @@ import {
   faChevronDown,
   faChevronUp,
   faDollarSign,
+  faBug,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -75,6 +76,12 @@ const Sidebar = () => {
         },
       ],
     },
+    {
+      label: 'Logs',
+      path: '/dashboard/logs',
+      icon: faBug,
+      role: 'admin',
+    }
   ];
 
   return (

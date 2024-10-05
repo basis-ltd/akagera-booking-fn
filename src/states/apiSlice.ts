@@ -1009,6 +1009,15 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // FETCH ACTIVITIES LOGS
+      fetchActivitiesLogs: builder.query({
+        query: () => {
+          return {
+            url: `logs/activities`,
+          };
+        },
+      }),
     };
   },
 });
@@ -1077,6 +1086,7 @@ export const {
   useRequestBookingOtpMutation,
   useVerifyBookingOtpMutation,
   useLazySearchBookingsQuery,
+  useLazyFetchActivitiesLogsQuery
 } = apiSlice;
 
 export default apiSlice;
