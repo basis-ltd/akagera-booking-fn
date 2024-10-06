@@ -107,8 +107,8 @@ const ListActivities = () => {
 
   return (
     <AdminLayout>
-      <main className="flex flex-col gap-4 p-4 sm:p-6 w-full sm:w-[95%] mx-auto">
-        <menu className="w-full flex items-center flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+      <main className="flex flex-col gap-4 p-4 sm:p-6 w-[95%] sm:w-[95%] mx-auto">
+        <menu className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
           <h1 className="text-primary font-semibold text-lg uppercase">
             Activities
           </h1>
@@ -131,7 +131,7 @@ const ListActivities = () => {
             <Loader className="text-primary" />
           </figure>
         ) : (
-          <section className="w-full flex flex-col gap-6 overflow-x-auto">
+          <section className="w-full flex flex-col gap-6 overflow-x-clip">
             <Table
               size={100}
               showFilter={false}

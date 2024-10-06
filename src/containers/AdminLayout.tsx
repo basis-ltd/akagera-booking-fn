@@ -17,14 +17,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     <main className="w-full min-h-screen flex flex-col overflow-y-scroll">
       <Navbar />
 
-      <section className="flex flex-1 absolute top-[10vh] w-full">
+      <section className="flex relative flex-1 top-[10vh] w-full">
         <Sidebar />
-
         <section
-          className={`relative flex-1 transition-all duration-300 ease-in-out w-full ${
+          className={`absolute flex-1 transition-all duration-300 ease-in-out w-full ${
             sidebarOpen
-              ? 'ml-[20vw] md:ml-[25vw] lg:ml-[20vw]'
-              : 'ml-[70px] md:ml-[70px]'
+              ? 'left-[40vw] w-[60vw] md:left-[25vw] md:w-[75vw] lg:left-[20vw] lg:w-[80vw]'
+              : 'left-[5vw] w-[95vw] md:left-[5vw] md:w-[95vw]'
           } p-4`}
         >
           {children}

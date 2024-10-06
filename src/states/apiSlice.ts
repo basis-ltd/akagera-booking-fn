@@ -433,13 +433,16 @@ export const apiSlice = createApi({
 
       // FETCH POPULAR ACTIVITIES
       fetchPopularActivities: builder.query({
-        query: ({ size = 10, page = 0, startDate, endDate }) => {
+        query: ({ size = 10, page = 0, startDate, endDate, type }) => {
           let url = `booking-activities/popular?size=${size}&page=${page}`;
           if (startDate) {
-            url += `&startDate=${startDate}`;
+            url += `&startDate=${startDatwe}`;
           }
           if (endDate) {
             url += `&endDate=${endDate}`;
+          }
+          if (type) {
+            url += `&type=${type}`;
           }
           return {
             url,
@@ -449,7 +452,7 @@ export const apiSlice = createApi({
 
       // FETCH POPULAR BOOKING PEOPLE
       fetchPopularBookingPeople: builder.query({
-        query: ({ size = 10, page = 0, criteria, startDate, endDate }) => {
+        query: ({ size = 10, page = 0, criteria, startDate, endDate, type }) => {
           let url = `booking-people/popular?size=${size}&page=${page}`;
           if (criteria) {
             url += `&criteria=${criteria}`;
@@ -459,6 +462,9 @@ export const apiSlice = createApi({
           }
           if (endDate) {
             url += `&endDate=${endDate}`;
+          }
+          if (type) {
+            url += `&type=${type}`;
           }
           return {
             url,

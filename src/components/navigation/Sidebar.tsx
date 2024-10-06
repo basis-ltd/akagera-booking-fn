@@ -89,7 +89,7 @@ const Sidebar = () => {
       className={`fixed top-0 left-0 h-full bg-gray-100 ease-in-out duration-300 z-[10000] flex flex-col gap-6 py-4 overflow-y-auto ${
         isOpen
           ? 'w-[60vw] md:w-[40vw] lg:w-[20vw] max-w-full'
-          : 'w-[70px] overflow-x-hidden'
+          : 'w-[5vw] overflow-x-hidden'
       }`}
     >
       {/* Logo and Toggle Button */}
