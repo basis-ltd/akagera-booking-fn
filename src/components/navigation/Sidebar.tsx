@@ -33,7 +33,6 @@ const Sidebar = () => {
       label: 'Dashboard',
       path: '/dashboard',
       icon: faChartLine,
-      role: 'admin',
     },
     {
       label: 'Booking calendar',

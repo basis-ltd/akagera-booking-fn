@@ -65,11 +65,15 @@ const Navbar = ({ className, showLogo, showNavigation }: NavbarProps) => {
           }}
           className="h-10 w-10 flex items-center justify-center bg-gray-300 rounded-full text-black hover:text-primary cursor-pointer"
         >
-          <img
-            src={user?.photo}
-            className="h-full w-full object-cover rounded-full"
-            alt="User profile"
-          />
+          {user?.photo ? (
+            <img
+              src={user?.photo}
+              className="h-full w-full object-cover rounded-full"
+              alt="User profile"
+            />
+          ) : (
+            <figure className="w-full rounded-full h-full bg-secondary shadow-md"></figure>
+          )}
         </Link>
         <NavbarDropdown isOpen={isOpen} user={user} />
       </menu>

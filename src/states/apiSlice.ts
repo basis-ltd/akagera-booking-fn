@@ -335,13 +335,11 @@ export const apiSlice = createApi({
 
       // SUBMIT BOOKING
       submitBooking: builder.mutation({
-        query: ({ id, status, totalAmountRwf, totalAmountUsd }) => ({
+        query: ({ id, status }) => ({
           url: `bookings/${id}/submit`,
           method: 'PATCH',
           body: {
             status,
-            totalAmountRwf,
-            totalAmountUsd,
           },
         }),
       }),
@@ -436,7 +434,7 @@ export const apiSlice = createApi({
         query: ({ size = 10, page = 0, startDate, endDate, type }) => {
           let url = `booking-activities/popular?size=${size}&page=${page}`;
           if (startDate) {
-            url += `&startDate=${startDatwe}`;
+            url += `&startDate=${startDate}`;
           }
           if (endDate) {
             url += `&endDate=${endDate}`;

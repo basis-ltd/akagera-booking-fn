@@ -74,13 +74,12 @@ const BookingSuccess = () => {
               </h1>
               <p className="mt-4 max-w-[70%] text-center mx-auto">
                 <p>Your {booking?.type} has been successfully created.</p>
-                <p className='my-2'>
+                <p className="my-2">
                   You will receive additional communication on{' '}
-                  <span className="font-bold">{booking?.email}</span> or{' '}
-                  <span className="font-bold">{booking?.phone}</span>
+                  <span className="font-bold">{booking?.email}</span>
                 </p>
                 including the {booking?.type} details. <br /> <br /> Use the{' '}
-                 Reference ID{' '}
+                Reference ID{' '}
                 <span className="font-bold">{booking?.referenceId}</span> to
                 track and manage your submission.
               </p>
