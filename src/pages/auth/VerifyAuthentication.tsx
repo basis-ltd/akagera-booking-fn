@@ -103,9 +103,9 @@ const VerifyAuthentication = () => {
 
   return (
     <PublicLayout>
-      <main className="w-full mx-auto flex flex-col gap-5 h-[80vh] items-center justify-center max-[900px]:w-[100vw]">
+      <main className="w-full mx-auto flex bg-background flex-col gap-5 h-[90vh] items-center justify-center max-[900px]:w-[100vw]">
         <form
-          className="flex flex-col items-center gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl max-[1000px]:w-[45%] max-[900px]:w-[50%] max-[800px]:w-[60%] max-[700px]:w-[70%] max-[600px]:w-[80%] max-[500px]:w-[85%]"
+          className="flex flex-col items-center bg-white gap-4 w-[40%] mx-auto bg-secondary p-8 rounded-md shadow-xl max-[1000px]:w-[45%] max-[900px]:w-[50%] max-[800px]:w-[60%] max-[700px]:w-[70%] max-[600px]:w-[80%] max-[500px]:w-[85%]"
           onSubmit={handleSubmit(onSubmit)}
         >
           <menu className="w-full flex flex-col gap-2 items-center">
@@ -114,8 +114,7 @@ const VerifyAuthentication = () => {
             </h1>
             <p className="text-slate-950 text-[14px] text-center">
               Enter the One-time Password sent to {store.get('email')}. Please
-              check yowur spam folder if you do not find the email in your
-              inbox.
+              check your spam folder if you do not find the email in your inbox.
             </p>
           </menu>
           <fieldset className="w-full flex flex-col gap-4 items-center">

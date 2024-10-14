@@ -47,44 +47,90 @@ import SystemLogs from '@/pages/dashboard/SystemLogs.tsx';
 import RequestResetPassword from '@/pages/auth/RequestResetPassword.tsx';
 import VerifyPasswordReset from '@/pages/auth/VerifyPasswordReset.tsx';
 import ResetPassword from '@/pages/auth/ResetPassword.tsx';
+import AdminRoutes from '@/outlets/AdminRoutes.tsx';
+import AuthenticatedRoutes from '@/outlets/AuthenticatedRoutes.tsx';
 
 const Router = () => {
   return (
     <section className="w-[100vw] mx-auto absolute">
       <Routes>
         <Route path="/" element={<LandingPage />} />
+
+        {/**
+         *
+         * BOOKING ROUTES
+         *
+         */}
         <Route
           path="/bookings/:id/create"
           element={<CreateBookingActivities />}
         />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route
-          path="/dashboard/bookings/activities"
-          element={<ViewBookingActivites />}
-        />
         <Route path="/bookings/:id/preview" element={<BookingPreview />} />
         <Route path="/bookings/:id/consent" element={<BookingConsent />} />
-        <Route path="/bookings/:id/details" element={<BookingDetails />} />
         <Route path="/bookings/:id/success" element={<BookingSuccess />} />
         <Route path="/bookings/search" element={<SearchBookings />} />
+        <Route path="/payments/success" element={<PaymentSuccess />} />
+
+        {/**
+         *
+         * AUTHENTICATION ROUTES
+         *
+         */}
+        <Route
+          path="/auth/request-reset-password"
+          element={<RequestResetPassword />}
+        />
+        <Route
+          path="/auth/verify-password-reset"
+          element={<VerifyPasswordReset />}
+        />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/verify" element={<VerifyAuthentication />} />
-        <Route path="/dashboard/bookings" element={<ViewBookings />} />
-        <Route
-          path="/dashboard/registrations"
-          element={<ViewRegistrations />}
-        />
-        <Route path='/dashboard/logs' element={<SystemLogs />} />
-        <Route path="/dashboard/users" element={<ListUsers />} />
-        <Route path="/dashboard/activities" element={<ListActivities />} />
-        <Route path="/dashboard/activities/:id" element={<ActivityDetails />} />
-        <Route path="/user/profile" element={<UserProfile />} />
-        <Route path="/payments/success" element={<PaymentSuccess />} />
-        <Route path="/dashboard/terms-of-services" element={<TermsOfService />} />
-        <Route path="/dashboard/exchange-rates" element={<ExchangeRates />} />
-        <Route path="/auth/request-reset-password" element={<RequestResetPassword />} />
-        <Route path="/auth/verify-password-reset" element={<VerifyPasswordReset />} />
-        <Route path="/auth/reset-password" element={<ResetPassword />} />
+
+        {/**
+         *
+         *  AUTHENTICATED ROUTES
+         *
+         */}
+        <Route element={<AuthenticatedRoutes />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard/bookings/activities"
+            element={<ViewBookingActivites />}
+          />
+          <Route path="/dashboard/bookings" element={<ViewBookings />} />
+          <Route
+            path="/dashboard/registrations"
+            element={<ViewRegistrations />}
+          />
+          <Route path="/bookings/:id/details" element={<BookingDetails />} />
+          <Route path="/user/profile" element={<UserProfile />} />
+
+          {/**
+           *
+           *  ADMIN ROUTES
+           *
+           */}
+          <Route element={<AdminRoutes />}>
+            <Route path="/admin/users" element={<ListUsers />} />
+            <Route
+              path="/dashboard/terms-of-services"
+              element={<TermsOfService />}
+            />
+            <Route
+              path="/dashboard/exchange-rates"
+              element={<ExchangeRates />}
+            />
+          </Route>
+          <Route path="/dashboard/logs" element={<SystemLogs />} />
+          <Route path="/dashboard/users" element={<ListUsers />} />
+          <Route path="/dashboard/activities" element={<ListActivities />} />
+          <Route
+            path="/dashboard/activities/:id"
+            element={<ActivityDetails />}
+          />
+        </Route>
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
@@ -112,7 +158,7 @@ const Router = () => {
       <AddGameDayDriveActivity />
       <AddBoatTripPrivateActivity />
 
-      { /* CANCELLATION POLICY */ }
+      {/* CANCELLATION POLICY */}
       <CancellationPolicy />
     </section>
   );
