@@ -1,21 +1,40 @@
 import store from 'store';
 import { localApiUrl, stagingApiUrl } from '@/constants/environments.constants';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { BaseQueryFn, createApi, FetchArgs, FetchBaseQueryError, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { UUID } from 'crypto';
+
+export const apiSliceBaseQuery = fetchBaseQuery({
+  baseUrl: stagingApiUrl || localApiUrl,
+  prepareHeaders: (headers) => {
+    const token = store.get('token');
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+export const baseQueryWithReauth: BaseQueryFn<
+string | FetchArgs,
+unknown,
+FetchBaseQueryError
+>
+= async (args, api, extraOptions) => {
+  const result = await apiSliceBaseQuery(args, api, extraOptions);
+
+  if (result.error) {
+    if ([401, 403].includes(Number(result.error.status))) {
+      store.clearAll();
+      window.location.href = '/';
+    }
+  }
+  return result;
+};
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   tagTypes: ['BookingActivities'],
-  baseQuery: fetchBaseQuery({
-    baseUrl: stagingApiUrl || localApiUrl,
-    prepareHeaders: (headers) => {
-      const token = store.get('token');
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => {
     return {
       // FETCH SERVICES
