@@ -69,8 +69,8 @@ const Sidebar = () => {
           icon: faFileContract,
         },
         {
-          label: 'Exchange rates',
-          path: '/dashboard/exchange-rates',
+          label: 'Configurations',
+          path: '/dashboard/configurations',
           icon: faDollarSign,
         },
       ],

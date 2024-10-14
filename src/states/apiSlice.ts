@@ -1063,6 +1063,60 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // UPDATE ADMIN EMAIL
+      updateAdminEmail: builder.mutation({
+        query: ({ email }) => {
+          return {
+            url: `settings/admin-email`,
+            method: 'PATCH',
+            body: {
+              email,
+            },
+          };
+        },
+      }),
+
+      // FETCH USD RATE HISTORY
+      fetchUsdRateHistory: builder.query({
+        query: () => {
+          return {
+            url: `settings/usd-rate-history`,
+          };
+        },
+      }),
+
+      // FETCH ADMIN EMAIL HISTORY
+      fetchAdminEmailHistory: builder.query({
+        query: () => {
+          return {
+            url: `settings/admin-email-history`,
+          };
+        },
+      }),
+
+      // FETCH SETTINGS
+      fetchSettings: builder.query({
+        query: () => {
+          return {
+            url: `settings`,
+          };
+        },
+      }),
+
+      // UPDATE SETTINGS
+      updateSettings: builder.mutation({
+        query: ({ id, usdRate, adminEmail }) => {
+          return {
+            url: `settings/${id}`,
+            method: 'PATCH',
+            body: {
+              usdRate,
+              adminEmail,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -1135,6 +1189,11 @@ export const {
   useRequestResetPasswordMutation,
   useVerifyPasswordResetMutation,
   useResetPasswordMutation,
+  useUpdateAdminEmailMutation,
+  useLazyFetchUsdRateHistoryQuery,
+  useLazyFetchAdminEmailHistoryQuery,
+  useLazyFetchSettingsQuery,
+  useUpdateSettingsMutation,
 } = apiSlice;
 
 export default apiSlice;

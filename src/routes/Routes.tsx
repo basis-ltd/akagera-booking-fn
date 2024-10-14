@@ -41,7 +41,6 @@ import AddCampingActivities from '@/pages/bookings/booking-activities/AddCamping
 import AddGameDayDriveActivity from '@/pages/bookings/booking-activities/AddGameDayDriveActivity.tsx';
 import AddBoatTripPrivateActivity from '@/pages/bookings/booking-activities/AddBoatTripPrivateActivity.tsx';
 import CancellationPolicy from '@/pages/bookings/CancellationPolicy.tsx';
-import ExchangeRates from '@/pages/dashboard/ExchangeRates.tsx';
 import SearchBookings from '@/pages/bookings/SearchBookings.tsx';
 import SystemLogs from '@/pages/dashboard/SystemLogs.tsx';
 import RequestResetPassword from '@/pages/auth/RequestResetPassword.tsx';
@@ -49,6 +48,9 @@ import VerifyPasswordReset from '@/pages/auth/VerifyPasswordReset.tsx';
 import ResetPassword from '@/pages/auth/ResetPassword.tsx';
 import AdminRoutes from '@/outlets/AdminRoutes.tsx';
 import AuthenticatedRoutes from '@/outlets/AuthenticatedRoutes.tsx';
+import Configurations from '@/pages/dashboard/Configurations.tsx';
+import UpdateUsdRate from '@/pages/dashboard/UpdateUsdRate.tsx';
+import UpdateAdminEmail from '@/pages/dashboard/UpdateAdminEmail.tsx';
 
 const Router = () => {
   return (
@@ -119,8 +121,8 @@ const Router = () => {
               element={<TermsOfService />}
             />
             <Route
-              path="/dashboard/exchange-rates"
-              element={<ExchangeRates />}
+              path="/dashboard/configurations"
+              element={<Configurations />}
             />
           </Route>
           <Route path="/dashboard/logs" element={<SystemLogs />} />
@@ -150,6 +152,8 @@ const Router = () => {
       <UpdateActivityRate />
       <PaymentModal />
       <CreateActivity />
+      <UpdateUsdRate />
+      <UpdateAdminEmail />
 
       {/* ACTIVITIES */}
       <AddBehindTheScencesActivity />
