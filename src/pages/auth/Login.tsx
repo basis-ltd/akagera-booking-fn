@@ -157,17 +157,16 @@ const Login = () => {
               }}
             />
             <menu className="w-full flex flex-col gap-4 my-2">
-              <Input type="checkbox" label="Remember me" />
+              <menu className='w-full flex items-center gap-3 justify-between'>
+                <Input type="checkbox" label="Remember me" />
+                <Link to="/auth/request-reset-password" className='text-sm text-primary hover:underline'>
+                  Forgot password?
+                </Link>
+              </menu>
               <ul className="w-full flex flex-col gap-4">
                 <Button submit primary>
                   {loginIsLoading ? <Loader /> : 'Login'}
                 </Button>
-                {/* <Link
-                  to="/auth/register"
-                  className="text-center text-sm text-primary hover:underline"
-                >
-                  Don't have an account? Register
-                </Link> */}
               </ul>
             </menu>
           </fieldset>

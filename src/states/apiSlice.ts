@@ -667,7 +667,7 @@ export const apiSlice = createApi({
       requestOtp: builder.mutation({
         query: ({ email }) => {
           return {
-            url: `auth/request-otp`,
+            url: `auth/request-login-otp`,
             method: 'POST',
             body: {
               email,
@@ -1022,6 +1022,47 @@ export const apiSlice = createApi({
           };
         },
       }),
+
+      // REQUEST RESET PASSWORD
+      requestResetPassword: builder.mutation({
+        query: ({ email }) => {
+          return {
+            url: `auth/request-password-reset`,
+            method: 'POST',
+            body: {
+              email,
+            },
+          };
+        },
+      }),
+
+      // VERIFY PASSWORD RESET
+      verifyPasswordReset: builder.mutation({
+        query: ({ email, otp }) => {
+          return {
+            url: `auth/verify-password-reset`,
+            method: 'POST',
+            body: {
+              email,
+              otp,
+            },
+          };
+        },
+      }),
+
+      // RESET PASSWORD
+      resetPassword: builder.mutation({
+        query: ({ token, password }) => {
+          return {
+            url: `auth/reset-password`,
+            method: 'POST',
+            body: {
+              token,
+              password,
+            },
+          };
+        },
+      }),
     };
   },
 });
@@ -1090,7 +1131,10 @@ export const {
   useRequestBookingOtpMutation,
   useVerifyBookingOtpMutation,
   useLazySearchBookingsQuery,
-  useLazyFetchActivitiesLogsQuery
+  useLazyFetchActivitiesLogsQuery,
+  useRequestResetPasswordMutation,
+  useVerifyPasswordResetMutation,
+  useResetPasswordMutation,
 } = apiSlice;
 
 export default apiSlice;

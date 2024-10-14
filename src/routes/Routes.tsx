@@ -44,6 +44,9 @@ import CancellationPolicy from '@/pages/bookings/CancellationPolicy.tsx';
 import ExchangeRates from '@/pages/dashboard/ExchangeRates.tsx';
 import SearchBookings from '@/pages/bookings/SearchBookings.tsx';
 import SystemLogs from '@/pages/dashboard/SystemLogs.tsx';
+import RequestResetPassword from '@/pages/auth/RequestResetPassword.tsx';
+import VerifyPasswordReset from '@/pages/auth/VerifyPasswordReset.tsx';
+import ResetPassword from '@/pages/auth/ResetPassword.tsx';
 
 const Router = () => {
   return (
@@ -79,6 +82,9 @@ const Router = () => {
         <Route path="/payments/success" element={<PaymentSuccess />} />
         <Route path="/dashboard/terms-of-services" element={<TermsOfService />} />
         <Route path="/dashboard/exchange-rates" element={<ExchangeRates />} />
+        <Route path="/auth/request-reset-password" element={<RequestResetPassword />} />
+        <Route path="/auth/verify-password-reset" element={<VerifyPasswordReset />} />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
       </Routes>
       <CreateBooking />
       <CreateBookingPerson />
