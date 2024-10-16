@@ -41,6 +41,7 @@ import { ColumnDef, Row } from '@tanstack/react-table';
 import { Payment } from '@/types/models/payment.types';
 import CustomTooltip from '@/components/inputs/CustomTooltip';
 import moment from 'moment';
+import { useSubmitAndPayLater } from '@/hooks/bookings/bookingPreview.hooks';
 
 const BookingPreview = () => {
   // STATE VARIABLES
@@ -153,6 +154,13 @@ const BookingPreview = () => {
       data: createPaymentData,
     },
   ] = useCreatePaymentMutation();
+
+  // SUBMIT AND PAY LATER
+  const {
+    submitAndPayLater,
+    createPaymentIsLoading: submitPaymentIsLoading,
+    submitBookingIsLoading: submitAndPayLaterIsLoading,
+  } = useSubmitAndPayLater();
 
   // HANDLE CREATE PAYMENT RESPONSE
   useEffect(() => {
@@ -502,18 +510,12 @@ const BookingPreview = () => {
                         primary
                         onClick={(e) => {
                           e.preventDefault();
-                          dispatch(
-                            submitBookingThunk({
-                              id: booking?.id,
-                              status: 'pending',
-                              totalAmountRwf: booking?.totalAmountRwf,
-                              totalAmountUsd: booking?.totalAmountUsd,
-                            })
-                          );
+                          submitAndPayLater(booking);
                         }}
                         disabled={consent ? false : true}
                       >
-                        {submitBookingIsLoading ? (
+                        {submitAndPayLaterIsLoading ||
+                        submitPaymentIsLoading ? (
                           <Loader />
                         ) : (
                           'Submit and pay later'

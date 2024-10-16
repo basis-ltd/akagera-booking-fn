@@ -39,8 +39,6 @@ const SearchBookings = () => {
     {}
   );
 
-  const { email, phone, referenceId, token } = queryParams;
-
   // NAVIGATION
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -49,6 +47,8 @@ const SearchBookings = () => {
   useEffect(() => {
     setQueryParams(queryString.parse(search));
   }, [search]);
+
+  const { email, phone, referenceId, token } = queryParams;
 
   // INITIALIZE FETCH BOOKINGS QUERY
   const [
@@ -64,12 +64,16 @@ const SearchBookings = () => {
 
   // SEARCH BOOKINGS
   useEffect(() => {
-    searchBookings({
-      email,
-      phone,
-      referenceId,
-      token,
-    });
+    if (token) {
+      searchBookings({
+        email,
+        phone,
+        referenceId,
+        token,
+        page: 0,
+        size: 100,
+      });
+    }
   }, [email, phone, referenceId, searchBookings, token]);
 
   // HANDLE FETCH BOOKINGS RESPONSE
