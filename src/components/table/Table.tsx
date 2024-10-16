@@ -57,7 +57,7 @@ export default function Table<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    state: {
+    initialState: {
       sorting,
       columnVisibility,
       rowSelection,

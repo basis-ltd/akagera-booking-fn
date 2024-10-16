@@ -17,7 +17,11 @@ type PopularActivitesProps = {
   type?: string;
 };
 
-const PopularActivites = ({ startDate, endDate, type }: PopularActivitesProps) => {
+const PopularActivites = ({
+  startDate,
+  endDate,
+  type,
+}: PopularActivitesProps) => {
   // STATE VARIABLES
   const dispatch: AppDispatch = useDispatch();
 
@@ -70,7 +74,7 @@ const PopularActivites = ({ startDate, endDate, type }: PopularActivitesProps) =
     },
     {
       header: 'Name',
-      accessorKey: 'activity_name',
+      accessorKey: 'name',
     },
     {
       header: 'Bookings',

@@ -41,7 +41,7 @@ const initialState: {
   booking: { totalAmountUsd: 0 } as Booking & { totalAmountUsd: number },
   timeSeriesBookings: [],
   page: 0,
-  size: 10,
+  size: 100,
   totalCount: 0,
   totalPages: 1,
   bookingPaymentsList: [],

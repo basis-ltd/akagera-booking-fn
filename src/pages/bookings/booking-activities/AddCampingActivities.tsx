@@ -2,22 +2,21 @@ import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
 import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
-import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import { formatDate, formatTime } from '@/helpers/strings.helper';
-import { validatePersonAgeRange } from '@/helpers/validations.helper';
-import { calculateRemainingSeatsThunk } from '@/states/features/activityScheduleSlice';
 import { setAddCampingActivitiesModal } from '@/states/features/activitySlice';
 import { createBookingActivityThunk } from '@/states/features/bookingActivitySlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { ActivitySchedule } from '@/types/models/activitySchedule.types';
-import { UUID } from 'crypto';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
+import { useSelectBookingActivityForm } from '@/hooks/bookings/bookingActivity.hooks';
+import {
+  useFetchRemainingSeats,
+  useGetStartTimeAndEndTime,
+} from '@/hooks/bookings/activitySchedule.hooks';
 
 const AddCampingActivities = () => {
   // STATE VARIABLES
@@ -26,44 +25,64 @@ const AddCampingActivities = () => {
     (state: RootState) => state.activity
   );
   const { booking } = useSelector((state: RootState) => state.booking);
+
+  // REACT HOOK FORM
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    trigger,
+    setError,
+    clearErrors,
+    setValue,
+    watch,
+  } = useForm();
+
+  const {
+    startDate,
+    numberOfAdults,
+    numberOfChildren,
+    activitySchedule,
+    numberOfNights,
+  } = watch();
+
+  // SELECT BOOKING ACTIVITY FORM
+  const selectBookingActivityForm = useSelectBookingActivityForm({
+    booking,
+    control,
+    errors,
+    trigger,
+    clearErrors,
+    activity: selectedActivity,
+    setValue,
+    watch,
+    setError,
+  });
+
+  // GET START TIME AND END TIME
+  const { startTime, endTime } = useGetStartTimeAndEndTime({
+    activityScheduleId: activitySchedule,
+    date: startDate,
+    activity: selectedActivity,
+  });
+
+  const { remainingSeats, calculateRemainingSeats } = useFetchRemainingSeats();
+
+  const [campingEndTime, setCampingEndTime] = useState<string | undefined>(
+    endTime
+  );
+
   const {
     createBookingActivityIsLoading,
     createBookingActivityIsSuccess,
     createBookingActivityIsError,
   } = useSelector((state: RootState) => state.bookingActivity);
-  const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
-    ActivitySchedule | undefined
-  >(undefined);
-  const [bookingActivity, setBookingActivity] = useState<{
-    startTime: Date | undefined | string;
-    bookingId: UUID;
-    activityId: UUID | string;
-    endTime?: Date | undefined | string;
-  }>({
-    startTime: booking?.startDate,
-    bookingId: booking?.id,
-    activityId: selectedActivity?.id,
-    endTime: booking?.endDate,
-  });
-  const { remainingSeats, remainingSeatsIsFetching } = useSelector(
-    (state: RootState) => state.activitySchedule
-  );
 
-  // REACT HOOK FORM
-  const {
-    control,
-    reset,
-    handleSubmit,
-    trigger,
-    clearErrors,
-    setValue,
-    watch,
-    formState: { errors },
-    setError,
-  } = useForm();
-
-  const { startDate, numberOfAdults, numberOfChildren, numberOfNights } =
-    watch();
+  // SET DEFAULT VALUES
+  useEffect(() => {
+    setValue('startDate', booking?.startDate);
+  }, [booking, selectedActivity, setValue]);
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -81,8 +100,8 @@ const AddCampingActivities = () => {
         numberOfSeats: data?.numberOfSeats,
         activityId: selectedActivity?.id,
         bookingId: booking?.id,
-        startTime: bookingActivity?.startTime,
-        endTime: bookingActivity?.endTime,
+        startTime,
+        endTime: campingEndTime,
       })
     );
   };
@@ -119,18 +138,6 @@ const AddCampingActivities = () => {
     selectedActivity?.slug,
   ]);
 
-  // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
-  useEffect(() => {
-    if (selectedActivitySchedule) {
-      dispatch(
-        calculateRemainingSeatsThunk({
-          id: selectedActivitySchedule?.id,
-          date: startDate,
-        })
-      );
-    }
-  }, [selectedActivitySchedule, dispatch, startDate]);
-
   return (
     <Modal
       isOpen={addCampingActivitiesModal}
@@ -145,173 +152,7 @@ const AddCampingActivities = () => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
-          {' '}
-          <Controller
-            name="startDate"
-            control={control}
-            defaultValue={booking?.startDate}
-            render={({ field }) => (
-              <label className="w-full flex flex-col gap-1">
-                <Input
-                  fromDate={booking?.startDate}
-                  toDate={booking?.endDate}
-                  type="date"
-                  label="Start date for this activity"
-                  required
-                  {...field}
-                  defaultValue={booking?.startDate}
-                />
-              </label>
-            )}
-          />
-          {selectedActivity?.activitySchedules &&
-            selectedActivity?.activitySchedules.length > 0 && (
-              <Controller
-                name="activitySchedule"
-                control={control}
-                rules={{ required: 'Select from available schedules' }}
-                render={({ field }) => (
-                  <label className="flex w-full flex-col gap-1">
-                    <Select
-                      label="Select time slot for this activity"
-                      {...field}
-                      required
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setBookingActivity({
-                          ...bookingActivity,
-                          startTime: moment(
-                            `${formatDate(booking?.startDate)}T${
-                              e?.split('-')[0]
-                            }`
-                          ).format(),
-                          endTime: moment(
-                            `${formatDate(booking?.startDate)}T${
-                              e?.split('-')[1]
-                            }`
-                          ).format(),
-                        });
-                        setSelectedActivitySchedule(
-                          selectedActivity?.activitySchedules?.find(
-                            (activitySchedule: ActivitySchedule) =>
-                              `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
-                              e
-                          )
-                        );
-                      }}
-                      options={selectedActivity?.activitySchedules?.map(
-                        (activitySchedule: ActivitySchedule) => {
-                          const label = `${formatTime(
-                            activitySchedule.startTime
-                          )} - ${formatTime(String(activitySchedule.endTime))}`;
-                          return {
-                            label,
-                            value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
-                          };
-                        }
-                      )}
-                    />
-                    {field?.value && remainingSeatsIsFetching ? (
-                      <figure className="flex items-center gap-2">
-                        <p className="text-[12px]">
-                          Calculating available tents
-                        </p>
-                        <Loader className="text-primary" />
-                      </figure>
-                    ) : remainingSeats &&
-                      (remainingSeats as boolean) !== true ? (
-                      <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                        Number of tents available for this period:{' '}
-                        {remainingSeats}
-                      </p>
-                    ) : (
-                      field?.value && (
-                        <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                          This period is available for bookings.
-                        </p>
-                      )
-                    )}
-                    {errors?.activitySchedule && (
-                      <InputErrorMessage
-                        message={errors?.activitySchedule?.message}
-                      />
-                    )}
-                  </label>
-                )}
-              />
-            )}
-          <Controller
-            name="numberOfAdults"
-            control={control}
-            rules={{
-              validate: (value) => {
-                if (!value) return true;
-                return (
-                  validatePersonAgeRange(
-                    Number(value),
-                    booking?.bookingPeople || [],
-                    'adults'
-                  ) || 'Add people who have 13 years or more.'
-                );
-              },
-            }}
-            render={({ field }) => (
-              <label className="w-full flex flex-col gap-1">
-                <Input
-                  {...field}
-                  type="number"
-                  label="Number of adult participants"
-                  required
-                  onChange={async (e) => {
-                    field.onChange(e.target.value);
-                    await trigger('numberOfAdults');
-                    clearErrors('numberOfParticipants');
-                  }}
-                />
-                {errors?.numberOfAdults && (
-                  <InputErrorMessage
-                    message={errors?.numberOfAdults?.message}
-                  />
-                )}
-              </label>
-            )}
-          />
-          <Controller
-            name="numberOfChildren"
-            control={control}
-            rules={{
-              validate: (value) => {
-                if (!value) return true;
-                return (
-                  validatePersonAgeRange(
-                    Number(value),
-                    booking?.bookingPeople || [],
-                    'children'
-                  ) || 'Add people who have 6 - 12 years old only.'
-                );
-              },
-            }}
-            render={({ field }) => (
-              <label className="w-full flex flex-col gap-1">
-                <Input
-                  {...field}
-                  type="number"
-                  label="Number of children participants"
-                  required
-                  onChange={async (e) => {
-                    field.onChange(e.target.value);
-                    await trigger('numberOfChildren');
-                    clearErrors('numberOfParticipants');
-                  }}
-                />
-                {errors?.numberOfChildren && (
-                  <InputErrorMessage
-                    message={errors?.numberOfChildren?.message}
-                  />
-                )}
-              </label>
-            )}
-          />
+          {selectBookingActivityForm}
           <Controller
             name="numberOfNights"
             control={control}
@@ -321,7 +162,7 @@ const AddCampingActivities = () => {
             rules={{
               required: 'Enter number of nights',
               validate: (value) => {
-                if (value === 0) {
+                if (Number(value) === 0) {
                   return 'Number of nights cannot be zero';
                 }
                 return (
@@ -340,12 +181,11 @@ const AddCampingActivities = () => {
                   required
                   onChange={async (e) => {
                     field.onChange(e.target.value);
-                    setBookingActivity({
-                      ...bookingActivity,
-                      endTime: moment(bookingActivity?.startTime)
+                    setCampingEndTime(
+                      moment(startTime)
                         .add(Number(e?.target?.value), 'days')
-                        .format(),
-                    });
+                        .format()
+                    );
                     await trigger('numberOfNights');
                   }}
                 />
@@ -368,10 +208,15 @@ const AddCampingActivities = () => {
                   type="number"
                   label="Number of tents"
                   required
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     field.onChange(e.target.value);
+                    calculateRemainingSeats(activitySchedule, startDate);
                     clearErrors('numberOfParticipants');
-                    if (Number(e?.target?.value) > Number(remainingSeats)) {
+                    if (
+                      remainingSeats &&
+                      typeof remainingSeats === 'number' &&
+                      Number(e?.target?.value) > Number(remainingSeats)
+                    ) {
                       setError('numberOfParticipants', {
                         type: 'manual',
                         message:

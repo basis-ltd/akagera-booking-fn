@@ -2,21 +2,19 @@ import { InputErrorMessage } from '@/components/feedback/ErrorLabels';
 import Button from '@/components/inputs/Button';
 import Input from '@/components/inputs/Input';
 import Loader from '@/components/inputs/Loader';
-import Select from '@/components/inputs/Select';
 import Modal from '@/components/modals/Modal';
-import { formatDate, formatTime } from '@/helpers/strings.helper';
-import { calculateRemainingSeatsThunk } from '@/states/features/activityScheduleSlice';
 import { setAddBoatTripPrivateActivityModal } from '@/states/features/activitySlice';
 import { createBookingActivityThunk } from '@/states/features/bookingActivitySlice';
 import { AppDispatch, RootState } from '@/states/store';
-import { ActivitySchedule } from '@/types/models/activitySchedule.types';
-import { UUID } from 'crypto';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import TemporaryBookingActivityPrice from './TemporaryBookingActivityPrice';
+import {
+  useGetStartTimeAndEndTime,
+  useSelectActivitySchedule,
+} from '@/hooks/bookings/activitySchedule.hooks';
 
 const AddBoatTripPrivateActivity = () => {
   // STATE VARIABLES
@@ -24,29 +22,7 @@ const AddBoatTripPrivateActivity = () => {
   const { addBoatTripPrivateActivityModal, selectedActivity } = useSelector(
     (state: RootState) => state.activity
   );
-  const [selectedActivitySchedule, setSelectedActivitySchedule] = useState<
-    ActivitySchedule | undefined
-  >(undefined);
-  const {
-    createBookingActivityIsLoading,
-    createBookingActivityIsSuccess,
-    createBookingActivityIsError,
-  } = useSelector((state: RootState) => state.bookingActivity);
   const { booking } = useSelector((state: RootState) => state.booking);
-  const [bookingActivity, setBookingActivity] = useState<{
-    startTime: Date | undefined | string;
-    bookingId: UUID;
-    activityId: UUID | string;
-    endTime?: Date | undefined | string;
-  }>({
-    startTime: booking?.startDate,
-    bookingId: booking?.id,
-    activityId: selectedActivity?.id,
-    endTime: booking?.endDate,
-  });
-  const { remainingSeats, remainingSeatsIsFetching } = useSelector(
-    (state: RootState) => state.activitySchedule
-  );
   const { bookingPeopleList } = useSelector(
     (state: RootState) => state.bookingPeople
   );
@@ -54,15 +30,41 @@ const AddBoatTripPrivateActivity = () => {
   // REACT HOOK FORM
   const {
     control,
-    reset,
     handleSubmit,
+    formState: { errors },
+    reset,
+    trigger,
+    setError,
+    clearErrors,
+    setValue,
+    watch,
+  } = useForm();
+
+  const { startDate, defaultRate, activitySchedule } = watch();
+
+  // SELECT ACTIVITY SCHEDULE
+  const selectActivitySchedule = useSelectActivitySchedule({
+    control,
+    errors,
+    activitySchedules: selectedActivity?.activitySchedules,
+    watch,
+    setError,
     setValue,
     clearErrors,
-    watch,
-    formState: { errors },
-    trigger,
-  } = useForm();
-  const { startDate, defaultRate } = watch();
+  });
+
+  // GET START TIME AND END TIME
+  const { startTime, endTime } = useGetStartTimeAndEndTime({
+    activityScheduleId: activitySchedule,
+    date: startDate,
+    activity: selectedActivity,
+  });
+
+  const {
+    createBookingActivityIsLoading,
+    createBookingActivityIsSuccess,
+    createBookingActivityIsError,
+  } = useSelector((state: RootState) => state.bookingActivity);
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -74,8 +76,8 @@ const AddBoatTripPrivateActivity = () => {
         bookingId: booking?.id,
         activityId: selectedActivity?.id,
         defaultRate: data?.defaultRate,
-        startTime: bookingActivity?.startTime,
-        endTime: bookingActivity?.endTime,
+        startTime,
+        endTime,
       })
     );
   };
@@ -106,23 +108,10 @@ const AddBoatTripPrivateActivity = () => {
     booking?.startDate,
   ]);
 
-  // GET REMAINING SEATS FOR ACTIVITY SCHEDULE
+  // SET DEFAULT VALUES
   useEffect(() => {
-    if (selectedActivitySchedule) {
-      dispatch(
-        calculateRemainingSeatsThunk({
-          id: selectedActivitySchedule?.id,
-          date: startDate || booking?.startDate,
-        })
-      );
-    }
-  }, [
-    selectedActivitySchedule,
-    dispatch,
-    booking?.startDate,
-    watch,
-    startDate,
-  ]);
+    setValue('startDate', booking?.startDate);
+  }, [booking?.startDate, setValue]);
 
   return (
     <Modal
@@ -158,86 +147,7 @@ const AddBoatTripPrivateActivity = () => {
               );
             }}
           />
-          {selectedActivity?.activitySchedules &&
-            selectedActivity?.activitySchedules?.length > 0 && (
-              <Controller
-                name="activitySchedule"
-                control={control}
-                rules={{ required: 'Select from available schedules' }}
-                render={({ field }) => {
-                  return (
-                    <label className="flex w-full flex-col gap-1">
-                      <Select
-                        label="Select time slot for this activity"
-                        {...field}
-                        required
-                        onChange={(e) => {
-                          field.onChange(e);
-                          setBookingActivity({
-                            ...bookingActivity,
-                            startTime: moment(
-                              `${formatDate(booking?.startDate)}T${
-                                e?.split('-')[0]
-                              }`
-                            ).format(),
-                            endTime: moment(
-                              `${formatDate(booking?.startDate)}T${
-                                e?.split('-')[1]
-                              }`
-                            ).format(),
-                          });
-                          setSelectedActivitySchedule(
-                            selectedActivity?.activitySchedules?.find(
-                              (activitySchedule: ActivitySchedule) =>
-                                `${activitySchedule.startTime}-${activitySchedule.endTime}` ===
-                                e
-                            )
-                          );
-                        }}
-                        options={selectedActivity?.activitySchedules?.map(
-                          (activitySchedule: ActivitySchedule) => {
-                            const label = `${formatTime(
-                              activitySchedule.startTime
-                            )} - ${formatTime(
-                              String(activitySchedule.endTime)
-                            )}`;
-                            return {
-                              label,
-                              value: `${activitySchedule.startTime}-${activitySchedule.endTime}`,
-                            };
-                          }
-                        )}
-                      />
-                      {field?.value && remainingSeatsIsFetching ? (
-                        <figure className="flex items-center gap-2">
-                          <p className="text-[12px]">
-                            Calculating available boats
-                          </p>
-                          <Loader className="text-primary" />
-                        </figure>
-                      ) : remainingSeats &&
-                        (remainingSeats as boolean) !== true ? (
-                        <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                          Number of boats available for this period:{' '}
-                          {remainingSeats}
-                        </p>
-                      ) : (
-                        field?.value && (
-                          <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                            This period is available bookings.
-                          </p>
-                        )
-                      )}
-                      {errors?.activitySchedule && (
-                        <InputErrorMessage
-                          message={errors?.activitySchedule?.message}
-                        />
-                      )}
-                    </label>
-                  );
-                }}
-              />
-            )}
+          {selectActivitySchedule}
           <Controller
             name="numberOfParticipants"
             control={control}
