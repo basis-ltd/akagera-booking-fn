@@ -46,6 +46,7 @@ export const useSelectBookingActivityForm = ({
     control,
     errors,
     activitySchedules: activity?.activitySchedules,
+    activity,
     watch,
     setError,
     setValue,

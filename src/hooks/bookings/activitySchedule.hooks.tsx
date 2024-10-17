@@ -31,6 +31,7 @@ interface SelectActivityScheduleProps {
   clearErrors: UseFormClearErrors<FieldValues>;
   activitySchedules: ActivitySchedule[];
   setValue: SetFieldValue<FieldValues>;
+  activity: Activity;
 }
 
 export const useSelectActivitySchedule = ({
@@ -40,14 +41,37 @@ export const useSelectActivitySchedule = ({
   watch,
   setError,
   clearErrors,
+  activity,
 }: SelectActivityScheduleProps) => {
+  // STATE VARIABLES
+  const [seatsLabel, setSeatsLabel] = useState<string>('seats');
+
+  // HANDLE SEATS LABEL
+  useEffect(() => {
+    switch (activity?.slug) {
+      case 'camping':
+      case 'camping-at-mihindi-campsite':
+      case 'camping-at-mihindi-for-rwanda-nationals':
+      case 'camping-for-rwandan-nationals':
+        setSeatsLabel('tents');
+        break;
+      default:
+        setSeatsLabel('seats');
+    }
+  }, [activity]);
+
   // CALCULATE REMAINING SEATS
   const { calculateRemainingSeats, remainingSeats, remainingSeatsIsFetching } =
     useFetchRemainingSeats();
 
   // REACT HOOK FORM
-  const { startDate, numberOfAdults, numberOfChildren, numberOfParticipants, activitySchedule } =
-    watch();
+  const {
+    startDate,
+    numberOfAdults,
+    numberOfChildren,
+    numberOfParticipants,
+    activitySchedule,
+  } = watch();
 
   useEffect(() => {
     if (activitySchedule) {
@@ -89,6 +113,18 @@ export const useSelectActivitySchedule = ({
     clearErrors,
   ]);
 
+  // HANDLE REMAINING SEATS
+  useEffect(() => {
+    if (typeof remainingSeats === 'number') {
+      if (Number(remainingSeats) <= 0) {
+        setError('numberOfParticipants', {
+          type: 'manual',
+          message: 'No available seats for this period',
+        });
+      }
+    }
+  }, [remainingSeats, setError]);
+
   return (
     <>
       <Controller
@@ -124,14 +160,19 @@ export const useSelectActivitySchedule = ({
                 </figure>
               ) : remainingSeats && (remainingSeats as boolean) !== true ? (
                 <p className="text-[13px] my-1 px-1 font-medium text-primary">
-                  Number of seats available for this period: {remainingSeats}
+                  Number of {seatsLabel} available for this period:{' '}
+                  {remainingSeats}
                 </p>
-              ) : (
+              ) : Number(remainingSeats) > 0 ? (
                 field?.value && (
                   <p className="text-[13px] my-1 px-1 font-medium text-primary">
                     This period is available bookings.
                   </p>
                 )
+              ) : (
+                <p className="text-[13px] my-1 px-1 font-medium text-primary">
+                  This period is not available for bookings.
+                </p>
               )}
               {errors?.activitySchedule && (
                 <InputErrorMessage
@@ -164,7 +205,10 @@ export const useFetchRemainingSeats = () => {
   const calculateRemainingSeats = useCallback(
     async (id: string, date: Date | string) => {
       if (id && date) {
-        const response = await getRemainingSeats({ id, date: formatDate(date) });
+        const response = await getRemainingSeats({
+          id,
+          date: formatDate(date),
+        });
         setRemainingSeats(response?.data?.data);
       }
     },

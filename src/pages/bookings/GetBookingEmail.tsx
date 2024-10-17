@@ -143,7 +143,6 @@ const GetBookingEmail = () => {
       toast.error(errorResponse);
     } else if (verifyBookingOtpIsSuccess) {
       dispatch(setGetBookingEmailModal(false));
-      console.log(verifyBookingOtpData?.data);
       verifyBookingOtpReset();
       navigate(
         `/bookings/search?token=${

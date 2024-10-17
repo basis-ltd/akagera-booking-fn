@@ -61,7 +61,7 @@ const AddCampingActivities = () => {
   });
 
   // GET START TIME AND END TIME
-  const { startTime, endTime } = useGetStartTimeAndEndTime({
+  const { startTime } = useGetStartTimeAndEndTime({
     activityScheduleId: activitySchedule,
     date: startDate,
     activity: selectedActivity,
@@ -69,9 +69,16 @@ const AddCampingActivities = () => {
 
   const { remainingSeats, calculateRemainingSeats } = useFetchRemainingSeats();
 
-  const [campingEndTime, setCampingEndTime] = useState<string | undefined>(
-    endTime
+  const [campingEndTime, setCampingEndTime] = useState<Date | undefined>(
+    moment(startDate).add(Number(numberOfNights), 'days').toDate()
   );
+
+  // HANDLE NUMBER OF NIGHTS CHANGE
+  useEffect(() => {
+    setCampingEndTime(
+      moment(startDate).add(Number(numberOfNights), 'days').toDate()
+    );
+  }, [numberOfNights, startDate]);
 
   const {
     createBookingActivityIsLoading,
@@ -82,7 +89,7 @@ const AddCampingActivities = () => {
   // SET DEFAULT VALUES
   useEffect(() => {
     setValue('startDate', booking?.startDate);
-  }, [booking, selectedActivity, setValue]);
+  }, [booking, setValue]);
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data: FieldValues) => {
@@ -109,7 +116,11 @@ const AddCampingActivities = () => {
   // SET DEFAULT VALUES
   useEffect(() => {
     setValue('startDate', booking?.startDate);
-  }, [booking, selectedActivity, setValue]);
+    setValue(
+      'numberOfNights',
+      moment(booking?.endDate).diff(booking?.startDate, 'days') || 1
+    );
+  }, [booking, setValue]);
 
   // HANDLE CREATE BOOKING ACTIVITY RESPONSE
   useEffect(() => {
@@ -182,9 +193,9 @@ const AddCampingActivities = () => {
                   onChange={async (e) => {
                     field.onChange(e.target.value);
                     setCampingEndTime(
-                      moment(startTime)
+                      moment(startDate)
                         .add(Number(e?.target?.value), 'days')
-                        .format()
+                        .toDate()
                     );
                     await trigger('numberOfNights');
                   }}

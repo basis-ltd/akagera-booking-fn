@@ -84,7 +84,7 @@ const BookingDetails = () => {
   }, [dispatch]);
 
   // REACT HOOK FORM
-  const { watch, control } = useForm();
+  const { watch, control, setValue } = useForm();
   const { notes } = watch();
 
   // INITIALIZE GET BOOKING DETAILS QUERY
@@ -476,6 +476,13 @@ const BookingDetails = () => {
     },
   ];
 
+  // SET DEFAULT VALUES
+  useEffect(() => {
+    if (booking?.type === 'registration' && booking?.notes) {
+      setValue('notes', booking?.notes);
+    }
+  }, [booking, setValue]);
+
   return (
     <AdminLayout>
       <main className="w-[85%] mx-auto flex flex-col gap-3 mb-8">
@@ -664,7 +671,7 @@ const BookingDetails = () => {
             </menu>
           )
         )}
-        <form className="w-[50%] flex flex-col gap-3 my-4">
+       {['registration'].includes(booking?.type) && <form className="w-[50%] flex flex-col gap-3 my-4">
           <Controller
             name="notes"
             defaultValue={booking?.notes}
@@ -700,7 +707,7 @@ const BookingDetails = () => {
               </Button>
             </menu>
           )}
-        </form>
+        </form>}
         <menu className="flex items-start gap-3 justify-between w-full my-4 px-2">
           <h1 className="text-primary font-bold uppercase">Total</h1>
           <ul className="flex flex-col items-start gap-2">
